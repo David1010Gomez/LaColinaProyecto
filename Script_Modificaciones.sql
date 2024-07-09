@@ -67,7 +67,7 @@ ALTER TABLE TBL_CLIENTES_DIAN
 ADD TELEFONO VARCHAR(255)
 INSERT INTO [dbo].[TBL_CLIENTES_DIAN]
 ([TIPO_PERSONA] ,[CODIGO_DOCUMENTO] ,[NOMBRE_DOCUMENTO], [NUMERO_IDENTIFICACION], [NOMBRES], [APELLIDOS], [RAZON_SOCIAL], [NOMBRE_COMERCIAL], [DIRECCION], [COD_CIUDAD], [NOM_CIUDAD], [EMAIL], [RESPONSABLE_IVA], [CODIGO_R_FISCAL], [NOMBRE_R_FISCAL], [ID_CODIGO_DIAN], [TELEFONO])
-VALUES (Person', '13', 'Cédula de ciudadanía', '222222222222', 'Consumidor', 'Final', null, null, null, null, null, null, 0, 'R-99-PN', 'No responsable PN', '4eaf565c-ebc9-436b-afbf-334c09b6827c', '0')
+VALUES (Person', '13', 'Cédula de ciudadanía', '222222222222', 'Consumidor', 'Final', null, null, null, null, null, "NA@NA.COM", 0, 'R-99-PN', 'No responsable PN', '4eaf565c-ebc9-436b-afbf-334c09b6827c', '0')
 
 ---ROLL BACK
 DROP TABLE [dbo].[TBL_TOKENS_DIAN]
