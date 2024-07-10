@@ -14,6 +14,8 @@
             @Html.HiddenFor(m => m.ID, new { @Id = "ID" })
             @Html.HiddenFor(m => m.ESTADO_SOLICITUD, new { @Id = "ESTADO_SOLICITUD" })
             @Html.HiddenFor(m => m.ID_MESERO, new { @Id = "ID_MESERO" })
+            @Html.HiddenFor(m => m.ID_CLIENTE, new { @Id = "ID_CLIENTE" })
+            @Html.HiddenFor(m => m.FACTURACION_ELECTRONICA, new { @Id = "FACTURACION_ELECTRONICA" })
             <input id="ID_PRODUCTO" type="hidden" />
             <input id="PRECIO_PRODUCTO" type="hidden" />
             <input id="NOMBREPRODUCTO" type="hidden" />
@@ -46,7 +48,7 @@
             {
                 <div>
                     <i class="fa fa-2x fa-exchange"></i><b> Cambio Mesero:</b>
-                    <select id="selectMeseros" class="form-control input-sm" style="width: 20%;" onchange="CambiaMesero(this.value)">
+                    <select id="selectMeseros" class="form-select" style="width: 20%;" onchange="CambiaMesero(this.value)">
                     </select>
                 </div>
             }
@@ -221,10 +223,12 @@
         var urlEncriptar = '@Url.Action("Encriptar", "Solicitud")';
         var urlListaMeseros = '@Url.Action("ListaMeseros", "Solicitud")';
         var urlCambioMesero = '@Url.Action("CambioMesero", "Solicitud")';
+        var urlConsultaClienteDian = '@Url.Action("ConsultaClienteDian", "Solicitud")';
+        var token = '@Session["Token"].ToString()';
     </script>
 
-    <script src="~/ScriptsViews/Solicitud/Pedido.js?1.0.8"></script>
-    <script src="~/ScriptsViews/Solicitud/PedidoSignalR.js?1.1.73"></script>
+    <script src="~/ScriptsViews/Solicitud/Pedido.js?1.0."></script>
+    <script src="~/ScriptsViews/Solicitud/PedidoSignalR.js?1.1.94"></script>
 
 }
 

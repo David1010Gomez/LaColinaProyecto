@@ -4,6 +4,7 @@ using ColinaApplication.Data.Conexion;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -42,7 +43,9 @@ namespace ColinaApplication.Controllers
             ViewBag.listaUsuariosSistemaDDL = (model.Usuarios.Select(p => new SelectListItem() { Value = p.ID.ToString(), Text = p.NOMBRE }).ToList<SelectListItem>());
             //LISTA DE IMPRESORAS
             ViewBag.idImpresoraDDL = (model.Impresoras.Select(p => new SelectListItem() { Value = p.ID.ToString(), Text = p.NOMBRE_IMPRESORA }).ToList<SelectListItem>());
-
+            //LISTA GRUPO INVENTARIOS DIAN
+            var AccountGroupDian = configuraciones.ListaAccountGroup(Session["Token"].ToString());
+            ViewBag.idAccountGroupDDL = (AccountGroupDian.Where(x => x.active).Select(p => new SelectListItem() { Value = p.id.ToString(), Text = p.name }).ToList<SelectListItem>());
 
             return View(model);
         }
@@ -70,9 +73,9 @@ namespace ColinaApplication.Controllers
         public ActionResult AgregarEditarProducto(SuperViewModels model)
         {
             if (model.ProductosModel.ID > 0)
-                TempData["Resultado"] = configuraciones.ActualizaProducto(model.ProductosModel);
+                TempData["Resultado"] = configuraciones.ActualizaProducto(model.ProductosModel, Session["Token"].ToString());
             else
-                TempData["Resultado"] = configuraciones.InsertaProducto(model.ProductosModel);
+                TempData["Resultado"] = configuraciones.InsertaProducto(model.ProductosModel, Session["Token"].ToString());
 
             TempData["Posicion"] = "DivProductos";
             return RedirectToAction("Configuraciones");

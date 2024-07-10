@@ -12,18 +12,14 @@ namespace ColinaApplication.Data.Conexion
     using System;
     using System.Collections.Generic;
     
-    public partial class TBL_PRODUCTOS
+    public partial class TBL_TOKENS_DIAN
     {
         public decimal ID { get; set; }
-        public decimal ID_CATEGORIA { get; set; }
-        public Nullable<System.DateTime> FECHA_INGRESO { get; set; }
-        public string NOMBRE_PRODUCTO { get; set; }
-        public string PRECIO { get; set; }
-        public Nullable<decimal> CANTIDAD { get; set; }
-        public string DESCRIPCION { get; set; }
-        public Nullable<decimal> ID_IMPRESORA { get; set; }
-        public Nullable<decimal> UP_DIAN { get; set; }
-        public string ID_DIAN { get; set; }
-        public Nullable<decimal> ACCOUNT_GROUP_DIAN { get; set; }
+        public Nullable<System.DateTime> FECHA_TOKEN { get; set; }
+        public Nullable<System.DateTime> FECHA_VENCIMIENTO { get; set; }
+        public string ACCESS_TOKEN { get; set; }
+        public Nullable<int> EXPIRES_IN { get; set; }
+        public string TOKEN_TYPE { get; set; }
+        public string SCOPE { get; set; }
     }
 }

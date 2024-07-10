@@ -34,6 +34,30 @@
     <Property Name="TOTAL_TARJETA" Type="numeric" Precision="18" Scale="0" />
     <Property Name="VENTA_TOTAL" Type="numeric" Precision="18" Scale="0" />
   </EntityType>
+  <EntityType Name="TBL_CLIENTES_DIAN">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="numeric" Precision="18" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="TIPO_PERSONA" Type="varchar" MaxLength="255" />
+    <Property Name="CODIGO_DOCUMENTO" Type="varchar" MaxLength="255" />
+    <Property Name="NOMBRE_DOCUMENTO" Type="varchar" MaxLength="255" />
+    <Property Name="NUMERO_IDENTIFICACION" Type="varchar" MaxLength="255" />
+    <Property Name="NOMBRES" Type="varchar" MaxLength="255" />
+    <Property Name="APELLIDOS" Type="varchar" MaxLength="255" />
+    <Property Name="RAZON_SOCIAL" Type="varchar" MaxLength="255" />
+    <Property Name="NOMBRE_COMERCIAL" Type="varchar" MaxLength="255" />
+    <Property Name="DIRECCION" Type="varchar" MaxLength="255" />
+    <Property Name="COD_CIUDAD" Type="varchar" MaxLength="255" />
+    <Property Name="NOM_CIUDAD" Type="varchar" MaxLength="255" />
+    <Property Name="EMAIL" Type="varchar" MaxLength="255" />
+    <Property Name="RESPONSABLE_IVA" Type="bit" />
+    <Property Name="CODIGO_R_FISCAL" Type="varchar" MaxLength="255" />
+    <Property Name="NOMBRE_R_FISCAL" Type="varchar" MaxLength="255" />
+    <Property Name="ID_CODIGO_DIAN" Type="varchar" MaxLength="100" />
+    <Property Name="TELEFONO" Type="varchar" MaxLength="255" />
+    <Property Name="DIGITO_VERIFI" Type="varchar" MaxLength="10" />
+  </EntityType>
   <EntityType Name="TBL_DIAS_TRABAJADOS">
     <Key>
       <PropertyRef Name="ID" />
@@ -45,6 +69,16 @@
     <Property Name="PROPINAS" Type="decimal" Precision="18" Scale="2" />
     <Property Name="FECHA_PAGO" Type="datetime" />
     <Property Name="ID_PERFIL" Type="numeric" Precision="18" Scale="0" />
+  </EntityType>
+  <EntityType Name="TBL_FACTURAS_FALLIDAS_DIAN">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="numeric" Precision="18" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="FECHA" Type="datetime" />
+    <Property Name="ID_SOLICITUD" Type="numeric" Precision="18" Scale="0" />
+    <Property Name="BODY_JSON" Type="varchar" MaxLength="4000" />
+    <Property Name="ERROR" Type="varchar" MaxLength="4000" />
   </EntityType>
   <EntityType Name="TBL_IMPRESORAS">
     <Key>
@@ -114,6 +148,9 @@
     <Property Name="CANTIDAD" Type="numeric" Precision="18" Scale="0" />
     <Property Name="DESCRIPCION" Type="varchar" MaxLength="255" />
     <Property Name="ID_IMPRESORA" Type="numeric" Precision="18" Scale="0" />
+    <Property Name="UP_DIAN" Type="numeric" Precision="2" Scale="0" />
+    <Property Name="ID_DIAN" Type="varchar" MaxLength="255" />
+    <Property Name="ACCOUNT_GROUP_DIAN" Type="numeric" Precision="10" Scale="0" />
   </EntityType>
   <EntityType Name="TBL_PRODUCTOS_SOLICITUD">
     <Key>
@@ -155,13 +192,36 @@
     <Property Name="IVA_TOTAL" Type="numeric" Precision="18" Scale="0" />
     <Property Name="PORCENTAJE_I_CONSUMO" Type="numeric" Precision="18" Scale="0" />
     <Property Name="I_CONSUMO_TOTAL" Type="numeric" Precision="18" Scale="0" />
-    <Property Name="PORCENTAJE_SERVICIO" Type="numeric" Precision="18" Scale="0" />
+    <Property Name="PORCENTAJE_SERVICIO" Type="numeric" Precision="18" Scale="15" />
     <Property Name="SERVICIO_TOTAL" Type="numeric" Precision="18" Scale="0" />
-    <Property Name="TOTAL" Type="numeric" Precision="18" Scale="0" />
+    <Property Name="TOTAL" Type="numeric" Precision="18" Scale="5" />
     <Property Name="METODO_PAGO" Type="varchar" MaxLength="255" />
     <Property Name="VOUCHER" Type="varchar" MaxLength="255" />
     <Property Name="CANT_EFECTIVO" Type="numeric" Precision="18" Scale="0" />
+    <Property Name="ID_CLIENTE" Type="numeric" Precision="18" Scale="0" />
+    <Property Name="FACTURACION_ELECTRONICA" Type="varchar" MaxLength="2" />
+    <Property Name="ENVIO_DIAN" Type="varchar" MaxLength="2" />
+    <Property Name="VALORES_VOUCHERS" Type="varchar" MaxLength="255" />
+    <Property Name="ID_F_DIAN" Type="varchar" MaxLength="255" />
   </EntityType>
+  <EntityType Name="TBL_TOKENS_DIAN">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="numeric" Precision="18" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="FECHA_TOKEN" Type="datetime" />
+    <Property Name="FECHA_VENCIMIENTO" Type="datetime" />
+    <Property Name="ACCESS_TOKEN" Type="varchar" MaxLength="4000" />
+    <Property Name="EXPIRES_IN" Type="int" />
+    <Property Name="TOKEN_TYPE" Type="varchar" MaxLength="255" />
+    <Property Name="SCOPE" Type="varchar" MaxLength="255" />
+  </EntityType>
+  <!--Errores durante la generación:
+advertencia 6013: La tabla o vista 'COLINADB.dbo.TBL_TRANSITORIA' no tiene definida una clave principal y no es posible inferir ninguna clave principal válida. Esta tabla o vista se ha excluido. Para usar la entidad, necesitará revisar el esquema, agregar las claves correctas y quitar sus comentarios.
+        <EntityType Name="TBL_TRANSITORIA">
+          <Property Name="SERVICIO_TOTAL" Type="decimal" Precision="38" Scale="2" />
+          <Property Name="NOMBRE" Type="varchar" MaxLength="255" />
+        </EntityType>-->
   <EntityType Name="TBL_USUARIOS">
     <Key>
       <PropertyRef Name="ID" />
@@ -175,7 +235,9 @@
   <EntityContainer Name="COLINADBModelStoreContainer">
     <EntitySet Name="TBL_CATEGORIAS" EntityType="Self.TBL_CATEGORIAS" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="TBL_CIERRES" EntityType="Self.TBL_CIERRES" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="TBL_CLIENTES_DIAN" EntityType="Self.TBL_CLIENTES_DIAN" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="TBL_DIAS_TRABAJADOS" EntityType="Self.TBL_DIAS_TRABAJADOS" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="TBL_FACTURAS_FALLIDAS_DIAN" EntityType="Self.TBL_FACTURAS_FALLIDAS_DIAN" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="TBL_IMPRESORAS" EntityType="Self.TBL_IMPRESORAS" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="TBL_IMPUESTOS" EntityType="Self.TBL_IMPUESTOS" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="TBL_MASTER_MESAS" EntityType="Self.TBL_MASTER_MESAS" Schema="dbo" store:Type="Tables" />
@@ -185,6 +247,7 @@
     <EntitySet Name="TBL_PRODUCTOS_SOLICITUD" EntityType="Self.TBL_PRODUCTOS_SOLICITUD" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="TBL_SISTEMA" EntityType="Self.TBL_SISTEMA" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="TBL_SOLICITUD" EntityType="Self.TBL_SOLICITUD" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="TBL_TOKENS_DIAN" EntityType="Self.TBL_TOKENS_DIAN" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="TBL_USUARIOS" EntityType="Self.TBL_USUARIOS" Schema="dbo" store:Type="Tables" />
   </EntityContainer>
 </Schema>

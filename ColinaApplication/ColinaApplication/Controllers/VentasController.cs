@@ -89,11 +89,23 @@ namespace ColinaApplication.Controllers
                         modelCierres2.I_CONSUMO_TOTAL = solicitudes.Where(x => x.ESTADO_SOLICITUD != Estados.Cancelado).Sum(a => a.I_CONSUMO_TOTAL);
                         modelCierres2.SERVICIO_TOTAL = solicitudes.Where(x => x.ESTADO_SOLICITUD != Estados.CancelaPedido).Sum(a => a.SERVICIO_TOTAL);
                         modelCierres2.TOTAL_EFECTIVO = solicitudes.Where(x => x.CANT_EFECTIVO > 0).Sum(a => a.CANT_EFECTIVO);
-                        var cuentasVouchers = solicitudes.Where(x => x.VOUCHER != "0" && x.VOUCHER != "" && x.VOUCHER != null).Sum(a => a.TOTAL);
-                        if (cuentasVouchers != null && cuentasVouchers > 0)
-                            modelCierres2.TOTAL_TARJETA = cuentasVouchers - (solicitudes.Where(x => x.VOUCHER != "0" && x.VOUCHER != "" && x.VOUCHER != null).Sum(a => a.CANT_EFECTIVO));
-                        else
-                            modelCierres2.TOTAL_TARJETA = 0;
+                        var Vouchers = solicitudes.Where(x => x.VOUCHER != "0" && x.VOUCHER != "" && x.VOUCHER != null);
+                        decimal valorTvouchers = 0;
+                        foreach (var item in Vouchers)
+                        {
+                            if (item.VALORES_VOUCHERS != null && item.VALORES_VOUCHERS != "")
+                            {
+                                var valor = item.VALORES_VOUCHERS.Split(';');
+                                foreach (var item2 in valor)
+                                {
+                                    if (item2 != "")
+                                    {
+                                        valorTvouchers += Convert.ToDecimal(item2);
+                                    }
+                                }
+                            }                           
+                        }
+                        modelCierres2.TOTAL_TARJETA = valorTvouchers;
                         modelCierres2.VENTA_TOTAL = solicitudes.Where(x => x.ESTADO_SOLICITUD != Estados.CancelaPedido).Sum(a => a.TOTAL);
                         var resultado = ventas.ActualizaCierre(modelCierres2);
                         var imprimir = ventas.ImprimirCierre(solicitudes, Convert.ToDecimal(Session["IdUsuario"].ToString()));

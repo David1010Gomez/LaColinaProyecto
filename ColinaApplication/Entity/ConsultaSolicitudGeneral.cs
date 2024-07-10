@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading.Tasks; 
 
 namespace Entity
 {
@@ -31,6 +31,12 @@ namespace Entity
         public decimal? Total { get; set; }
         public List<ProductosSolicitud> ProductosSolicitud { get; set; }
         public List<Impuestos> Impuestos { get; set; }
+        public  decimal? IdCliente { get; set; }
+        public string FactracionElectronica { get; set; }
+        public string EnvioDian { get; set; }
+        public ClienteDian cliente { get; set; }
+        public string ValoresVouchers { get; set; }
+        public string IdFDian { get; set; }
 
     }
 }

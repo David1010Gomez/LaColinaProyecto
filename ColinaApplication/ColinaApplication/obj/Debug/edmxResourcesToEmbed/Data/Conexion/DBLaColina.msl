@@ -102,20 +102,6 @@
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
-    <EntitySetMapping Name="TBL_PRODUCTOS">
-      <EntityTypeMapping TypeName="COLINADBModel.TBL_PRODUCTOS">
-        <MappingFragment StoreEntitySet="TBL_PRODUCTOS">
-          <ScalarProperty Name="ID_IMPRESORA" ColumnName="ID_IMPRESORA" />
-          <ScalarProperty Name="DESCRIPCION" ColumnName="DESCRIPCION" />
-          <ScalarProperty Name="CANTIDAD" ColumnName="CANTIDAD" />
-          <ScalarProperty Name="PRECIO" ColumnName="PRECIO" />
-          <ScalarProperty Name="NOMBRE_PRODUCTO" ColumnName="NOMBRE_PRODUCTO" />
-          <ScalarProperty Name="FECHA_INGRESO" ColumnName="FECHA_INGRESO" />
-          <ScalarProperty Name="ID_CATEGORIA" ColumnName="ID_CATEGORIA" />
-          <ScalarProperty Name="ID" ColumnName="ID" />
-        </MappingFragment>
-      </EntityTypeMapping>
-    </EntitySetMapping>
     <EntitySetMapping Name="TBL_NOMINA">
       <EntityTypeMapping TypeName="COLINADBModel.TBL_NOMINA">
         <MappingFragment StoreEntitySet="TBL_NOMINA">
@@ -150,9 +136,53 @@
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
+    <EntitySetMapping Name="TBL_SISTEMA">
+      <EntityTypeMapping TypeName="COLINADBModel.TBL_SISTEMA">
+        <MappingFragment StoreEntitySet="TBL_SISTEMA">
+          <ScalarProperty Name="VALOR" ColumnName="VALOR" />
+          <ScalarProperty Name="PARAMETRO" ColumnName="PARAMETRO" />
+          <ScalarProperty Name="ID" ColumnName="ID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="TBL_PRODUCTOS">
+      <EntityTypeMapping TypeName="COLINADBModel.TBL_PRODUCTOS">
+        <MappingFragment StoreEntitySet="TBL_PRODUCTOS">
+          <ScalarProperty Name="ACCOUNT_GROUP_DIAN" ColumnName="ACCOUNT_GROUP_DIAN" />
+          <ScalarProperty Name="ID_DIAN" ColumnName="ID_DIAN" />
+          <ScalarProperty Name="UP_DIAN" ColumnName="UP_DIAN" />
+          <ScalarProperty Name="ID_IMPRESORA" ColumnName="ID_IMPRESORA" />
+          <ScalarProperty Name="DESCRIPCION" ColumnName="DESCRIPCION" />
+          <ScalarProperty Name="CANTIDAD" ColumnName="CANTIDAD" />
+          <ScalarProperty Name="PRECIO" ColumnName="PRECIO" />
+          <ScalarProperty Name="NOMBRE_PRODUCTO" ColumnName="NOMBRE_PRODUCTO" />
+          <ScalarProperty Name="FECHA_INGRESO" ColumnName="FECHA_INGRESO" />
+          <ScalarProperty Name="ID_CATEGORIA" ColumnName="ID_CATEGORIA" />
+          <ScalarProperty Name="ID" ColumnName="ID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="TBL_TOKENS_DIAN">
+      <EntityTypeMapping TypeName="COLINADBModel.TBL_TOKENS_DIAN">
+        <MappingFragment StoreEntitySet="TBL_TOKENS_DIAN">
+          <ScalarProperty Name="SCOPE" ColumnName="SCOPE" />
+          <ScalarProperty Name="TOKEN_TYPE" ColumnName="TOKEN_TYPE" />
+          <ScalarProperty Name="EXPIRES_IN" ColumnName="EXPIRES_IN" />
+          <ScalarProperty Name="ACCESS_TOKEN" ColumnName="ACCESS_TOKEN" />
+          <ScalarProperty Name="FECHA_VENCIMIENTO" ColumnName="FECHA_VENCIMIENTO" />
+          <ScalarProperty Name="FECHA_TOKEN" ColumnName="FECHA_TOKEN" />
+          <ScalarProperty Name="ID" ColumnName="ID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
     <EntitySetMapping Name="TBL_SOLICITUD">
       <EntityTypeMapping TypeName="COLINADBModel.TBL_SOLICITUD">
         <MappingFragment StoreEntitySet="TBL_SOLICITUD">
+          <ScalarProperty Name="ID_F_DIAN" ColumnName="ID_F_DIAN" />
+          <ScalarProperty Name="VALORES_VOUCHERS" ColumnName="VALORES_VOUCHERS" />
+          <ScalarProperty Name="ENVIO_DIAN" ColumnName="ENVIO_DIAN" />
+          <ScalarProperty Name="FACTURACION_ELECTRONICA" ColumnName="FACTURACION_ELECTRONICA" />
+          <ScalarProperty Name="ID_CLIENTE" ColumnName="ID_CLIENTE" />
           <ScalarProperty Name="CANT_EFECTIVO" ColumnName="CANT_EFECTIVO" />
           <ScalarProperty Name="VOUCHER" ColumnName="VOUCHER" />
           <ScalarProperty Name="METODO_PAGO" ColumnName="METODO_PAGO" />
@@ -177,11 +207,38 @@
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
-    <EntitySetMapping Name="TBL_SISTEMA">
-      <EntityTypeMapping TypeName="COLINADBModel.TBL_SISTEMA">
-        <MappingFragment StoreEntitySet="TBL_SISTEMA">
-          <ScalarProperty Name="VALOR" ColumnName="VALOR" />
-          <ScalarProperty Name="PARAMETRO" ColumnName="PARAMETRO" />
+    <EntitySetMapping Name="TBL_FACTURAS_FALLIDAS_DIAN">
+      <EntityTypeMapping TypeName="COLINADBModel.TBL_FACTURAS_FALLIDAS_DIAN">
+        <MappingFragment StoreEntitySet="TBL_FACTURAS_FALLIDAS_DIAN">
+          <ScalarProperty Name="ERROR" ColumnName="ERROR" />
+          <ScalarProperty Name="BODY_JSON" ColumnName="BODY_JSON" />
+          <ScalarProperty Name="ID_SOLICITUD" ColumnName="ID_SOLICITUD" />
+          <ScalarProperty Name="FECHA" ColumnName="FECHA" />
+          <ScalarProperty Name="ID" ColumnName="ID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="TBL_CLIENTES_DIAN">
+      <EntityTypeMapping TypeName="COLINADBModel.TBL_CLIENTES_DIAN">
+        <MappingFragment StoreEntitySet="TBL_CLIENTES_DIAN">
+          <ScalarProperty Name="DIGITO_VERIFI" ColumnName="DIGITO_VERIFI" />
+          <ScalarProperty Name="TELEFONO" ColumnName="TELEFONO" />
+          <ScalarProperty Name="ID_CODIGO_DIAN" ColumnName="ID_CODIGO_DIAN" />
+          <ScalarProperty Name="NOMBRE_R_FISCAL" ColumnName="NOMBRE_R_FISCAL" />
+          <ScalarProperty Name="CODIGO_R_FISCAL" ColumnName="CODIGO_R_FISCAL" />
+          <ScalarProperty Name="RESPONSABLE_IVA" ColumnName="RESPONSABLE_IVA" />
+          <ScalarProperty Name="EMAIL" ColumnName="EMAIL" />
+          <ScalarProperty Name="NOM_CIUDAD" ColumnName="NOM_CIUDAD" />
+          <ScalarProperty Name="COD_CIUDAD" ColumnName="COD_CIUDAD" />
+          <ScalarProperty Name="DIRECCION" ColumnName="DIRECCION" />
+          <ScalarProperty Name="NOMBRE_COMERCIAL" ColumnName="NOMBRE_COMERCIAL" />
+          <ScalarProperty Name="RAZON_SOCIAL" ColumnName="RAZON_SOCIAL" />
+          <ScalarProperty Name="APELLIDOS" ColumnName="APELLIDOS" />
+          <ScalarProperty Name="NOMBRES" ColumnName="NOMBRES" />
+          <ScalarProperty Name="NUMERO_IDENTIFICACION" ColumnName="NUMERO_IDENTIFICACION" />
+          <ScalarProperty Name="NOMBRE_DOCUMENTO" ColumnName="NOMBRE_DOCUMENTO" />
+          <ScalarProperty Name="CODIGO_DOCUMENTO" ColumnName="CODIGO_DOCUMENTO" />
+          <ScalarProperty Name="TIPO_PERSONA" ColumnName="TIPO_PERSONA" />
           <ScalarProperty Name="ID" ColumnName="ID" />
         </MappingFragment>
       </EntityTypeMapping>

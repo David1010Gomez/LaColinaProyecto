@@ -1,5 +1,6 @@
 ﻿using ColinaApplication.Data.Clases;
 using ColinaApplication.Data.Conexion;
+using ColinaApplication.Dian.Entity;
 using Entity;
 using Microsoft.Ajax.Utilities;
 using System;
@@ -56,8 +57,12 @@ namespace ColinaApplication.Data.Business
                         ServicioTotal = ConsultaSolicitud.SERVICIO_TOTAL,
                         Total = Convert.ToDecimal(Math.Round(Convert.ToDouble(ConsultaSolicitud.TOTAL))),
                         ProductosSolicitud = new List<ProductosSolicitud>(),
-                        Impuestos = new List<Impuestos>()
-
+                        Impuestos = new List<Impuestos>(),
+                        IdCliente = ConsultaSolicitud.ID_CLIENTE,
+                        FactracionElectronica = ConsultaSolicitud.FACTURACION_ELECTRONICA,
+                        EnvioDian = ConsultaSolicitud.ENVIO_DIAN,
+                        ValoresVouchers = ConsultaSolicitud.VALORES_VOUCHERS,
+                        IdFDian = ConsultaSolicitud.ID_F_DIAN
                     });
                     var ConsultaProductosSolicitud = context.TBL_PRODUCTOS_SOLICITUD.Where(b => b.ID_SOLICITUD == ConsultaSolicitud.ID && b.ESTADO_PRODUCTO != Estados.Cancelado).ToList();
                     if (ConsultaProductosSolicitud.Count > 0)
@@ -101,6 +106,39 @@ namespace ColinaApplication.Data.Business
                             });
                         }
                     }
+                    var idClienteD = Convert.ToInt32(solicitudMesa[0].IdCliente);
+                    if (idClienteD > 0)
+                    {
+                        var consultaClienteDian = context.TBL_CLIENTES_DIAN.Where(x => x.ID == idClienteD).ToList().FirstOrDefault();
+                        if (consultaClienteDian != null)
+                        {
+                            solicitudMesa[0].cliente = (new ClienteDian
+                            {
+                                Id = consultaClienteDian.ID,
+                                TipoPersona = consultaClienteDian.TIPO_PERSONA,
+                                CodigoDocumento = consultaClienteDian.CODIGO_DOCUMENTO,
+                                NombreDocumento = consultaClienteDian.NOMBRE_DOCUMENTO,
+                                NumeroIdentificacion = consultaClienteDian.NUMERO_IDENTIFICACION,
+                                Nombres = consultaClienteDian.NOMBRES,
+                                Apellidos = consultaClienteDian.APELLIDOS,
+                                RazonSocial = consultaClienteDian.RAZON_SOCIAL,
+                                NombreComercial = consultaClienteDian.NOMBRE_COMERCIAL,
+                                Direccion = consultaClienteDian.DIRECCION,
+                                CodCiudad = consultaClienteDian.COD_CIUDAD,
+                                NomCiudad = consultaClienteDian.NOM_CIUDAD,
+                                Email = consultaClienteDian.EMAIL,
+                                ResponsableIva = consultaClienteDian.RESPONSABLE_IVA,
+                                CodigoRFiscal = consultaClienteDian.CODIGO_R_FISCAL,
+                                NomRFiscal = consultaClienteDian.NOMBRE_R_FISCAL,
+                                IdCodigoDian = consultaClienteDian.ID_CODIGO_DIAN,
+                                Telefono = consultaClienteDian.TELEFONO,
+                                DigitoVerif = consultaClienteDian.DIGITO_VERIFI
+                            });
+                        }
+                    }
+                    else {
+                        solicitudMesa[0].cliente = new ClienteDian();
+                    }
                 }
             }
 
@@ -129,11 +167,14 @@ namespace ColinaApplication.Data.Business
                 {
                     model.FECHA_SOLICITUD = DateTime.Now;
                     model.ESTADO_SOLICITUD = Estados.Abierta;
-                    model.IDENTIFICACION_CLIENTE = "";
-                    model.NOMBRE_CLIENTE = "";
+                    model.IDENTIFICACION_CLIENTE = "222222222222";
+                    model.NOMBRE_CLIENTE = "Consumidor Final";
                     model.PORCENTAJE_IVA = contex.TBL_IMPUESTOS.Where(x => x.ID == 1 && x.ESTADO == Estados.Activo).FirstOrDefault() != null ? contex.TBL_IMPUESTOS.Where(x => x.ID == 1).FirstOrDefault().PORCENTAJE : 0;
                     model.PORCENTAJE_I_CONSUMO = contex.TBL_IMPUESTOS.Where(x => x.ID == 2 && x.ESTADO == Estados.Activo).FirstOrDefault() != null ? contex.TBL_IMPUESTOS.Where(x => x.ID == 2).FirstOrDefault().PORCENTAJE : 0;
                     model.PORCENTAJE_SERVICIO = contex.TBL_IMPUESTOS.Where(x => x.ID == 3 && x.ESTADO == Estados.Activo).FirstOrDefault() != null ? contex.TBL_IMPUESTOS.Where(x => x.ID == 3).FirstOrDefault().PORCENTAJE : 0;
+                    model.ID_CLIENTE = 0;
+                    model.FACTURACION_ELECTRONICA = "0";
+                    model.ENVIO_DIAN = "0";
                     contex.TBL_SOLICITUD.Add(model);
                     contex.SaveChanges();
                     Respuesta = "Solicitud Insertada exitosamente";
@@ -231,7 +272,11 @@ namespace ColinaApplication.Data.Business
                             actualiza.CANT_EFECTIVO = actualiza.TOTAL;
                         else
                             actualiza.CANT_EFECTIVO = model.CANT_EFECTIVO;
-
+                        actualiza.ID_CLIENTE = model.ID_CLIENTE;
+                        actualiza.FACTURACION_ELECTRONICA = model.FACTURACION_ELECTRONICA;
+                        actualiza.ENVIO_DIAN = model.ENVIO_DIAN;
+                        actualiza.VALORES_VOUCHERS = model.VALORES_VOUCHERS;
+                        actualiza.ID_F_DIAN = model.ID_F_DIAN; 
                         contex.SaveChanges();
                         Respuesta = "Solicitud actualizada exitosamente";
                     }
@@ -382,11 +427,13 @@ namespace ColinaApplication.Data.Business
             var solicitud = ConsultaSolicitudMesa(Convert.ToDecimal(idMesa));
             var ListAgrupaProductos = AgrupaProductos(solicitud[0].ProductosSolicitud);
             //FORMATO FACTURA
-            Font Titulo = new Font("MS Mincho", 13, FontStyle.Bold);
-            Font SubTitulo = new Font("MS Mincho", 12, FontStyle.Bold);
+            Font Titulo = new Font("MS Mincho", 14, FontStyle.Bold);
+            Font SubTitulo = new Font("MS Mincho", 13, FontStyle.Bold);
             Font body = new Font("MS Mincho", 10);
+            Font body2 = new Font("MS Mincho", 9, FontStyle.Italic);
+            Font body3 = new Font("MS Mincho", 10, FontStyle.Bold);
             int ancho = 280;
-            int margenY = 215;
+            int margenY = 270;
             int YProductos = 0;
             int UltimoPunto = 0;
             var printedLines = 15;
@@ -397,25 +444,29 @@ namespace ColinaApplication.Data.Business
                 if (hoja == 1)
                 {
                     e.Graphics.DrawString("La Colina", Titulo, Brushes.Black, new RectangleF(95, 10, ancho, 20));
-                    e.Graphics.DrawString("Parilla - Campestre", SubTitulo, Brushes.Black, new RectangleF(60, 30, ancho, 20));
-                    e.Graphics.DrawString("NIT " + ConfigurationManager.AppSettings["NIT"].ToString(), body, Brushes.Black, new RectangleF(90, 50, ancho, 15)); ;
-                    e.Graphics.DrawString("" + ConfigurationManager.AppSettings["DIRECCION"].ToString(), body, Brushes.Black, new RectangleF(60, 65, ancho, 15));
-                    e.Graphics.DrawString("Factura: #" + solicitud[0].Id, body, Brushes.Black, new RectangleF(0, 110, ancho, 15));
+                    e.Graphics.DrawString("Parrilla - Campestre", SubTitulo, Brushes.Black, new RectangleF(50, 30, ancho, 20));
+                    e.Graphics.DrawString("NIT " + ConfigurationManager.AppSettings["NIT"].ToString(), body, Brushes.Black, new RectangleF(75, 50, ancho, 15)); ;
+                    e.Graphics.DrawString("" + ConfigurationManager.AppSettings["DIRECCION"].ToString(), body, Brushes.Black, new RectangleF(65, 65, ancho, 15));
+                    e.Graphics.DrawString("Comprobante Pago: #" + solicitud[0].Id, body, Brushes.Black, new RectangleF(0, 110, ancho, 15));
                     e.Graphics.DrawString("Fecha: " + solicitud[0].FechaSolicitud, body, Brushes.Black, new RectangleF(0, 125, ancho, 15));
                     e.Graphics.DrawString("Mesero: " + solicitud[0].NombreMesero, body, Brushes.Black, new RectangleF(0, 140, ancho, 15));
                     e.Graphics.DrawString("MESA #" + solicitud[0].NumeroMesa + " - " + solicitud[0].NombreMesa, body, Brushes.Black, new RectangleF(0, 155, ancho, 15));
-                    e.Graphics.DrawString("Cliente: " + solicitud[0].IdentificacionCliente + " - " + solicitud[0].NombreCliente, body, Brushes.Black, new RectangleF(0, 170, ancho, 15));
+                    e.Graphics.DrawString("Cliente: " + solicitud[0].NombreCliente, body, Brushes.Black, new RectangleF(0, 170, ancho, 15));
+                    e.Graphics.DrawString("Documento: " + solicitud[0].IdentificacionCliente, body, Brushes.Black, new RectangleF(0, 185, ancho, 15));
+                    e.Graphics.DrawString("Direccion: " + solicitud[0].cliente.Direccion, body, Brushes.Black, new RectangleF(0, 200, ancho, 15));
+                    e.Graphics.DrawString("Telefono: " + solicitud[0].cliente.Telefono, body, Brushes.Black, new RectangleF(0, 215, ancho, 15));
 
-                    e.Graphics.DrawString("PRODUCTOS: ", body, Brushes.Black, new RectangleF(0, 215, ancho, 15));
+                    e.Graphics.DrawString("------------------------------------------------------------------------------------------- ", body, Brushes.Black, new RectangleF(0, 255, ancho, 15));
+                    e.Graphics.DrawString("PRODUCTOS: ", body, Brushes.Black, new RectangleF(0, 270, ancho, 15));
                 }
-                
+
             };
 
             printDocument1.PrintPage += (object sender, PrintPageEventArgs e) =>
             {
                 e.HasMorePages = false;
                 float pageHeight = e.PageSettings.PrintableArea.Height;
-                
+
 
                 //lista los productos
                 for (int i = UltimoPunto; i < ListAgrupaProductos.Count; i++)
@@ -438,7 +489,7 @@ namespace ColinaApplication.Data.Business
                         YProductos = 0;
                         return;
                     }
-                }                
+                }
                 var printedLines2 = printedLines + 11;
                 if (printedLines2 > 74)
                 {
@@ -449,7 +500,7 @@ namespace ColinaApplication.Data.Business
                     YProductos = 0;
                     return;
                 }
-                margenY += 30;
+                margenY += 45;
                 if (solicitud[0].Descuentos > 0)
                 {
                     YProductos += 15;
@@ -470,19 +521,44 @@ namespace ColinaApplication.Data.Business
                 if (solicitud[0].IVATotal > 0 || solicitud[0].IConsumoTotal > 0)
                 {
                     YProductos += 15;
+                    //margenY += 15;
+                    //var sumaImpuestos = solicitud[0].Subtotal + solicitud[0].IVATotal + solicitud[0].IConsumoTotal;
+                    e.Graphics.DrawString("IMP. AL CONSUMO 8%", body, Brushes.Black, new RectangleF(0, margenY + YProductos, ancho, 15));
+                    e.Graphics.DrawString("" + solicitud[0].IConsumoTotal, body, Brushes.Black, new RectangleF((280 - (solicitud[0].IConsumoTotal.ToString().Length * 8)), margenY + YProductos, ancho, 15));
                     margenY += 15;
-                    var sumaImpuestos = solicitud[0].Subtotal + solicitud[0].IVATotal + solicitud[0].IConsumoTotal;
-                    e.Graphics.DrawString("SUBTOTAL CON IMPUESTOS:", body, Brushes.Black, new RectangleF(0, margenY + YProductos, ancho, 15));
-                    e.Graphics.DrawString("" + sumaImpuestos, body, Brushes.Black, new RectangleF((280 - (sumaImpuestos.ToString().Length * 8)), margenY + YProductos, ancho, 15));
                 }
-                margenY += 15;
                 e.Graphics.DrawString("PROPINA VOLUNTARIA:", body, Brushes.Black, new RectangleF(0, margenY + YProductos, ancho, 15));
                 e.Graphics.DrawString("" + solicitud[0].ServicioTotal, body, Brushes.Black, new RectangleF((280 - (solicitud[0].ServicioTotal.ToString().Length * 8)), margenY + YProductos, ancho, 15));
-                margenY += 15;
+                margenY += 45;
                 e.Graphics.DrawString("TOTAL:", body, Brushes.Black, new RectangleF(0, margenY + YProductos, ancho, 15));
                 e.Graphics.DrawString("" + Convert.ToInt64(Math.Round(Convert.ToDouble(solicitud[0].Total))), body, Brushes.Black, new RectangleF((280 - ((Convert.ToInt64(Math.Round(Convert.ToDouble(solicitud[0].Total)))).ToString().Length * 8)), margenY + YProductos, ancho, 15));
-                margenY += 120;
+                
+                margenY += 45;
+                e.Graphics.DrawString("------------------------------------------------------------------------------------------- ", body, Brushes.Black, new RectangleF(0, margenY + YProductos, ancho, 15));
+                margenY += 15;
+                e.Graphics.DrawString("Tener en cuenta que este documento es un", body2, Brushes.Black, new RectangleF(0, margenY + YProductos, ancho, 15));
+                margenY += 15;
+                e.Graphics.DrawString("COMPROBANTE DE PAGO, la factura ", body2, Brushes.Black, new RectangleF(0, margenY + YProductos, ancho, 15));
+                margenY += 15;
+                e.Graphics.DrawString("electrónica será enviada al correo electrónico", body2, Brushes.Black, new RectangleF(0, margenY + YProductos, ancho, 15));
+                margenY += 15;
+                e.Graphics.DrawString("registrado", body2, Brushes.Black, new RectangleF(0, margenY + YProductos, ancho, 15));
+
+                margenY += 30;
+                e.Graphics.DrawString("------------------------------------------------------------------------------------------- ", body, Brushes.Black, new RectangleF(0, margenY + YProductos, ancho, 15));
+                margenY += 15;
+                e.Graphics.DrawString("Recuerda que si necesitas personalizar ", body3, Brushes.Black, new RectangleF(0, margenY + YProductos, ancho, 15));
+                margenY += 15;
+                e.Graphics.DrawString("tu factura electrónica, únicamente se", body3, Brushes.Black, new RectangleF(0, margenY + YProductos, ancho, 15));
+                margenY += 15;
+                e.Graphics.DrawString("realizará al momento de solicitar la", body3, Brushes.Black, new RectangleF(0, margenY + YProductos, ancho, 15));
+                margenY += 15;
+                e.Graphics.DrawString("misma (Según normatividad)", body3, Brushes.Black, new RectangleF(0, margenY + YProductos, ancho, 15));
+
+                margenY += 135;
                 e.Graphics.DrawString("_", body, Brushes.Black, new RectangleF(135, margenY + YProductos, ancho, 15));
+                margenY += 15;
+                e.Graphics.DrawString("- "+ solicitud[0].IdFDian + " -", body, Brushes.Black, new RectangleF(135, margenY + YProductos, ancho, 15));
             };
 
             printDocument1.Print();
@@ -502,6 +578,7 @@ namespace ColinaApplication.Data.Business
                 model.PrecioProducto = item.PrecioProducto;
                 //PRECIO TOTAL
                 model.IdMesero = productosSolicitud.Where(x => x.IdProducto == item.IdProducto).Sum(x => x.PrecioProducto);
+                model.IdDian = item.IdDian;
                 resultado.Add(model);
             }
             return resultado;
@@ -541,7 +618,7 @@ namespace ColinaApplication.Data.Business
                 else
                     printDocument1.PrinterSettings.PrinterName = impresora.NOMBRE_IMPRESORA;
             }
-            
+
             printDocument1.PrintPage += (object sender, PrintPageEventArgs e) =>
             {
                 //CONSULTA SOLICITUD
@@ -627,7 +704,7 @@ namespace ColinaApplication.Data.Business
                         else
                             printDocument1.PrinterSettings.PrinterName = item.NOMBRE_IMPRESORA;
                     }
-                    
+
                     printDocument1.PrintPage += (object sender, PrintPageEventArgs e) =>
                     {
                         int Ymargen = 0;
@@ -730,5 +807,77 @@ namespace ColinaApplication.Data.Business
 
             return subrpoducto;
         }
+        public TBL_CLIENTES_DIAN InsertaClientesDian(TBL_CLIENTES_DIAN model)
+        {
+            TBL_CLIENTES_DIAN respuesta = new TBL_CLIENTES_DIAN();
+            using (DBLaColina context = new DBLaColina())
+            {
+                try
+                {
+                    respuesta = context.TBL_CLIENTES_DIAN.Add(model);
+                    context.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+            }
+            return respuesta;
+        }
+        public TBL_CLIENTES_DIAN ConsultaCedula(string Cedula)
+        {
+            TBL_CLIENTES_DIAN ClienteDian = new TBL_CLIENTES_DIAN();
+            using (DBLaColina context = new DBLaColina())
+            {
+                ClienteDian = context.TBL_CLIENTES_DIAN.Where(x => x.NUMERO_IDENTIFICACION == Cedula.Trim()).FirstOrDefault();
+            }
+            return ClienteDian;
+        }
+        public TBL_CLIENTES_DIAN ConsultaCedulaId(decimal IdCedula)
+        {
+            TBL_CLIENTES_DIAN ClienteDian = new TBL_CLIENTES_DIAN();
+            using (DBLaColina context = new DBLaColina())
+            {
+                ClienteDian = context.TBL_CLIENTES_DIAN.Where(x => x.ID == IdCedula).FirstOrDefault();
+            }
+            return ClienteDian;
+        }
+        public List<ProductosSolicitud> ConsultaProductoSolicitudId(decimal IdSolicitud)
+        {
+            List<ProductosSolicitud> productosSolicitud = new List<ProductosSolicitud>();
+            using (DBLaColina context = new DBLaColina())
+            {
+                var productos = context.TBL_PRODUCTOS_SOLICITUD.Where(b => b.ID_SOLICITUD == IdSolicitud && b.ESTADO_PRODUCTO != Estados.Cancelado).ToList();
+                foreach (var item in productos)
+                {
+                    try
+                    {
+                        productosSolicitud.Add(new ProductosSolicitud
+                        {
+                            Id = item.ID,
+                            FechaRegistro = item.FECHA_REGISTRO,
+                            IdSolicitud = item.ID_SOLICITUD,
+                            IdProducto = item.ID_PRODUCTO,
+                            NombreProducto = context.TBL_PRODUCTOS.Where(a => a.ID == item.ID_PRODUCTO).FirstOrDefault().NOMBRE_PRODUCTO,
+                            IdMesero = item.ID_MESERO,
+                            NombreMesero = context.TBL_USUARIOS.Where(a => a.ID == item.ID_MESERO).FirstOrDefault().NOMBRE,
+                            PrecioProducto = item.PRECIO_PRODUCTO,
+                            EstadoProducto = item.ESTADO_PRODUCTO,
+                            Descripcion = item.DESCRIPCION,
+                            UpDian = context.TBL_PRODUCTOS.Where(a => a.ID == item.ID_PRODUCTO).FirstOrDefault().UP_DIAN,
+                            IdDian = context.TBL_PRODUCTOS.Where(a => a.ID == item.ID_PRODUCTO).FirstOrDefault().ID_DIAN,
+                            AccountGroup = context.TBL_PRODUCTOS.Where(a => a.ID == item.ID_PRODUCTO).FirstOrDefault().ACCOUNT_GROUP_DIAN
+                        });
+                    }
+                    catch (Exception E)
+                    {
+                        throw E;
+                    }
+                }
+            }
+            return productosSolicitud;
+        }
+
+        
     }
 }

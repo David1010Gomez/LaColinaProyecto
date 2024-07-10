@@ -80,6 +80,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClienteDian.cs" />
     <Compile Include="ConsultaNomina.cs" />
     <Compile Include="ConsultaSolicitud.cs" />
     <Compile Include="ConsultaSolicitudGeneral.cs" />

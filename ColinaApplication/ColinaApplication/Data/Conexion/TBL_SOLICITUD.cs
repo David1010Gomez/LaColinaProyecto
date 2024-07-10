@@ -35,5 +35,10 @@ namespace ColinaApplication.Data.Conexion
         public string METODO_PAGO { get; set; }
         public string VOUCHER { get; set; }
         public Nullable<decimal> CANT_EFECTIVO { get; set; }
+        public Nullable<decimal> ID_CLIENTE { get; set; }
+        public string FACTURACION_ELECTRONICA { get; set; }
+        public string ENVIO_DIAN { get; set; }
+        public string VALORES_VOUCHERS { get; set; }
+        public string ID_F_DIAN { get; set; }
     }
 }

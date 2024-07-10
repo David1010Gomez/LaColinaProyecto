@@ -1,6 +1,9 @@
 ﻿using ColinaApplication.Data.Conexion;
+using ColinaApplication.Dian;
+using ColinaApplication.Dian.Entity;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 
@@ -8,6 +11,13 @@ namespace ColinaApplication.Data.Business
 {
     public class ConfiguracionesBusiness
     {
+        BusinessDian businessDian;
+        HomeBusiness inicio;
+        public ConfiguracionesBusiness()
+        {
+            businessDian = new BusinessDian();
+            inicio = new HomeBusiness();
+        }
         public List<TBL_CATEGORIAS> ListaCategorias()
         {
             List<TBL_CATEGORIAS> listCategorias = new List<TBL_CATEGORIAS>();
@@ -131,16 +141,46 @@ namespace ColinaApplication.Data.Business
             }
             return Respuesta;
         }
-        public bool InsertaProducto(TBL_PRODUCTOS model)
+        public bool InsertaProducto(TBL_PRODUCTOS model, string token)
         {
             bool Respuesta = false;
             using (DBLaColina contex = new DBLaColina())
             {
                 try
                 {
+                    //INSERTA TABLAS LOCALES
                     model.FECHA_INGRESO = DateTime.Now;
+                    model.UP_DIAN = 0;
                     contex.TBL_PRODUCTOS.Add(model);
                     contex.SaveChanges();
+
+                    //INSERTA DIAN
+                    if (ConfigurationManager.AppSettings["DIAN_ON"] == "1")
+                    {
+                        Producto modelP = new Producto();
+                        modelP.code = Convert.ToString("PROD-" + model.ID);
+                        modelP.name = model.NOMBRE_PRODUCTO;
+                        modelP.account_groupSend = Convert.ToInt32(model.ACCOUNT_GROUP_DIAN);
+                        modelP.taxes = new List<Taxes> { new Taxes() };
+                        modelP.taxes[0].id = 9748;
+                        modelP.prices = new List<Prices> { new Prices() };
+                        modelP.prices[0].currency_code = "COP";
+                        modelP.prices[0].price_list = new List<PriceList> { new PriceList() };
+                        modelP.prices[0].price_list[0].position = 1;
+                        modelP.prices[0].price_list[0].value = model.PRECIO;
+                        var resultado = businessDian.InsertaProducto(token, modelP);
+                        if (resultado.id != null)
+                        {
+                            var actualiza = contex.TBL_PRODUCTOS.Where(a => a.ID == model.ID).FirstOrDefault();
+                            if (actualiza != null)
+                            {
+                                actualiza.UP_DIAN = 1;
+                                actualiza.ID_DIAN = resultado.id;
+                                actualiza.ACCOUNT_GROUP_DIAN = modelP.account_groupSend;
+                                contex.SaveChanges();
+                            }
+                        }
+                    }
                     Respuesta = true;
                 }
                 catch (Exception e)
@@ -150,13 +190,49 @@ namespace ColinaApplication.Data.Business
             }
             return Respuesta;
         }
-        public bool ActualizaProducto(TBL_PRODUCTOS model)
+        public bool ActualizaProducto(TBL_PRODUCTOS model, string token)
         {
             bool Respuesta = false;
             using (DBLaColina contex = new DBLaColina())
             {
                 try
                 {
+                    //ACTUALIZA DIAN 
+                    Producto producto = new Producto();
+                    if (ConfigurationManager.AppSettings["DIAN_ON"] == "1")
+                    {
+                        var DianActualiza = businessDian.ConsultaProductosDianId(token, model.ID_DIAN);
+                        if (DianActualiza.id != null)
+                        {
+                            producto.id = model.ID_DIAN;
+                            producto.account_groupSend = Convert.ToInt32(model.ACCOUNT_GROUP_DIAN);
+                            producto.code = Convert.ToString(DianActualiza.code);
+                            producto.name = model.NOMBRE_PRODUCTO;
+                            producto.description = model.DESCRIPCION;
+                            producto.prices = new List<Prices> { new Prices() };
+                            producto.prices[0].currency_code = "COP";
+                            producto.prices[0].price_list = new List<PriceList> { new PriceList() };
+                            producto.prices[0].price_list[0].position = 1;
+                            producto.prices[0].price_list[0].value = model.PRECIO;
+                            producto = businessDian.ActualizarProducto(token, producto);
+                        }
+                        //else
+                        //{
+                        //    producto.code = Convert.ToString("PROD-" + model.ID);
+                        //    producto.name = model.NOMBRE_PRODUCTO;
+                        //    producto.account_groupSend = Convert.ToInt32(model.ACCOUNT_GROUP_DIAN);
+                        //    producto.taxes = new List<Taxes> { new Taxes() };
+                        //    producto.taxes[0].id = 9748;
+                        //    producto.prices = new List<Prices> { new Prices() };
+                        //    producto.prices[0].currency_code = "COP";
+                        //    producto.prices[0].price_list = new List<PriceList> { new PriceList() };
+                        //    producto.prices[0].price_list[0].position = 1;
+                        //    producto.prices[0].price_list[0].value = model.PRECIO;
+                        //    producto = businessDian.InsertaProducto(token, producto);
+                        //}
+                    }
+
+                    //ACTUALIZA TABLA LOCAL
                     TBL_PRODUCTOS actualiza = new TBL_PRODUCTOS();
                     actualiza = contex.TBL_PRODUCTOS.Where(a => a.ID == model.ID).FirstOrDefault();
                     if (actualiza != null)
@@ -167,6 +243,9 @@ namespace ColinaApplication.Data.Business
                         actualiza.CANTIDAD = model.CANTIDAD;
                         actualiza.DESCRIPCION = model.DESCRIPCION;
                         actualiza.ID_IMPRESORA = model.ID_IMPRESORA;
+                        actualiza.UP_DIAN = producto.id != null ? 1 : 0;
+                        actualiza.ID_DIAN = actualiza.ID_DIAN == null ? producto.id : actualiza.ID_DIAN;
+                        actualiza.ACCOUNT_GROUP_DIAN = producto.account_group != null ? producto.account_group.id : 0;
                         contex.SaveChanges();
                         Respuesta = true;
                     }
@@ -231,7 +310,7 @@ namespace ColinaApplication.Data.Business
                 try
                 {
                     TBL_USUARIOS buscaUsuario = new TBL_USUARIOS();
-                    buscaUsuario = contex.TBL_USUARIOS.Where(a => a.CEDULA == model.CEDULA || a.CONTRASEÑA == model.CONTRASEÑA ).FirstOrDefault();
+                    buscaUsuario = contex.TBL_USUARIOS.Where(a => a.CEDULA == model.CEDULA || a.CONTRASEÑA == model.CONTRASEÑA).FirstOrDefault();
                     if (buscaUsuario == null)
                     {
                         contex.TBL_USUARIOS.Add(model);
@@ -242,7 +321,7 @@ namespace ColinaApplication.Data.Business
                     {
                         Respuesta = false;
                     }
-                    
+
                 }
                 catch (Exception e)
                 {
@@ -438,7 +517,7 @@ namespace ColinaApplication.Data.Business
                         actualiza.CEDULA = model.CEDULA;
                         actualiza.NOMBRE = model.NOMBRE;
                         actualiza.CARGO = model.CARGO;
-                        
+
                         actualiza.FECHA_NACIMIENTO = model.FECHA_NACIMIENTO;
                         actualiza.DIRECCION_RESIDENCIA = model.DIRECCION_RESIDENCIA;
                         actualiza.TELEFONO = model.TELEFONO;
@@ -466,7 +545,7 @@ namespace ColinaApplication.Data.Business
                     TBL_USUARIOS consultaCedula = new TBL_USUARIOS();
                     consultaCedula = contex.TBL_USUARIOS.Where(a => a.CEDULA == Cedula).FirstOrDefault();
                     if (consultaCedula != null)
-                    {                        
+                    {
                         Respuesta = true;
                     }
                 }
@@ -520,6 +599,13 @@ namespace ColinaApplication.Data.Business
                 }
             }
             return Respuesta;
+        }
+        public List<Account_group> ListaAccountGroup(string token)
+        {
+            List<Account_group> listAccountGroup = new List<Account_group>();
+            listAccountGroup = businessDian.ConsultaAccountGroupDian(token);
+            return listAccountGroup;
+
         }
     }
 }

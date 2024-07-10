@@ -75,23 +75,28 @@ function LimpiaCamposCategoria() {
     $("#NomCategoria").val("");
     $("#EstadoCategoria").val("");
 }
-function EditarProducto(id, idCategoria, producto, precio, cantidad, descripcion, idImpresora) {
+function EditarProducto(id, IdDian, idCategoria, producto, precio, cantidad, descripcion, idImpresora, idAccountGroup) {
     $("#IdProducto").val(id);
+    $("#ID_DIAN").val(IdDian);
     $("#IdCategoriaProducto").val(idCategoria);
     $("#NomProducto").val(producto);
     $("#PrecioProducto").val(precio);
     $("#CantidadProducto").val(cantidad);
     $("#DescripcionProducto").val(descripcion);
     $("#IdImpresoraProductos").val(idImpresora);
+    $("#IdAccountGroup").val(idAccountGroup);
+    
 }
 function LimpiaCamposProductos() {
     $("#IdProducto").val("");
+    $("#ID_DIAN").val("");
     $("#IdCategoriaProducto").val("");
     $("#NomProducto").val("");
     $("#PrecioProducto").val("");
     $("#CantidadProducto").val("");
     $("#DescripcionProducto").val("");
     $("#IdImpresoraProductos").val("");
+    $("#IdAccountGroup").val("");
 }
 function EditarMesa(id, numeromesa, idusuario, mesa, descripcion, estado) {
     $("#IdMesa").val(id);

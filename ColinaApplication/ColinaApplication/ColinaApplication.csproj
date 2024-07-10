@@ -394,7 +394,13 @@
     <Compile Include="Data\Conexion\TBL_CIERRES.cs">
       <DependentUpon>DBLaColina.tt</DependentUpon>
     </Compile>
+    <Compile Include="Data\Conexion\TBL_CLIENTES_DIAN.cs">
+      <DependentUpon>DBLaColina.tt</DependentUpon>
+    </Compile>
     <Compile Include="Data\Conexion\TBL_DIAS_TRABAJADOS.cs">
+      <DependentUpon>DBLaColina.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\Conexion\TBL_FACTURAS_FALLIDAS_DIAN.cs">
       <DependentUpon>DBLaColina.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Conexion\TBL_IMPRESORAS.cs">
@@ -424,9 +430,17 @@
     <Compile Include="Data\Conexion\TBL_SOLICITUD.cs">
       <DependentUpon>DBLaColina.tt</DependentUpon>
     </Compile>
+    <Compile Include="Data\Conexion\TBL_TOKENS_DIAN.cs">
+      <DependentUpon>DBLaColina.tt</DependentUpon>
+    </Compile>
     <Compile Include="Data\Conexion\TBL_USUARIOS.cs">
       <DependentUpon>DBLaColina.tt</DependentUpon>
     </Compile>
+    <Compile Include="Dian\BusinessDian.cs" />
+    <Compile Include="Dian\Entity\Cliente.cs" />
+    <Compile Include="Dian\Entity\Factura.cs" />
+    <Compile Include="Dian\Entity\Producto.cs" />
+    <Compile Include="Dian\Entity\Token.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

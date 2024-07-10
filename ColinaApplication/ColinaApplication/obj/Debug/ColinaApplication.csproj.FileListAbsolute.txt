@@ -132,6 +132,7 @@ C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaA
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\Microsoft.Extensions.Configuration.Abstractions.dll
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\Microsoft.Extensions.DependencyInjection.Abstractions.dll
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\Microsoft.Extensions.DependencyInjection.dll
+C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\Microsoft.Extensions.Diagnostics.Abstractions.dll
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\Microsoft.Extensions.Features.dll
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\Microsoft.Extensions.FileProviders.Abstractions.dll
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\Microsoft.Extensions.Hosting.Abstractions.dll
@@ -210,6 +211,7 @@ C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaA
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\Microsoft.Extensions.Configuration.Abstractions.xml
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\Microsoft.Extensions.DependencyInjection.xml
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\Microsoft.Extensions.DependencyInjection.Abstractions.xml
+C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\Microsoft.Extensions.Diagnostics.Abstractions.xml
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\Microsoft.Extensions.Features.xml
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\Microsoft.Extensions.FileProviders.Abstractions.xml
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\Microsoft.Extensions.Hosting.Abstractions.xml
@@ -228,8 +230,10 @@ C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaA
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\System.Diagnostics.DiagnosticSource.xml
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\System.IO.Pipelines.xml
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\System.Memory.xml
+C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\System.Net.WebSockets.WebSocketProtocol.xml
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\System.Numerics.Vectors.xml
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\System.Runtime.CompilerServices.Unsafe.xml
+C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\System.Security.Principal.Windows.xml
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\System.Text.Encodings.Web.xml
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\System.Text.Json.xml
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\System.Threading.Channels.xml
@@ -247,7 +251,3 @@ C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaA
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\obj\Debug\ColinaAp.AFDCC0C2.Up2Date
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\obj\Debug\ColinaApplication.dll
 C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\obj\Debug\ColinaApplication.pdb
-C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\Microsoft.Extensions.Diagnostics.Abstractions.dll
-C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\Microsoft.Extensions.Diagnostics.Abstractions.xml
-C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\System.Net.WebSockets.WebSocketProtocol.xml
-C:\Users\Usuario\Documents\Visual Studio 2022\Projects\ColinaApplication\ColinaApplication\bin\System.Security.Principal.Windows.xml

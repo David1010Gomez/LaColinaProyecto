@@ -7,17 +7,20 @@
       <Diagram DiagramId="0c7686579758418cb5986399ade54e41" Name="Diagram1">
         <EntityTypeShape EntityType="COLINADBModel.TBL_CATEGORIAS" Width="1.5" PointX="0.75" PointY="0.75" />
         <EntityTypeShape EntityType="COLINADBModel.TBL_PRODUCTOS_SOLICITUD" Width="2" PointX="2.75" PointY="3.75" />
-        <EntityTypeShape EntityType="COLINADBModel.TBL_USUARIOS" Width="1.5" PointX="5.75" PointY="4.75" />
-        <EntityTypeShape EntityType="COLINADBModel.TBL_IMPUESTOS" Width="1.5" PointX="5.75" PointY="0.75" />
+        <EntityTypeShape EntityType="COLINADBModel.TBL_USUARIOS" Width="1.5" PointX="5.375" PointY="2.875" />
+        <EntityTypeShape EntityType="COLINADBModel.TBL_IMPUESTOS" Width="1.5" PointX="5.125" PointY="0.5" />
         <EntityTypeShape EntityType="COLINADBModel.TBL_MASTER_MESAS" Width="1.5" PointX="3.125" PointY="1.25" />
-        <EntityTypeShape EntityType="COLINADBModel.TBL_CIERRES" Width="1.5" PointX="11.75" PointY="1.875" />
-        <EntityTypeShape EntityType="COLINADBModel.TBL_PERFIL" Width="1.5" PointX="6.875" PointY="2.875" />
-        <EntityTypeShape EntityType="COLINADBModel.TBL_IMPRESORAS" Width="1.5" PointX="5.5" PointY="7.75" />
-        <EntityTypeShape EntityType="COLINADBModel.TBL_PRODUCTOS" Width="1.5" PointX="0.625" PointY="3.625" />
-        <EntityTypeShape EntityType="COLINADBModel.TBL_NOMINA" Width="1.5" PointX="2.75" PointY="7.75" />
-        <EntityTypeShape EntityType="COLINADBModel.TBL_DIAS_TRABAJADOS" Width="1.5" PointX="8.375" PointY="8.75" />
-        <EntityTypeShape EntityType="COLINADBModel.TBL_SOLICITUD" Width="1.5" PointX="9.5" PointY="2.125" />
-        <EntityTypeShape EntityType="COLINADBModel.TBL_SISTEMA" Width="1.5" PointX="5.375" PointY="10.75" />
+        <EntityTypeShape EntityType="COLINADBModel.TBL_CIERRES" Width="1.5" PointX="11.375" PointY="0.5" />
+        <EntityTypeShape EntityType="COLINADBModel.TBL_PERFIL" Width="1.5" PointX="7.125" PointY="0.75" />
+        <EntityTypeShape EntityType="COLINADBModel.TBL_IMPRESORAS" Width="1.5" PointX="3.125" PointY="7" />
+        <EntityTypeShape EntityType="COLINADBModel.TBL_NOMINA" Width="1.5" PointX="1" PointY="6.375" />
+        <EntityTypeShape EntityType="COLINADBModel.TBL_DIAS_TRABAJADOS" Width="1.5" PointX="7.25" PointY="3.5" />
+        <EntityTypeShape EntityType="COLINADBModel.TBL_SISTEMA" Width="1.5" PointX="8" PointY="6.625" />
+        <EntityTypeShape EntityType="COLINADBModel.TBL_PRODUCTOS" Width="1.5" PointX="0.625" PointY="2.75" />
+        <EntityTypeShape EntityType="COLINADBModel.TBL_TOKENS_DIAN" Width="1.5" PointX="5.5" PointY="6.125" />
+        <EntityTypeShape EntityType="COLINADBModel.TBL_SOLICITUD" Width="1.5" PointX="9.375" PointY="0.5" />
+        <EntityTypeShape EntityType="COLINADBModel.TBL_FACTURAS_FALLIDAS_DIAN" Width="1.5" PointX="11.75" PointY="6.5" />
+        <EntityTypeShape EntityType="COLINADBModel.TBL_CLIENTES_DIAN" Width="1.5" PointX="13.375" PointY="0.5" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

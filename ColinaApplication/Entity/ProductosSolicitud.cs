@@ -18,5 +18,9 @@ namespace Entity
         public decimal? PrecioProducto { get; set; }
         public string EstadoProducto { get; set; }
         public string Descripcion { get; set; }
+        public decimal? UpDian { get; set; }
+        public string IdDian { get; set; }
+        public decimal? AccountGroup{ get; set; }
+
     }
 }

@@ -67,6 +67,11 @@ namespace ColinaApplication.Controllers
             jsonResult.MaxJsonLength = int.MaxValue;
             return jsonResult;
         }
-
+        public JsonResult ConsultaClienteDian(string Cedula)
+        {
+            var jsonResult = Json(JsonConvert.SerializeObject(solicitud.ConsultaCedula(Cedula)), JsonRequestBehavior.AllowGet);
+            jsonResult.MaxJsonLength = int.MaxValue;
+            return jsonResult;
+        }
     }
 }
