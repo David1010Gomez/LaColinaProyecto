@@ -55,7 +55,7 @@ namespace ColinaApplication.Dian.Entity
         public int position { get; set; }
         public string name { get; set; }
 
-        public int value { get; set; }
+        public decimal value { get; set; }
     }
     public class ModelProduct
     {
