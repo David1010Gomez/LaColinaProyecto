@@ -6,7 +6,7 @@ let ProductosPedido = [];
 let IdProd;
 let DatosClienteDIAN = [];
 let PagosDIAN = [];
-var BorradorDian;
+var BorradorDian = "";
 
 $(function PedidoSignalR() {
 
@@ -1065,11 +1065,11 @@ function CancelaPedido() {
                         buttons: {
                             Si: {
                                 btnClass: 'btn btn-danger',
-                                action: function () {
-                                    DatosClienteDIAN.push($('#EnvioDian').prop("checked"));
+                                action: function () {                                    
+                                    DatosClienteDIAN.push($('#EnvioDian').prop("checked"));                                    
                                     connectPSR.server.guardaDatosCliente($("#ID").val(), $("#CCCliente").val(), $("#NombreCliente").val() + " " + $("#ApellidosCliente").val(),
                                         $("#OBSERVACIONES").val(), $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SubTotal").val(),
-                                        "CANCELA PEDIDO", $("#ID_MESA").val(), $("#servicio").val(), "N/A", "0", "0", $("#ID_MESERO").val(),
+                                        "CANCELA PEDIDO", $("#ID_MESA").val(), $("#servicio").val(), "N/A", "", "0", $("#ID_MESERO").val(),
                                         DatosClienteDIAN, $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(), $('#DianSistema').prop("checked"),
                                         $("#Total").val(), BorradorDian);
                                     connectPSR.server.cancelaPedido($("#ID").val(), true);
@@ -1084,7 +1084,7 @@ function CancelaPedido() {
                                     DatosClienteDIAN.push(token);
                                     connectPSR.server.guardaDatosCliente($("#ID").val(), $("#CCCliente").val(), $("#NombreCliente").val() + " " + $("#ApellidosCliente").val(),
                                         $("#OBSERVACIONES").val(), $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SubTotal").val(),
-                                        "CANCELA PEDIDO", $("#ID_MESA").val(), $("#servicio").val(), "N/A", "0", "0", $("#ID_MESERO").val(),
+                                        "CANCELA PEDIDO", $("#ID_MESA").val(), $("#servicio").val(), "N/A", "", "0", $("#ID_MESERO").val(),
                                         DatosClienteDIAN, $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(), $('#DianSistema').prop("checked"),
                                         $("#Total").val(), BorradorDian);
                                     connectPSR.server.cancelaPedido($("#ID").val(), false);
@@ -1188,7 +1188,7 @@ function ConsumoInterno() {
                         DatosClienteDIAN.push($('#EnvioDian').prop("checked"));
                         connectPSR.server.guardaDatosCliente($("#ID").val(), $("#CCCliente").val(), $("#NombreCliente").val() + " " + $("#ApellidosCliente").val(),
                             $("#OBSERVACIONES").val(), $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SubTotal").val(),
-                            "CONSUMO INTERNO", $("#ID_MESA").val(), $("#servicio").val(), "N/A", "0", "0", $("#ID_MESERO").val(),
+                            "CONSUMO INTERNO", $("#ID_MESA").val(), $("#servicio").val(), "N/A", "", "0", $("#ID_MESERO").val(),
                             DatosClienteDIAN, $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(), $('#DianSistema').prop("checked"),
                             $("#Total").val(), "");
                         connectPSR.server.actualizaMesa($("#ID_MESA").val(), "LIBRE", User, "NO", "");
