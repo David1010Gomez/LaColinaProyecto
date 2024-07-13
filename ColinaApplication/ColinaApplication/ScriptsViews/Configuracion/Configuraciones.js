@@ -10,7 +10,7 @@ $(document).ready(function () {
             },
         },
         lengthMenu: [[5, 10, 20, 25, 50, -1], [5, 10, 20, 25, 50, "Todos"]],
-        
+
     });
     ValidaResultado();
 });
@@ -57,12 +57,12 @@ function ValidaResultado() {
                 }
             });
             break;
-        
+
         default:
             break;
     }
-    
-    
+
+
 }
 
 function EditarCategoria(id, categoria, estado) {
@@ -85,7 +85,7 @@ function EditarProducto(id, IdDian, idCategoria, producto, precio, cantidad, des
     $("#DescripcionProducto").val(descripcion);
     $("#IdImpresoraProductos").val(idImpresora);
     $("#IdAccountGroup").val(idAccountGroup);
-    
+
 }
 function LimpiaCamposProductos() {
     $("#IdProducto").val("");
@@ -120,7 +120,7 @@ function EditarUsuario(id, cedula, nombre, codigo, perfil) {
     $("#NombreUsuario").val(nombre);
     $("#CodigoUsuario").val(codigo);
     $("#IdPerfilUsuario").val(perfil);
-    
+
 }
 function LimpiaCamposUsuario() {
     $("#IdUsuario").val("");
@@ -151,7 +151,7 @@ function LimpiaCamposImpuesto() {
     $("#PorcentajeImpuesto").val("");
     $("#EstadoImpuesto").val("");
 }
-function EditarPerfil(id, nombrePerfil, porcentaje) {    
+function EditarPerfil(id, nombrePerfil, porcentaje) {
     $("#IdPerfil").val(id);
     $("#NombrePerfil").val(nombrePerfil);
     $("#PorcentajePropinaPerfil").val(porcentaje);
@@ -196,7 +196,7 @@ function ValidaCedula() {
             data: JSON.stringify({ Cedula: $("#CedulaUsuario").val() }),
             contentType: "application/json; charset=utf-8",
             dataType: "JSON",
-            success: function (result) {                
+            success: function (result) {
                 var json = JSON.parse(result);
                 if (json) {
                     $("#CedulaUsuario").val('');
@@ -234,7 +234,7 @@ function ValidaCodigo() {
             data: JSON.stringify({ Codigo: $("#CodigoUsuario").val() }),
             contentType: "application/json; charset=utf-8",
             dataType: "JSON",
-            success: function (result) {                
+            success: function (result) {
                 var json = JSON.parse(result);
                 if (json) {
                     $("#CodigoUsuario").val('');
@@ -267,4 +267,37 @@ function CambiaParametrosSistema(id, valor) {
     $("#IdSistema").val(id);
     $("#SistemaValor").val(valor);
     $("#GuardarSistema").click();
+}
+function ActualizaProductosMasivo() {
+    $.ajax({
+        type: "POST",
+        url: urlActualizaProductosMasivo,
+        //data: JSON.stringify({ Codigo: $("#CodigoUsuario").val() }),
+        contentType: "application/json; charset=utf-8",
+        dataType: "JSON",
+        success: function (result) {
+            //console.log(result)
+            var json = JSON.parse(result);
+            $.alert({
+                theme: 'Modern',
+                icon: 'fa fa-check',
+                boxWidth: '500px',
+                useBootstrap: false,
+                type: 'green',
+                title: 'Actualizacion completa !',
+                content: json,
+                buttons: {
+                    Continuar: {
+                        btnClass: 'btn btn-success',
+                        action: function () {
+                        }
+                    }
+                }
+            });
+        },
+        error: function (request, status, error) {
+            console.log(error);
+        }
+
+    });
 }

@@ -17,9 +17,9 @@ namespace ColinaApplication.Dian.Entity
 
         public Account_group account_group { get; set; }
 
-        public string unit_label { get; set; }
+        //public string unit_label { get; set; }
 
-        public string description { get; set; }
+        //public string description { get; set; }
 
         public List<Taxes> taxes { get; set; }
 
@@ -53,8 +53,12 @@ namespace ColinaApplication.Dian.Entity
     public class PriceList
     {
         public int position { get; set; }
+        public string name { get; set; }
 
-        public string value { get; set; }
+        public int value { get; set; }
     }
-    
+    public class ModelProduct
+    {
+        public List<Producto> results { get; set; }
+    }
 }

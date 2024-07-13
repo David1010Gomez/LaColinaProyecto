@@ -69,7 +69,7 @@ namespace ColinaApplication.Dian
                     if (resp != null && resp.Content != null)
                     {
                         strObj = resp.Content.ReadAsStringAsync();
-                        respuesta = JsonConvert.DeserializeObject<List<Producto>>(strObj.Result);
+                        respuesta = JsonConvert.DeserializeObject<ModelProduct>(strObj.Result).results;
                     }
                 }
             }
@@ -130,7 +130,7 @@ namespace ColinaApplication.Dian
                     var body = "{ \"code\": \""+ model.code + "\", "+
                                  "\"name\":\"" + model.name + "\", "+
                                  "\"account_group\": "+ model.account_groupSend +","+
-                                 "\"taxes\": [{ \"id\": " + model.taxes[0].id +" }],"+
+                                 "\"taxes\": [{ \"id\": " + model.taxes[0].id +", \"name\": \""+ model.taxes[0].name+ "\", \"type\": \""+ model.taxes[0].type+ "\", \"percentage\": "+ model.taxes[0].percentage + " }],"+
                                  "\"prices\": [{ \"currency_code\": \"" + model.prices[0].currency_code + "\", \"price_list\": [{ \"position\": " + model.prices[0].price_list[0].position +", \"value\": " + model.prices[0].price_list[0].value + "}] }] " + 
                                "}";
                     body = body.Replace("\n", " ");

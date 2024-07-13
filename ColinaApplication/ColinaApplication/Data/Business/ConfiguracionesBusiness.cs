@@ -1,6 +1,7 @@
 ﻿using ColinaApplication.Data.Conexion;
 using ColinaApplication.Dian;
 using ColinaApplication.Dian.Entity;
+using DocumentFormat.OpenXml.EMMA;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -163,11 +164,14 @@ namespace ColinaApplication.Data.Business
                         modelP.account_groupSend = Convert.ToInt32(model.ACCOUNT_GROUP_DIAN);
                         modelP.taxes = new List<Taxes> { new Taxes() };
                         modelP.taxes[0].id = 9748;
+                        modelP.taxes[0].name = "Impoconsumo 8%";
+                        modelP.taxes[0].type = "Impoconsumo";
+                        modelP.taxes[0].percentage = 8;
                         modelP.prices = new List<Prices> { new Prices() };
                         modelP.prices[0].currency_code = "COP";
                         modelP.prices[0].price_list = new List<PriceList> { new PriceList() };
                         modelP.prices[0].price_list[0].position = 1;
-                        modelP.prices[0].price_list[0].value = model.PRECIO;
+                        modelP.prices[0].price_list[0].value = Convert.ToInt32(model.PRECIO);
                         var resultado = businessDian.InsertaProducto(token, modelP);
                         if (resultado.id != null)
                         {
@@ -208,12 +212,12 @@ namespace ColinaApplication.Data.Business
                             producto.account_groupSend = Convert.ToInt32(model.ACCOUNT_GROUP_DIAN);
                             producto.code = Convert.ToString(DianActualiza.code);
                             producto.name = model.NOMBRE_PRODUCTO;
-                            producto.description = model.DESCRIPCION;
+                            //producto.description = model.DESCRIPCION;
                             producto.prices = new List<Prices> { new Prices() };
                             producto.prices[0].currency_code = "COP";
                             producto.prices[0].price_list = new List<PriceList> { new PriceList() };
                             producto.prices[0].price_list[0].position = 1;
-                            producto.prices[0].price_list[0].value = model.PRECIO;
+                            producto.prices[0].price_list[0].value = Convert.ToInt32(model.PRECIO);
                             producto = businessDian.ActualizarProducto(token, producto);
                         }
                         //else
@@ -606,6 +610,83 @@ namespace ColinaApplication.Data.Business
             listAccountGroup = businessDian.ConsultaAccountGroupDian(token);
             return listAccountGroup;
 
+        }
+        public string ActualizaProductosDianColina(string token)
+        {
+            string respuesta = string.Empty;
+            List<Producto> listProducto = new List<Producto>();
+            listProducto = businessDian.ConsultaProductosDian(token);
+            int contador = 0;
+            foreach (var item in listProducto)
+            {
+                using (DBLaColina contex = new DBLaColina())
+                {
+                    try
+                    {
+                        TBL_PRODUCTOS actualiza = new TBL_PRODUCTOS();
+                        actualiza = contex.TBL_PRODUCTOS.Where(a => a.NOMBRE_PRODUCTO == item.name).FirstOrDefault();
+                        if (actualiza != null)
+                        {
+                            if (actualiza.ID_DIAN == null || actualiza.ID_DIAN == "")
+                            {
+                                actualiza.ID_DIAN = item.id;                                
+                                contex.SaveChanges();
+                                contador++;
+                            }
+                            
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        
+                    }
+                }
+            }
+            respuesta = "Registros actualizados Dian -> La Colina " + contador.ToString();
+            return respuesta;
+        }
+        public string ActualizaProductosColinaDian(string token)
+        {
+            string respuesta = string.Empty;
+            List<TBL_PRODUCTOS> listProducto = new List<TBL_PRODUCTOS>();
+            int contador = 0;
+            using (DBLaColina contex = new DBLaColina())
+            {
+                try
+                {
+                    listProducto = contex.TBL_PRODUCTOS.ToList();
+                    foreach (var item in listProducto)
+                    {
+                        if (item.ID_DIAN == null || item.ID_DIAN == "")
+                        {
+                            Producto modelP = new Producto();
+                            modelP.code = Convert.ToString("PROD-" + item.ID);
+                            modelP.name = item.NOMBRE_PRODUCTO;
+                            modelP.account_groupSend = Convert.ToInt32(item.ACCOUNT_GROUP_DIAN);
+                            modelP.taxes = new List<Taxes> { new Taxes() };
+                            modelP.taxes[0].id = 9748;
+                            modelP.taxes[0].name = "Impoconsumo 8%";
+                            modelP.taxes[0].type = "Impoconsumo";
+                            modelP.taxes[0].percentage = 8;
+                            modelP.prices = new List<Prices> { new Prices() };
+                            modelP.prices[0].currency_code = "COP";
+                            modelP.prices[0].price_list = new List<PriceList> { new PriceList() };
+                            modelP.prices[0].price_list[0].position = 1;
+                            modelP.prices[0].price_list[0].value = Convert.ToInt32(item.PRECIO);
+                            var insertaDian = businessDian.InsertaProducto(token, modelP);
+                            item.ID_DIAN = insertaDian.id != null ? insertaDian.id : "0";
+                            contex.SaveChanges();
+                            contador++;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+
+                }
+            }
+            respuesta = "Registros actualizados La Colina -> Dian " + contador.ToString();
+            return respuesta;
         }
     }
 }

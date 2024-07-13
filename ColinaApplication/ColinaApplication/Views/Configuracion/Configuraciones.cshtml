@@ -305,6 +305,7 @@
                         <br />
                     </div>
                 }
+                <button class="btn btn-warning" onclick="ActualizaProductosMasivo()" style="margin-left: 10%; margin-top: -10%;">Masivo</button>
             </div>
             <div class="col-md-12">
                 <br /><br />
@@ -719,10 +720,11 @@
             var Posicion = '@TempData["Posicion"]';
             var urlConsultaCedulaExistente = '@Url.Action("ConsultaCedulaExistente", "Configuracion")';
             var urlConsultaCodigoExistente = '@Url.Action("ConsultaCodigoExistente", "Configuracion")';
+            var urlActualizaProductosMasivo = '@Url.Action("ActualizaProductosMasivo", "Configuracion")';
 
         </script>
 
-        <script src="~/ScriptsViews/Configuracion/Configuraciones.js?1.0.21"></script>
+        <script src="~/ScriptsViews/Configuracion/Configuraciones.js?1.0.24"></script>
     }
 }
 else

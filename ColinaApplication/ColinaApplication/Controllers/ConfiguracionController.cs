@@ -162,7 +162,16 @@ namespace ColinaApplication.Controllers
             jsonResult.MaxJsonLength = int.MaxValue;
             return jsonResult;
         }
-
+        public JsonResult ActualizaProductosMasivo()
+        {
+            var result1 = configuraciones.ActualizaProductosDianColina(Session["Token"].ToString());
+            var result2 = configuraciones.ActualizaProductosColinaDian(Session["Token"].ToString());
+            //var result1 = "Registros actualizados La Colina -> Dian 50";
+            //var result2 = "Registros actualizados Dian -> La Colina 150";
+            var jsonResult = Json(JsonConvert.SerializeObject(result1 + " - " +result2));
+            jsonResult.MaxJsonLength = int.MaxValue;
+            return jsonResult;
+        }
 
     }
 }
