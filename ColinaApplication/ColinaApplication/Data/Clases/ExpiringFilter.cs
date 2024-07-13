@@ -52,6 +52,15 @@ namespace ColinaApplication.Data.Clases
                     }
                 }                
             }
+            else
+            {
+                var U_Token = inicio.UltimoToken();
+                if (U_Token.ACCESS_TOKEN != null)
+                {
+                    HttpContext.Current.Session["FechaVencimientoToken"] = U_Token.FECHA_VENCIMIENTO;
+                    HttpContext.Current.Session["Token"] = U_Token.ACCESS_TOKEN;
+                }
+            }
 
             base.OnActionExecuting(filterContext);
         }
