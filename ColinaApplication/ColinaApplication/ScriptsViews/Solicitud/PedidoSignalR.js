@@ -70,6 +70,7 @@ function Llama_MetodosPSR(connectpsr) {
                 $("#ID").val(data[0].Id);
             }
             $("#GuardaDatosCliente").removeAttr("disabled");
+            cerrar();
         }
 
     }
@@ -305,8 +306,7 @@ function ActualizaInfoMesa(data) {
     $("#FACTURACION_ELECTRONICA").val(data[0].FactracionElectronica);
 
     //Carga Datos Facturacion Electronica
-    if (data[0].FactracionElectronica == "1")
-    {        
+    if (data[0].FactracionElectronica == "1") {
         if (data[0].FactracionElectronica == "1") {
             $('#EnvioDian').prop("checked", true);
             EnviaDian(true);
@@ -344,16 +344,24 @@ function ActualizaInfoPrecios(data) {
         IVA = '<tr> ' +
             '<td>' +
             '<small><b>I.V.A (' + data[0].PorcentajeIVA + '%) : <b></small>' +
-            '<input id="Iva" type="text" class="form-control input-sm" name="Total" value="' + data[0].IVATotal + '" ReadOnly="true"/>' +
+            '<input id="Iva" type="text" class="form-control input-sm" name="Iva" value="' + data[0].IVATotal + '" ReadOnly="true"/>' +
             '</td>' +
             '</tr>';
-    if (data[0].Impuestos[1].Estado == "ACTIVO")
+    if (data[0].Impuestos[1].Estado == "ACTIVO") {
+        var sumaSubtotalConsumo = data[0].Subtotal + data[0].IConsumoTotal;
         ICONSUMO = '<tr> ' +
-            '<td>' +
-            '<small><b>Impuesto Consumo (' + data[0].PorcentajeIConsumo + '%) : <b></small>' +
-            '<input id="SubTotal" type="text" class="form-control input-sm" name="Total" value="' + data[0].IConsumoTotal + '" ReadOnly="true"/>' +
-            '</td>' +
+                '<td>' +
+                '<small><b>Impuesto Consumo (' + data[0].PorcentajeIConsumo + '%) : <b></small>' +
+                '<input id="ImConsumo" type="text" class="form-control input-sm" name="ImConsumo" value="' + data[0].IConsumoTotal + '" ReadOnly="true"/>' +
+                '</td>' +
+            '</tr>' +
+            '<tr> ' +
+                '<td>' +
+                    '<small style = "color: #dc3545;"><b>DATAFONO: <b></small>' +
+            '<input style="font-weight:bolder; font-size: 25px;" type="text" class="form-control input-sm" value="' + sumaSubtotalConsumo + '" ReadOnly="true" />' +
+                '</td>' +
             '</tr>';
+    }
     if (data[0].Impuestos[2].Estado == "ACTIVO")
         SERVICIO = '<tr>' +
             '<td>' +
@@ -389,10 +397,11 @@ function ActualizaInfoPrecios(data) {
         '<tr>' +
         '<td>' +
         '<small><b>SubTotal: <b></small>' +
-        '<input id="SubTotal" type="text" class="form-control input-sm" name="Total" value="' + data[0].Subtotal + '" ReadOnly="true"/>' +
+        '<input id="SubTotal" type="text" class="form-control input-sm" name="SubTotal" value="' + data[0].Subtotal + '" ReadOnly="true"/>' +
         '</td>' +
         '</tr>' +
         IVA +
+
         ICONSUMO +
         SERVICIO +
         '<tr>' +
@@ -693,15 +702,15 @@ function CargaAdiciones(id, precio, nomproducto) {
 
 //METODO SOLO GUARDA DATOS DEL CLIENTE
 function GuardarDatosCliente() {
+    cargando();
     $("#GuardaDatosCliente").attr("disabled", "true");
-    if ($('#EnvioDian').prop("checked"))
-    {
+    if ($('#EnvioDian').prop("checked")) {
         if ($('#PersonaDian').val() != "" && $('#TipoDocumentoDian').val() != "" && $("#CCCliente").val() != "" && (($("#NombreCliente").val() != "" && $('#ApellidosCliente').val() != "") || $('#RazonSocialCliente').val())
             && $('#TelefonoDian').val() != "" && $('#CorreoClienteDian').val() != "" && $('#TipoPersonaDian').val() != "") {
             DatosClienteDIAN = [];
             DatosClienteDIAN.push($('#EnvioDian').prop("checked"));
             DatosClienteDIAN.push($('#PersonaDian').val());
-            DatosClienteDIAN.push($('#TipoDocumentoDian').val());            
+            DatosClienteDIAN.push($('#TipoDocumentoDian').val());
             DatosClienteDIAN.push($('#ApellidosCliente').val());
             DatosClienteDIAN.push($('#NComercialCliente').val());
             DatosClienteDIAN.push($('#DireccionCliente').val());
@@ -732,7 +741,7 @@ function GuardarDatosCliente() {
                     Continuar: {
                         btnClass: 'btn-success btn2',
                         action: function () {
-                            
+
                         }
                     }
                 }
@@ -752,6 +761,7 @@ function GuardarDatosCliente() {
                         btnClass: 'btn btn-danger',
                         action: function () {
                             $("#GuardaDatosCliente").removeAttr("disabled");
+                            cerrar();
                         }
                     }
                 }
@@ -788,7 +798,7 @@ function GuardarDatosCliente() {
 //METODO IMPRIME Y PAGA FACTURA
 function PagarFactura() {
     var Imprime;
-    
+    cargando();
     $.alert({
         theme: 'Modern',
         icon: 'fa fa-question',
@@ -827,13 +837,13 @@ function PagarFactura() {
                                         title: '# Valores Aprobación !',
                                         content: 'Digite el numero de Aprobacion del Voucher, Valor y Tipo de Pago' +
                                             '<br/><br/>' +
-                                                '<div>' +
-                                                    'Pagos Agregados:<br/><table id="InfoMetodosPago" style="width: 60%; margin-left: 20%; font-weight: 700;"> </table>'+
-                                                    '<br/><table id="TablePagoTarjeta"><td style="padding: 5px;"><input style="" id="numAprobacionVoucher" type="text" class="form-control input-sm" onkeypress = "return soloNum(event)" autocomplete="off" placeholder="# Voucher" /></td>' +
-                                                    '<td style="padding: 5px;"><input style="" id="ValorVoucher" type="text" class="form-control input-sm" onkeypress = "return soloNum(event)" autocomplete="off" placeholder="Valor Transaccion"/></td>' +
-                                                    '<td style="padding: 5px;"><select id="OpcionPago" class="form-select"><option value="">** Tipo Pago **</option ><option value="Debito">Tarjeta Debito</option><option value="Credito">Tarjeta Credito</option></select></td></table>' +
-                                                '</div>' +
-                                                '<input type="checkbox" id="AgregaPagoCredit" onchange="AgregaPagoT()" > Desea Agregar Pago ? <br/><br/>',
+                                            '<div>' +
+                                            'Pagos Agregados:<br/><table id="InfoMetodosPago" style="width: 60%; margin-left: 20%; font-weight: 700;"> </table>' +
+                                            '<br/><table id="TablePagoTarjeta"><td style="padding: 5px;"><input style="" id="numAprobacionVoucher" type="text" class="form-control input-sm" onkeypress = "return soloNum(event)" autocomplete="off" placeholder="# Voucher" /></td>' +
+                                            '<td style="padding: 5px;"><input style="" id="ValorVoucher" type="text" class="form-control input-sm" onkeypress = "return soloNum(event)" autocomplete="off" placeholder="Valor Transaccion"/></td>' +
+                                            '<td style="padding: 5px;"><select id="OpcionPago" class="form-select"><option value="">** Tipo Pago **</option ><option value="Debito">Tarjeta Debito</option><option value="Credito">Tarjeta Credito</option></select></td></table>' +
+                                            '</div>' +
+                                            '<label style="cursor: pointer; font-weight: bold;"><input type="checkbox" id="AgregaPagoCredit" onchange="AgregaPagoT()" > Desea Agregar Pago ? </label> <br/><br/>',
                                         buttons: {
                                             Continuar: {
                                                 btnClass: 'btn btn-warning',
@@ -861,6 +871,7 @@ function PagarFactura() {
                                                 btnClass: 'btn btn-warning CierraPago',
                                                 action: function () {
                                                     PagosDIAN = [];
+                                                    cerrar();
                                                 }
                                             }
                                         }
@@ -897,9 +908,9 @@ function PagarFactura() {
                                                 }
                                             },
                                             Cancelar: {
-                                                btnClass: 'btn btn-warning',                                                
+                                                btnClass: 'btn btn-warning',
                                                 action: function () {
-
+                                                    cerrar();
                                                 }
                                             }
                                         }
@@ -941,7 +952,7 @@ function PagarFactura() {
                                                                 '<td style="padding: 5px;"><input style="" id="ValorVoucher" type="text" class="form-control input-sm" onkeypress = "return soloNum(event)" autocomplete="off" placeholder="Valor Transaccion"/></td>' +
                                                                 '<td style="padding: 5px;"><select id="OpcionPago" class="form-select"><option value="">** Tipo Pago **</option ><option value="Debito">Tarjeta Debito</option><option value="Credito">Tarjeta Credito</option></select></td></table>' +
                                                                 '</div>' +
-                                                                '<input type="checkbox" id="AgregaPagoCredit" onchange="AgregaPagoT()" > Desea Agregar Pago ? <br/><br/>',
+                                                                '<label style="cursor: pointer; font-weight: bold;"><input type="checkbox" id="AgregaPagoCredit" onchange="AgregaPagoT()" > Desea Agregar Pago ? </label> <br/><br/>',
                                                             buttons: {
                                                                 Continuar: {
                                                                     btnClass: 'btn btn-warning',
@@ -968,9 +979,10 @@ function PagarFactura() {
                                                                     }
                                                                 },
                                                                 Cancelar: {
-                                                                    btnClass: 'btn btn-warning',
+                                                                    btnClass: 'btn btn-warning CierraPago',
                                                                     action: function () {
                                                                         PagosDIAN = [];
+                                                                        cerrar();
                                                                     }
                                                                 }
                                                             }
@@ -985,6 +997,7 @@ function PagarFactura() {
                                                 btnClass: 'btn btn-warning',
                                                 action: function () {
                                                     PagosDIAN = [];
+                                                    cerrar();
                                                 }
                                             }
                                         }
@@ -992,9 +1005,10 @@ function PagarFactura() {
                                 }
                             },
                             Cancelar: {
-                                btnClass: 'btn btn-warning',                                
+                                btnClass: 'btn btn-warning',
                                 action: function () {
                                     PagosDIAN = [];
+                                    cerrar();
                                 }
                             }
                         }
@@ -1004,7 +1018,7 @@ function PagarFactura() {
             Cancelar: {
                 btnClass: 'btn btn-warning',
                 action: function () {
-
+                    cerrar();
                 }
             }
         }
@@ -1065,8 +1079,8 @@ function CancelaPedido() {
                         buttons: {
                             Si: {
                                 btnClass: 'btn btn-danger',
-                                action: function () {                                    
-                                    DatosClienteDIAN.push($('#EnvioDian').prop("checked"));                                    
+                                action: function () {
+                                    DatosClienteDIAN.push($('#EnvioDian').prop("checked"));
                                     connectPSR.server.guardaDatosCliente($("#ID").val(), $("#CCCliente").val(), $("#NombreCliente").val() + " " + $("#ApellidosCliente").val(),
                                         $("#OBSERVACIONES").val(), $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SubTotal").val(),
                                         "CANCELA PEDIDO", $("#ID_MESA").val(), $("#servicio").val(), "N/A", "", "0", $("#ID_MESERO").val(),
@@ -1514,7 +1528,7 @@ function validaValor() {
 function EnviaDian(valor) {
     if (valor) {
         //$("#SecciondianPersona").empty(); 
-        
+
     }
     else {
         $('#PersonaDian option:eq(0)').prop('selected', true);
@@ -1572,7 +1586,7 @@ function ConsultaClienteDian(valor) {
                         useBootstrap: false,
                         type: 'green',
                         title: 'Usuario Encontrado!',
-                        content: "Se ha encontrado el usuario " + json.NUMERO_IDENTIFICACION +", se cargara automaticamente !",
+                        content: "Se ha encontrado el usuario " + json.NUMERO_IDENTIFICACION + ", se cargara automaticamente !",
                         buttons: {
                             OK: {
                                 btnClass: 'btn-success btn2',
@@ -1605,7 +1619,7 @@ function ConsultaClienteDian(valor) {
             error: function (request, status, error) {
                 console.log(error);
             }
-    
+
         });
     }
 }
@@ -1631,5 +1645,5 @@ function AgregaPagoT() {
         $(".CierraPago").click();
         PagarFactura();
     }
-    
+
 }
