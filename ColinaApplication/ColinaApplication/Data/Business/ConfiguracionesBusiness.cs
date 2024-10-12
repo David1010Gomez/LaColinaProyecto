@@ -249,7 +249,7 @@ namespace ColinaApplication.Data.Business
                         actualiza.ID_IMPRESORA = model.ID_IMPRESORA;
                         actualiza.UP_DIAN = producto.id != null ? 1 : 0;
                         actualiza.ID_DIAN = actualiza.ID_DIAN == null ? producto.id : actualiza.ID_DIAN;
-                        actualiza.ACCOUNT_GROUP_DIAN = producto.account_group != null ? producto.account_group.id : 0;
+                        //actualiza.ACCOUNT_GROUP_DIAN = producto.account_group != null ? producto.account_group.id : 0;
                         contex.SaveChanges();
                         Respuesta = true;
                     }

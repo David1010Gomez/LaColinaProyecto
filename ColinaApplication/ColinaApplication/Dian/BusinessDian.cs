@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using ColinaApplication.Data.Conexion;
 using DocumentFormat.OpenXml.Wordprocessing;
 using ColinaApplication.Data.Clases;
+using System.Net;
 
 namespace ColinaApplication.Dian
 {
@@ -26,6 +27,8 @@ namespace ColinaApplication.Dian
                 Task<string> strObj = null;
                 using (var httpClient = new HttpClient())
                 {
+                    ServicePointManager.Expect100Continue = true;
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                     string url = "https://api.siigo.com/auth";
                     var body = "{ \"username\": \""+ ConfigurationManager.AppSettings["USUARIOSIIGO"] + "\", \"access_key\": \""+ ConfigurationManager.AppSettings["CONTRASIIGO"] +"\"}";
                     body = body.Replace("\n", " ");
@@ -59,6 +62,8 @@ namespace ColinaApplication.Dian
             {
                 using (var httpClient = new HttpClient())
                 {
+                    ServicePointManager.Expect100Continue = true;
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                     string url = ConfigurationManager.AppSettings["URLSIIGO"] + "products";
                     httpClient.DefaultRequestHeaders.Add("Partner-Id", "LaColinaPOS");
                     var header = new AuthenticationHeaderValue("Bearer", token);
@@ -91,6 +96,8 @@ namespace ColinaApplication.Dian
             {
                 using (var httpClient = new HttpClient())
                 {
+                    ServicePointManager.Expect100Continue = true;
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                     string url = ConfigurationManager.AppSettings["URLSIIGO"] + "account-groups";
                     httpClient.DefaultRequestHeaders.Add("Partner-Id", "LaColinaPOS");
                     var header = new AuthenticationHeaderValue("Bearer", token);
@@ -123,6 +130,8 @@ namespace ColinaApplication.Dian
                 Task<string> strObj = null;
                 using (var httpClient = new HttpClient())
                 {
+                    ServicePointManager.Expect100Continue = true;
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                     string url = ConfigurationManager.AppSettings["URLSIIGO"] + "products";
                     httpClient.DefaultRequestHeaders.Add("Partner-Id", "LaColinaPOS");
                     var header = new AuthenticationHeaderValue("Bearer", token);
@@ -163,6 +172,8 @@ namespace ColinaApplication.Dian
             {
                 using (var httpClient = new HttpClient())
                 {
+                    ServicePointManager.Expect100Continue = true;
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                     string url = ConfigurationManager.AppSettings["URLSIIGO"] + "products/"+idProducto;
                     httpClient.DefaultRequestHeaders.Add("Partner-Id", "LaColinaPOS");
                     var header = new AuthenticationHeaderValue("Bearer", token);
@@ -195,6 +206,8 @@ namespace ColinaApplication.Dian
                 Task<string> strObj = null;
                 using (var httpClient = new HttpClient())
                 {
+                    ServicePointManager.Expect100Continue = true;
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                     string url = ConfigurationManager.AppSettings["URLSIIGO"] + "products/" + model.id;
                     httpClient.DefaultRequestHeaders.Add("Partner-Id", "LaColinaPOS");
                     var header = new AuthenticationHeaderValue("Bearer", token);
@@ -256,11 +269,13 @@ namespace ColinaApplication.Dian
                 }
                 using (var httpClient = new HttpClient())
                 {
+                    ServicePointManager.Expect100Continue = true;
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                     string url = ConfigurationManager.AppSettings["URLSIIGO"] + "customers";
                     httpClient.DefaultRequestHeaders.Add("Partner-Id", "LaColinaPOS");
                     var header = new AuthenticationHeaderValue("Bearer", token);
                     httpClient.DefaultRequestHeaders.Authorization = header;
-                   var body = "{ \"person_type\": \"" + model.person_type + "\", " +
+                    var body = "{ \"person_type\": \"" + model.person_type + "\", " +
                                  "\"id_type\":\"" + model.id_type.code + "\", " +
                                  "\"identification\": \"" + model.identification + "\"," +
                                  "\"check_digit\": \""+model.check_digit+"\"," +
@@ -333,6 +348,8 @@ namespace ColinaApplication.Dian
                 }
                 using (var httpClient = new HttpClient())
                 {
+                    ServicePointManager.Expect100Continue = true;
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                     string url = ConfigurationManager.AppSettings["URLSIIGO"] + "invoices";
                     httpClient.DefaultRequestHeaders.Add("Partner-Id", "LaColinaPOS");
                     var header = new AuthenticationHeaderValue("Bearer", token);
