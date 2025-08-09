@@ -15,12 +15,12 @@
         <EntityTypeShape EntityType="COLINADBModel.TBL_IMPRESORAS" Width="1.5" PointX="3.125" PointY="7" />
         <EntityTypeShape EntityType="COLINADBModel.TBL_NOMINA" Width="1.5" PointX="1" PointY="6.375" />
         <EntityTypeShape EntityType="COLINADBModel.TBL_DIAS_TRABAJADOS" Width="1.5" PointX="7.25" PointY="3.5" />
-        <EntityTypeShape EntityType="COLINADBModel.TBL_SISTEMA" Width="1.5" PointX="8" PointY="6.625" />
+        <EntityTypeShape EntityType="COLINADBModel.TBL_SISTEMA" Width="1.5" PointX="7.5" PointY="6.875" />
         <EntityTypeShape EntityType="COLINADBModel.TBL_PRODUCTOS" Width="1.5" PointX="0.625" PointY="2.75" />
         <EntityTypeShape EntityType="COLINADBModel.TBL_TOKENS_DIAN" Width="1.5" PointX="5.5" PointY="6.125" />
-        <EntityTypeShape EntityType="COLINADBModel.TBL_SOLICITUD" Width="1.5" PointX="9.375" PointY="0.5" />
         <EntityTypeShape EntityType="COLINADBModel.TBL_FACTURAS_FALLIDAS_DIAN" Width="1.5" PointX="11.75" PointY="6.5" />
         <EntityTypeShape EntityType="COLINADBModel.TBL_CLIENTES_DIAN" Width="1.5" PointX="13.375" PointY="0.5" />
+        <EntityTypeShape EntityType="COLINADBModel.TBL_SOLICITUD" Width="1.5" PointX="9.5" PointY="0.5" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

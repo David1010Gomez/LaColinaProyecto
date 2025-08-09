@@ -131,8 +131,9 @@
             }
         </div>
 
-        @if (Session["IdPerfil"].ToString() == "1")
+        @if (Session["IdPerfil"].ToString() == "1" || Session["IdPerfil"].ToString() == "2")
         {
+            //INVENTARIOS
             <div class="col-md-12">
                 <br /><br />
                 <h3 class="page-header"><i class="fa fa-th-list"></i> Inventarios </h3>
@@ -307,6 +308,8 @@
                 }
                 <button class="btn btn-warning" onclick="ActualizaProductosMasivo()" style="margin-left: 10%; margin-top: -10%;">Masivo</button>
             </div>
+
+            //USUARIOS
             <div class="col-md-12">
                 <br /><br />
                 <h3 class="page-header"><i class="fa fa-user"></i> Usuarios </h3>
@@ -383,6 +386,7 @@
                 }
             </div>
 
+            //IMPRESORAS
             <div class="col-md-12">
                 <br /><br />
                 <h3 class="page-header"><i class="fa fa-print"></i> Impresoras </h3>
@@ -442,138 +446,147 @@
                 }
             </div>
 
-            <div id="DivImpuestos" class="col-md-12">
-                <br /><br />
-                <h3 class="page-header"><i class="fa fa-money"></i> Impuestos </h3>
-                @using (Html.BeginForm("AgregarEditarImpuestos", "Configuracion", FormMethod.Post, new { @style = "padding: 10px; background-color: #eeeeee;" }))
-                {
-                    <div class="col-md-12" style="overflow-x:auto;">
-                        <table id="" class="table table-bordered table-hover TablaList" style=" width: 100%; border: 0px solid #dddddd; background-color: white;" data-page-length='5'>
-                            <thead style="background-color: black; color: white;">
-                                <tr>
-                                    <th></th>
-                                    <th>ID</th>
-                                    <th>IMPUESTO</th>
-                                    <th>PORCENTAJE</th>
-                                    <th>ESTADO</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @for (int i = 0; i < Model.Impuestos.Count; i++)
-                                {
+            //IMPUESTOS
+            if (Session["IdPerfil"].ToString() == "1")
+            {
+                <div id="DivImpuestos" class="col-md-12">
+                    <br /><br />
+                    <h3 class="page-header"><i class="fa fa-money"></i> Impuestos </h3>
+                    @using (Html.BeginForm("AgregarEditarImpuestos", "Configuracion", FormMethod.Post, new { @style = "padding: 10px; background-color: #eeeeee;" }))
+                    {
+                        <div class="col-md-12" style="overflow-x:auto;">
+                            <table id="" class="table table-bordered table-hover TablaList" style=" width: 100%; border: 0px solid #dddddd; background-color: white;" data-page-length='5'>
+                                <thead style="background-color: black; color: white;">
                                     <tr>
-                                        <td style=" text-align: center;">
-                                            <i class="fa fa-pencil" style="cursor: pointer;" onclick="EditarImpuesto('@Model.Impuestos[i].ID', '@Model.Impuestos[i].NOMBRE_IMPUESTO', '@Model.Impuestos[i].PORCENTAJE', '@Model.Impuestos[i].ESTADO')"></i>
-                                        </td>
-                                        <td data_val="Elemento_@i">
-                                            @Model.Impuestos[i].ID
-                                        </td>
-                                        <td>
-                                            @Model.Impuestos[i].NOMBRE_IMPUESTO
-                                        </td>
-                                        <td>
-                                            @Model.Impuestos[i].PORCENTAJE
-                                        </td>
-                                        <td>
-                                            @Model.Impuestos[i].ESTADO
-                                        </td>
+                                        <th></th>
+                                        <th>ID</th>
+                                        <th>IMPUESTO</th>
+                                        <th>PORCENTAJE</th>
+                                        <th>ESTADO</th>
                                     </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="col-md-6" style="float: inherit;">
-                        <div class="col-md-12">
-                            <i class="fa fa-2x fa-trash-o" style="float: right; cursor: pointer;" onclick="LimpiaCamposImpuesto()"></i>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.Impuestos.Count; i++)
+                                    {
+                                        <tr>
+                                            <td style=" text-align: center;">
+                                                <i class="fa fa-pencil" style="cursor: pointer;" onclick="EditarImpuesto('@Model.Impuestos[i].ID', '@Model.Impuestos[i].NOMBRE_IMPUESTO', '@Model.Impuestos[i].PORCENTAJE', '@Model.Impuestos[i].ESTADO')"></i>
+                                            </td>
+                                            <td data_val="Elemento_@i">
+                                                @Model.Impuestos[i].ID
+                                            </td>
+                                            <td>
+                                                @Model.Impuestos[i].NOMBRE_IMPUESTO
+                                            </td>
+                                            <td>
+                                                @Model.Impuestos[i].PORCENTAJE
+                                            </td>
+                                            <td>
+                                                @Model.Impuestos[i].ESTADO
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6" style="float: inherit;">
+                            <div class="col-md-12">
+                                <i class="fa fa-2x fa-trash-o" style="float: right; cursor: pointer;" onclick="LimpiaCamposImpuesto()"></i>
+                                <br />
+                            </div>
+                            <div class="col-md-12">
+                                <small><b>Nombre Categoria:</b></small>
+                                @Html.HiddenFor(x => x.ImpuestosModel.ID, new { @Id = "IdImpuesto", Value = "" })
+                                @Html.TextBoxFor(x => x.ImpuestosModel.NOMBRE_IMPUESTO, new { @Id = "NombreImpuesto", Placeholder = "Digite el nombre del impuesto", @class = "form-control input-sm", @style = "max-width: 100% !important;", Value = "", Required = true, Autocomplete = "off" })
+                            </div>
+                            <div class="col-md-12">
+                                <small><b>Porcentaje:</b></small>
+                                @Html.TextBoxFor(x => x.ImpuestosModel.PORCENTAJE, new { @Id = "PorcentajeImpuesto", Placeholder = "Digite el porcentaje", @type = "number", @class = "form-control input-sm", @style = "max-width: 100% !important;", Value = "", Required = true, Autocomplete = "off" })
+                            </div>
+                            <div class="col-md-12">
+                                <small><b>Estado:</b></small>
+                                @Html.DropDownListFor(x => x.ImpuestosModel.ESTADO, new List<SelectListItem>
+                                {
+                                        new SelectListItem() {Text = "-- SELECCIONE --", Value=""},
+                                        new SelectListItem() {Text = "ACTIVO", Value="ACTIVO"},
+                                        new SelectListItem() {Text = "INACTIVO", Value="INACTIVO"}
+                                },
+              new { @Id = "EstadoImpuesto", @class = "form-control input-sm", @style = "max-width: 100% !important;", Value = "", Required = true })
+                            </div>
+                            <br />
+                            <div id="DivPerfiles" class="col-md-12">
+                                <input type="submit" class="btn btn-success" value="Guardar" />
+                            </div>
                             <br />
                         </div>
-                        <div class="col-md-12">
-                            <small><b>Nombre Categoria:</b></small>
-                            @Html.HiddenFor(x => x.ImpuestosModel.ID, new { @Id = "IdImpuesto", Value = "" })
-                            @Html.TextBoxFor(x => x.ImpuestosModel.NOMBRE_IMPUESTO, new { @Id = "NombreImpuesto", Placeholder = "Digite el nombre del impuesto", @class = "form-control input-sm", @style = "max-width: 100% !important;", Value = "", Required = true, Autocomplete = "off" })
-                        </div>
-                        <div class="col-md-12">
-                            <small><b>Porcentaje:</b></small>
-                            @Html.TextBoxFor(x => x.ImpuestosModel.PORCENTAJE, new { @Id = "PorcentajeImpuesto", Placeholder = "Digite el porcentaje", @type = "number", @class = "form-control input-sm", @style = "max-width: 100% !important;", Value = "", Required = true, Autocomplete = "off" })
-                        </div>
-                        <div class="col-md-12">
-                            <small><b>Estado:</b></small>
-                            @Html.DropDownListFor(x => x.ImpuestosModel.ESTADO, new List<SelectListItem>
-                            {
-                                    new SelectListItem() {Text = "-- SELECCIONE --", Value=""},
-                                    new SelectListItem() {Text = "ACTIVO", Value="ACTIVO"},
-                                    new SelectListItem() {Text = "INACTIVO", Value="INACTIVO"}
-                            },
-                 new { @Id = "EstadoImpuesto", @class = "form-control input-sm", @style = "max-width: 100% !important;", Value = "", Required = true })
-                        </div>
-                        <br />
-                        <div id="DivPerfiles" class="col-md-12">
-                            <input type="submit" class="btn btn-success" value="Guardar" />
-                        </div>
-                        <br />
-                    </div>
-                }
-            </div>
+                    }
+                </div>
+            }
 
-            <div class="col-md-12">
-                <br /><br />
-                <h3 class="page-header"><i class="fa fa-users"></i> Perfiles </h3>
-                @using (Html.BeginForm("AgregarEditarPerfiles", "Configuracion", FormMethod.Post, new { @style = "padding: 10px; background-color: #eeeeee;" }))
-                {
-                    <div class="col-md-12" style="overflow-x:auto;">
-                        <table id="" class="table table-bordered table-hover TablaList" style=" width: 100%; background-color: white; border: 0px solid #dddddd;" data-page-length='5'>
-                            <thead style="background-color: black; color: white;">
-                                <tr>
-                                    <th></th>
-                                    <th>ID</th>
-                                    <th>PERFIL</th>
-                                    <th>PORCENTAJE SERVICIO</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @for (int i = 0; i < Model.Perfiles.Count; i++)
-                                {
+            //PERFILES
+            if (Session["IdPerfil"].ToString() == "1")
+            {
+                <div class="col-md-12">
+                    <br /><br />
+                    <h3 class="page-header"><i class="fa fa-users"></i> Perfiles </h3>
+                    @using (Html.BeginForm("AgregarEditarPerfiles", "Configuracion", FormMethod.Post, new { @style = "padding: 10px; background-color: #eeeeee;" }))
+                    {
+                        <div class="col-md-12" style="overflow-x:auto;">
+                            <table id="" class="table table-bordered table-hover TablaList" style=" width: 100%; background-color: white; border: 0px solid #dddddd;" data-page-length='5'>
+                                <thead style="background-color: black; color: white;">
                                     <tr>
-                                        <td style=" text-align: center;">
-                                            <i class="fa fa-pencil" style="cursor: pointer;" onclick="EditarPerfil('@Model.Perfiles[i].ID', '@Model.Perfiles[i].NOMBRE_PERFIL', '@Model.Perfiles[i].PORCENTAJE_PROPINA')"></i>
-                                        </td>
-                                        <td data_val="Elemento_@i">
-                                            @Model.Perfiles[i].ID
-                                        </td>
-                                        <td>
-                                            @Model.Perfiles[i].NOMBRE_PERFIL
-                                        </td>
-                                        <td>
-                                            @Model.Perfiles[i].PORCENTAJE_PROPINA
-                                        </td>
-
+                                        <th></th>
+                                        <th>ID</th>
+                                        <th>PERFIL</th>
+                                        <th>PORCENTAJE SERVICIO</th>
                                     </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="col-md-6" style="float: inherit;">
-                        <div class="col-md-12">
-                            <i class="fa fa-2x fa-trash-o" style="float: right; cursor: pointer;" onclick="LimpiaCamposPerfil()"></i>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.Perfiles.Count; i++)
+                                    {
+                                        <tr>
+                                            <td style=" text-align: center;">
+                                                <i class="fa fa-pencil" style="cursor: pointer;" onclick="EditarPerfil('@Model.Perfiles[i].ID', '@Model.Perfiles[i].NOMBRE_PERFIL', '@Model.Perfiles[i].PORCENTAJE_PROPINA')"></i>
+                                            </td>
+                                            <td data_val="Elemento_@i">
+                                                @Model.Perfiles[i].ID
+                                            </td>
+                                            <td>
+                                                @Model.Perfiles[i].NOMBRE_PERFIL
+                                            </td>
+                                            <td>
+                                                @Model.Perfiles[i].PORCENTAJE_PROPINA
+                                            </td>
+
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6" style="float: inherit;">
+                            <div class="col-md-12">
+                                <i class="fa fa-2x fa-trash-o" style="float: right; cursor: pointer;" onclick="LimpiaCamposPerfil()"></i>
+                                <br />
+                            </div>
+                            <div class="col-md-12">
+                                <small><b>Perfil:</b></small>
+                                @Html.HiddenFor(x => x.PerfilesModel.ID, new { @Id = "IdPerfil", Value = "" })
+                                @Html.TextBoxFor(x => x.PerfilesModel.NOMBRE_PERFIL, new { @Id = "NombrePerfil", Placeholder = "Digite el nombre del perfil", @class = "form-control input-sm", @style = "max-width: 100% !important;", Value = "", Required = true, Autocomplete = "off" })
+                            </div>
+                            <div class="col-md-12">
+                                <small><b>Porcentaje Propina:</b></small>
+                                @Html.TextBoxFor(x => x.PerfilesModel.PORCENTAJE_PROPINA, new { @Id = "PorcentajePropinaPerfil", Placeholder = "Digite el porcentaje de servicio", @class = "form-control input-sm", @style = "max-width: 100% !important;", Value = "", Required = true, Autocomplete = "off" })
+                            </div>
+                            <br />
+                            <div id="DivNomina" class="col-md-12">
+                                <input type="submit" class="btn btn-success" value="Guardar" />
+                            </div>
                             <br />
                         </div>
-                        <div class="col-md-12">
-                            <small><b>Perfil:</b></small>
-                            @Html.HiddenFor(x => x.PerfilesModel.ID, new { @Id = "IdPerfil", Value = "" })
-                            @Html.TextBoxFor(x => x.PerfilesModel.NOMBRE_PERFIL, new { @Id = "NombrePerfil", Placeholder = "Digite el nombre del perfil", @class = "form-control input-sm", @style = "max-width: 100% !important;", Value = "", Required = true, Autocomplete = "off" })
-                        </div>
-                        <div class="col-md-12">
-                            <small><b>Porcentaje Propina:</b></small>
-                            @Html.TextBoxFor(x => x.PerfilesModel.PORCENTAJE_PROPINA, new { @Id = "PorcentajePropinaPerfil", Placeholder = "Digite el porcentaje de servicio", @class = "form-control input-sm", @style = "max-width: 100% !important;", Value = "", Required = true, Autocomplete = "off" })
-                        </div>
-                        <br />
-                        <div id="DivNomina" class="col-md-12">
-                            <input type="submit" class="btn btn-success" value="Guardar" />
-                        </div>
-                        <br />
-                    </div>
-                }
-            </div>
+                    }
+                </div>
+            }
+
             <div class="col-md-12">
                 <br /><br />
                 <h3 class="page-header"><i class="fa fa-chess"></i> Nómina </h3>

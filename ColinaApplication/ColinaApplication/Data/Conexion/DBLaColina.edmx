@@ -208,6 +208,8 @@
           <Property Name="ENVIO_DIAN" Type="varchar" MaxLength="2" />
           <Property Name="VALORES_VOUCHERS" Type="varchar" MaxLength="255" />
           <Property Name="ID_F_DIAN" Type="varchar" MaxLength="255" />
+          <Property Name="ID_SOLICITUD_PRINCIPAL" Type="numeric" Precision="18" Scale="0" />
+          <Property Name="MESA_DIVIDIDA" Type="varchar" MaxLength="2" />
         </EntityType>
         <EntityType Name="TBL_TOKENS_DIAN">
           <Key>
@@ -273,9 +275,9 @@ advertencia 6013: La tabla o vista 'COLINADB.dbo.TBL_TRANSITORIA' no tiene defin
           <EntitySet Name="TBL_SISTEMA" EntityType="COLINADBModel.TBL_SISTEMA" />
           <EntitySet Name="TBL_PRODUCTOS" EntityType="COLINADBModel.TBL_PRODUCTOS" />
           <EntitySet Name="TBL_TOKENS_DIAN" EntityType="COLINADBModel.TBL_TOKENS_DIAN" />
-          <EntitySet Name="TBL_SOLICITUD" EntityType="COLINADBModel.TBL_SOLICITUD" />
           <EntitySet Name="TBL_FACTURAS_FALLIDAS_DIAN" EntityType="COLINADBModel.TBL_FACTURAS_FALLIDAS_DIAN" />
           <EntitySet Name="TBL_CLIENTES_DIAN" EntityType="COLINADBModel.TBL_CLIENTES_DIAN" />
+          <EntitySet Name="TBL_SOLICITUD" EntityType="COLINADBModel.TBL_SOLICITUD" />
         </EntityContainer>
         <EntityType Name="TBL_CATEGORIAS">
           <Key>
@@ -438,37 +440,6 @@ advertencia 6013: La tabla o vista 'COLINADB.dbo.TBL_TRANSITORIA' no tiene defin
           <Property Name="TOKEN_TYPE" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
           <Property Name="SCOPE" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="TBL_SOLICITUD">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="Decimal" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="FECHA_SOLICITUD" Type="DateTime" Precision="3" />
-          <Property Name="ID_MESA" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="ID_MESERO" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="IDENTIFICACION_CLIENTE" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
-          <Property Name="NOMBRE_CLIENTE" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
-          <Property Name="ESTADO_SOLICITUD" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
-          <Property Name="OBSERVACIONES" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="OTROS_COBROS" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="DESCUENTOS" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="SUBTOTAL" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="PORCENTAJE_IVA" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="IVA_TOTAL" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="PORCENTAJE_I_CONSUMO" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="I_CONSUMO_TOTAL" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="PORCENTAJE_SERVICIO" Type="Decimal" Precision="18" Scale="15" />
-          <Property Name="SERVICIO_TOTAL" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="TOTAL" Type="Decimal" Precision="18" Scale="5" />
-          <Property Name="METODO_PAGO" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
-          <Property Name="VOUCHER" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
-          <Property Name="CANT_EFECTIVO" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="ID_CLIENTE" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="FACTURACION_ELECTRONICA" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
-          <Property Name="ENVIO_DIAN" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
-          <Property Name="VALORES_VOUCHERS" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
-          <Property Name="ID_F_DIAN" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
-        </EntityType>
         <EntityType Name="TBL_FACTURAS_FALLIDAS_DIAN">
           <Key>
             <PropertyRef Name="ID" />
@@ -502,6 +473,39 @@ advertencia 6013: La tabla o vista 'COLINADB.dbo.TBL_TRANSITORIA' no tiene defin
           <Property Name="ID_CODIGO_DIAN" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="TELEFONO" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
           <Property Name="DIGITO_VERIFI" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="TBL_SOLICITUD">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Decimal" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FECHA_SOLICITUD" Type="DateTime" Precision="3" />
+          <Property Name="ID_MESA" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="ID_MESERO" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="IDENTIFICACION_CLIENTE" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="NOMBRE_CLIENTE" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="ESTADO_SOLICITUD" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="OBSERVACIONES" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="OTROS_COBROS" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="DESCUENTOS" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="SUBTOTAL" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="PORCENTAJE_IVA" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="IVA_TOTAL" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="PORCENTAJE_I_CONSUMO" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="I_CONSUMO_TOTAL" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="PORCENTAJE_SERVICIO" Type="Decimal" Precision="18" Scale="15" />
+          <Property Name="SERVICIO_TOTAL" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="TOTAL" Type="Decimal" Precision="18" Scale="5" />
+          <Property Name="METODO_PAGO" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="VOUCHER" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="CANT_EFECTIVO" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="ID_CLIENTE" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="FACTURACION_ELECTRONICA" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="ENVIO_DIAN" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="VALORES_VOUCHERS" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="ID_F_DIAN" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="ID_SOLICITUD_PRINCIPAL" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="MESA_DIVIDIDA" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -683,38 +687,6 @@ advertencia 6013: La tabla o vista 'COLINADB.dbo.TBL_TRANSITORIA' no tiene defin
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="TBL_SOLICITUD">
-            <EntityTypeMapping TypeName="COLINADBModel.TBL_SOLICITUD">
-              <MappingFragment StoreEntitySet="TBL_SOLICITUD">
-                <ScalarProperty Name="ID_F_DIAN" ColumnName="ID_F_DIAN" />
-                <ScalarProperty Name="VALORES_VOUCHERS" ColumnName="VALORES_VOUCHERS" />
-                <ScalarProperty Name="ENVIO_DIAN" ColumnName="ENVIO_DIAN" />
-                <ScalarProperty Name="FACTURACION_ELECTRONICA" ColumnName="FACTURACION_ELECTRONICA" />
-                <ScalarProperty Name="ID_CLIENTE" ColumnName="ID_CLIENTE" />
-                <ScalarProperty Name="CANT_EFECTIVO" ColumnName="CANT_EFECTIVO" />
-                <ScalarProperty Name="VOUCHER" ColumnName="VOUCHER" />
-                <ScalarProperty Name="METODO_PAGO" ColumnName="METODO_PAGO" />
-                <ScalarProperty Name="TOTAL" ColumnName="TOTAL" />
-                <ScalarProperty Name="SERVICIO_TOTAL" ColumnName="SERVICIO_TOTAL" />
-                <ScalarProperty Name="PORCENTAJE_SERVICIO" ColumnName="PORCENTAJE_SERVICIO" />
-                <ScalarProperty Name="I_CONSUMO_TOTAL" ColumnName="I_CONSUMO_TOTAL" />
-                <ScalarProperty Name="PORCENTAJE_I_CONSUMO" ColumnName="PORCENTAJE_I_CONSUMO" />
-                <ScalarProperty Name="IVA_TOTAL" ColumnName="IVA_TOTAL" />
-                <ScalarProperty Name="PORCENTAJE_IVA" ColumnName="PORCENTAJE_IVA" />
-                <ScalarProperty Name="SUBTOTAL" ColumnName="SUBTOTAL" />
-                <ScalarProperty Name="DESCUENTOS" ColumnName="DESCUENTOS" />
-                <ScalarProperty Name="OTROS_COBROS" ColumnName="OTROS_COBROS" />
-                <ScalarProperty Name="OBSERVACIONES" ColumnName="OBSERVACIONES" />
-                <ScalarProperty Name="ESTADO_SOLICITUD" ColumnName="ESTADO_SOLICITUD" />
-                <ScalarProperty Name="NOMBRE_CLIENTE" ColumnName="NOMBRE_CLIENTE" />
-                <ScalarProperty Name="IDENTIFICACION_CLIENTE" ColumnName="IDENTIFICACION_CLIENTE" />
-                <ScalarProperty Name="ID_MESERO" ColumnName="ID_MESERO" />
-                <ScalarProperty Name="ID_MESA" ColumnName="ID_MESA" />
-                <ScalarProperty Name="FECHA_SOLICITUD" ColumnName="FECHA_SOLICITUD" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="TBL_FACTURAS_FALLIDAS_DIAN">
             <EntityTypeMapping TypeName="COLINADBModel.TBL_FACTURAS_FALLIDAS_DIAN">
               <MappingFragment StoreEntitySet="TBL_FACTURAS_FALLIDAS_DIAN">
@@ -747,6 +719,40 @@ advertencia 6013: La tabla o vista 'COLINADB.dbo.TBL_TRANSITORIA' no tiene defin
                 <ScalarProperty Name="NOMBRE_DOCUMENTO" ColumnName="NOMBRE_DOCUMENTO" />
                 <ScalarProperty Name="CODIGO_DOCUMENTO" ColumnName="CODIGO_DOCUMENTO" />
                 <ScalarProperty Name="TIPO_PERSONA" ColumnName="TIPO_PERSONA" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TBL_SOLICITUD">
+            <EntityTypeMapping TypeName="COLINADBModel.TBL_SOLICITUD">
+              <MappingFragment StoreEntitySet="TBL_SOLICITUD">
+                <ScalarProperty Name="MESA_DIVIDIDA" ColumnName="MESA_DIVIDIDA" />
+                <ScalarProperty Name="ID_SOLICITUD_PRINCIPAL" ColumnName="ID_SOLICITUD_PRINCIPAL" />
+                <ScalarProperty Name="ID_F_DIAN" ColumnName="ID_F_DIAN" />
+                <ScalarProperty Name="VALORES_VOUCHERS" ColumnName="VALORES_VOUCHERS" />
+                <ScalarProperty Name="ENVIO_DIAN" ColumnName="ENVIO_DIAN" />
+                <ScalarProperty Name="FACTURACION_ELECTRONICA" ColumnName="FACTURACION_ELECTRONICA" />
+                <ScalarProperty Name="ID_CLIENTE" ColumnName="ID_CLIENTE" />
+                <ScalarProperty Name="CANT_EFECTIVO" ColumnName="CANT_EFECTIVO" />
+                <ScalarProperty Name="VOUCHER" ColumnName="VOUCHER" />
+                <ScalarProperty Name="METODO_PAGO" ColumnName="METODO_PAGO" />
+                <ScalarProperty Name="TOTAL" ColumnName="TOTAL" />
+                <ScalarProperty Name="SERVICIO_TOTAL" ColumnName="SERVICIO_TOTAL" />
+                <ScalarProperty Name="PORCENTAJE_SERVICIO" ColumnName="PORCENTAJE_SERVICIO" />
+                <ScalarProperty Name="I_CONSUMO_TOTAL" ColumnName="I_CONSUMO_TOTAL" />
+                <ScalarProperty Name="PORCENTAJE_I_CONSUMO" ColumnName="PORCENTAJE_I_CONSUMO" />
+                <ScalarProperty Name="IVA_TOTAL" ColumnName="IVA_TOTAL" />
+                <ScalarProperty Name="PORCENTAJE_IVA" ColumnName="PORCENTAJE_IVA" />
+                <ScalarProperty Name="SUBTOTAL" ColumnName="SUBTOTAL" />
+                <ScalarProperty Name="DESCUENTOS" ColumnName="DESCUENTOS" />
+                <ScalarProperty Name="OTROS_COBROS" ColumnName="OTROS_COBROS" />
+                <ScalarProperty Name="OBSERVACIONES" ColumnName="OBSERVACIONES" />
+                <ScalarProperty Name="ESTADO_SOLICITUD" ColumnName="ESTADO_SOLICITUD" />
+                <ScalarProperty Name="NOMBRE_CLIENTE" ColumnName="NOMBRE_CLIENTE" />
+                <ScalarProperty Name="IDENTIFICACION_CLIENTE" ColumnName="IDENTIFICACION_CLIENTE" />
+                <ScalarProperty Name="ID_MESERO" ColumnName="ID_MESERO" />
+                <ScalarProperty Name="ID_MESA" ColumnName="ID_MESA" />
+                <ScalarProperty Name="FECHA_SOLICITUD" ColumnName="FECHA_SOLICITUD" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>

@@ -37,6 +37,9 @@ namespace Entity
         public ClienteDian cliente { get; set; }
         public string ValoresVouchers { get; set; }
         public string IdFDian { get; set; }
+        public decimal? IdSolicitudPrincipal { get; set; }
+        public string MesaDividida { get; set; }
+        public ConsultaSolicitudGeneral SolicitudDividida { get; set; }
 
     }
 }

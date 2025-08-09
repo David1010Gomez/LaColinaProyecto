@@ -44,14 +44,17 @@ namespace ColinaApplication.Hubs
             TBL_SOLICITUD model = new TBL_SOLICITUD();
             model.ID_MESA = Convert.ToDecimal(IdMesa);
             model.ID_MESERO = Convert.ToDecimal(IdUser);
-            model.ESTADO_SOLICITUD = Estado;
+            model.ESTADO_SOLICITUD = Estados.Abierta;
             model.OTROS_COBROS = 0;
             model.DESCUENTOS = 0;
             model.SUBTOTAL = 0;
             model.IVA_TOTAL = 0;
             model.I_CONSUMO_TOTAL = 0;
+            model.PORCENTAJE_SERVICIO = 10;
             model.SERVICIO_TOTAL = 0;
             model.TOTAL = 0;
+            model.ID_SOLICITUD_PRINCIPAL = 0;
+            model.MESA_DIVIDIDA = "0";
             solicitud.InsertaSolicitud(model);
 
         }
@@ -150,7 +153,7 @@ namespace ColinaApplication.Hubs
         public void GuardaDatosCliente(decimal Id, string Cedula, string NombreCliente, string Observaciones, string OtrosCobros,
             string Descuentos, string SubTotal, string Estado, string IdMesa, decimal porcentajeServicio, string MetodoPago, List<Payments> pagos,
             string CantEfectivo, decimal idMesero, List<string> datosDianCliente, decimal idCliente, string FactElect, bool DianSistema, 
-            decimal valorTotal, string BorradorDian)
+            decimal valorTotal, string BorradorDian, string IdMesaPrincipal)
         {            
             Cliente cliente = new Cliente();
             TBL_CLIENTES_DIAN clienteDian = new TBL_CLIENTES_DIAN();
@@ -348,11 +351,15 @@ namespace ColinaApplication.Hubs
             model.ENVIO_DIAN = factura.id != null ? "1" : "0";
             model.VALORES_VOUCHERS = valoresVouchers;
             model.ID_F_DIAN = factura.id != null ? factura.id : "0";
+            model.MESA_DIVIDIDA = "0";
             var respuesta = solicitud.ActualizaSolicitud(model);
             if (model.ESTADO_SOLICITUD == Estados.Finalizada)
                 ventas.ImprimirFactura(Convert.ToString(model.ID));
             Clients.Caller.GuardoCliente(respuesta);
-            ConsultaMesaAbierta(IdMesa);
+            if (IdMesa != "999999")
+                ConsultaMesaAbierta(IdMesa);
+            else
+                ConsultaMesaAbierta(IdMesaPrincipal);
         }
         public void CancelaPedido(decimal IdSolicitud, bool RetornaInventario)
         {
@@ -377,6 +384,46 @@ namespace ColinaApplication.Hubs
         public void ActualizaIdmesaHTML(string idmesa, string idmesaAnterior)
         {
             Clients.All.CambiaIdMesa(idmesa, idmesaAnterior);
+        }
+        public void DivideCuenta(string idSolicitudPrincipal, string idUser, List<TBL_PRODUCTOS_SOLICITUD> model, decimal servicio)
+        {
+            //CALCULOS INICIALES
+            decimal? SubTotalDC = 0;
+            foreach (var item in model)
+                SubTotalDC += item.PRECIO_PRODUCTO;
+            decimal? IConsumoTotalDC = ((SubTotalDC * 8) / 100);
+            decimal? ServTotalDC = ((SubTotalDC * servicio) / 100);
+            decimal? TotalDC = SubTotalDC + IConsumoTotalDC + ServTotalDC;
+
+            //INSERTA NUEVA SOLICITUD
+            TBL_SOLICITUD modelI = new TBL_SOLICITUD();
+            modelI.ID_MESA = Convert.ToDecimal("999999");
+            modelI.ID_MESERO = Convert.ToDecimal(idUser);
+            modelI.ESTADO_SOLICITUD = "MESA DIVIDIDA";
+            modelI.OTROS_COBROS = 0;
+            modelI.DESCUENTOS = 0;
+            modelI.SUBTOTAL = SubTotalDC;
+            modelI.IVA_TOTAL = 0;
+            modelI.I_CONSUMO_TOTAL = IConsumoTotalDC;
+            modelI.PORCENTAJE_SERVICIO = servicio;
+            modelI.SERVICIO_TOTAL = ServTotalDC;
+            modelI.TOTAL = TotalDC;
+            modelI.ID_SOLICITUD_PRINCIPAL = Convert.ToDecimal(idSolicitudPrincipal);
+            modelI.MESA_DIVIDIDA = "0";
+            var IdNuevaSolicitud = solicitud.InsertaSolicitud(modelI);
+
+            //ACTUALIZA PRODUCTOS CON NUEVA SOLICITUD
+            var ActuProd = solicitud.ActualizaIdProductosSolicitud(Convert.ToDecimal(IdNuevaSolicitud), model);
+
+            //IMPRIME FACTURA DIVIDIDA
+            bool respuesta = solicitud.ImprimirFactura("999999");
+
+            //ACTUALIZA SOLICITUD PRINCIPAL
+            var respMesaDivid = solicitud.ActualizaMesaPrincipalDividida(Convert.ToDecimal(idSolicitudPrincipal), modelI.SUBTOTAL);
+
+            var CantidadProdActual = ActuProd - model.Count;
+            Clients.All.DividioCuenta(IdNuevaSolicitud, idSolicitudPrincipal, modelI.SUBTOTAL, modelI.PORCENTAJE_SERVICIO, modelI.TOTAL, CantidadProdActual);
+
         }
     }
 }

@@ -4,7 +4,7 @@
     ViewBag.Title = "Gastos";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-@if (Session["IdPerfil"].ToString() == "1")
+@if (Session["IdPerfil"].ToString() == "1" || Session["IdPerfil"].ToString() == "2")
 {
     <div class="row">
         <div class="col-md-12">

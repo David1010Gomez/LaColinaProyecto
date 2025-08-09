@@ -38,8 +38,8 @@ namespace ColinaApplication.Data.Conexion
         public DbSet<TBL_SISTEMA> TBL_SISTEMA { get; set; }
         public DbSet<TBL_PRODUCTOS> TBL_PRODUCTOS { get; set; }
         public DbSet<TBL_TOKENS_DIAN> TBL_TOKENS_DIAN { get; set; }
-        public DbSet<TBL_SOLICITUD> TBL_SOLICITUD { get; set; }
         public DbSet<TBL_FACTURAS_FALLIDAS_DIAN> TBL_FACTURAS_FALLIDAS_DIAN { get; set; }
         public DbSet<TBL_CLIENTES_DIAN> TBL_CLIENTES_DIAN { get; set; }
+        public DbSet<TBL_SOLICITUD> TBL_SOLICITUD { get; set; }
     }
 }

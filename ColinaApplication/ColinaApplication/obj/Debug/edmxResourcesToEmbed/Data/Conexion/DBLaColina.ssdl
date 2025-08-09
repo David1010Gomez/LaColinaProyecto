@@ -203,6 +203,8 @@
     <Property Name="ENVIO_DIAN" Type="varchar" MaxLength="2" />
     <Property Name="VALORES_VOUCHERS" Type="varchar" MaxLength="255" />
     <Property Name="ID_F_DIAN" Type="varchar" MaxLength="255" />
+    <Property Name="ID_SOLICITUD_PRINCIPAL" Type="numeric" Precision="18" Scale="0" />
+    <Property Name="MESA_DIVIDIDA" Type="varchar" MaxLength="2" />
   </EntityType>
   <EntityType Name="TBL_TOKENS_DIAN">
     <Key>

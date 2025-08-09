@@ -8,7 +8,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-12">
-            <button class="btn btn-light" style="float: right; width: 7%;" onclick="return window.location.href = '../Solicitud/SeleccionarMesa' "><b>Atras</b></button>
+            <button class="btn btn-secondary" style="float: right; width: 7%;" onclick="return window.location.href = '../Solicitud/SeleccionarMesa' "><b>Atras</b></button>
             <h1 class="page-header"><i class="fa fa-columns"></i> Pedido </h1>
             @Html.HiddenFor(m => m.ID_MESA, new { @Id = "ID_MESA" })
             @Html.HiddenFor(m => m.ID, new { @Id = "ID" })
@@ -16,9 +16,14 @@
             @Html.HiddenFor(m => m.ID_MESERO, new { @Id = "ID_MESERO" })
             @Html.HiddenFor(m => m.ID_CLIENTE, new { @Id = "ID_CLIENTE" })
             @Html.HiddenFor(m => m.FACTURACION_ELECTRONICA, new { @Id = "FACTURACION_ELECTRONICA" })
+            @Html.HiddenFor(m => m.MESA_DIVIDIDA, new { @Id = "MESA_DIVIDIDA" })
             <input id="ID_PRODUCTO" type="hidden" />
             <input id="PRECIO_PRODUCTO" type="hidden" />
             <input id="NOMBREPRODUCTO" type="hidden" />
+            <input id="ID_SOLICITUD_DIVIDIDA" type="hidden" />
+            <input id="SUBTOTAL_DIVIDIDA" type="hidden" />
+            <input id="PORC_SERVICIO_DIVIDIDA" type="hidden" />
+            <input id="TOTAL_DIVIDIDA" type="hidden" />
             <br />
         </div>
         <div class="col-sm-4">
@@ -32,7 +37,7 @@
         <div class="col-sm-8">
 
             <a class="AgregProd" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#AgregaProducto" data-backdrop="static" data-keyboard="false"><i class="fa fa-2x fa-plus-circle"></i> Agregar</a>
-            <a class="AgregProd" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#CambioMesa" data-backdrop="static" data-keyboard="false" onclick="CargaMesas()"> <i class="fa fa-2x fa-exchange"></i> Cambio</a>
+            <a class="AgregProd" style="cursor: pointer; background-color: #d25900f7;" data-bs-toggle="modal" data-bs-target="#CambioMesa" data-backdrop="static" data-keyboard="false" onclick="CargaMesas()"> <i class="fa fa-2x fa-exchange"></i> Cambio</a>
             <div id="DivLlevar" style="display: none;">
                 <a class="AgregProd" style="background-color: #e3a200; cursor: pointer;" onclick="AsignarLlevar()"> <i class="fa fa-2x fa-arrow-up"></i> Llevar</a>
             </div>
@@ -43,8 +48,12 @@
             {
                 <a class="AgregProd" style="background-color: #008dc9; cursor: pointer;" onclick="ConsumoInterno()"> <i class="fa fa-2x fa-users"></i> Interno</a>
             }
-            <a class="AgregProd" style="cursor: pointer;" onclick="InhabilitarMesa()"> <i class="fa fa-2x fa-times"></i> Inhabilitar</a>
-            @if (@Session["IdPerfil"].ToString() == "1")
+            <a class="AgregProd" style="cursor: pointer; background-color: #bb3939;" onclick="InhabilitarMesa()"> <i class="fa fa-2x fa-times"></i> Inhabilitar</a>
+            @if (@Session["IdPerfil"].ToString() == "1" || @Session["IdPerfil"].ToString() == "2")
+            {
+                <button id="BotonDCModal" class="AgregProd" style=" border: none; cursor: pointer; background-color: #afa818;" onclick="ListaProductosDC()" data-bs-toggle="modal" data-bs-target="#DivideCuenta" data-backdrop="static" data-keyboard="false"> <i class="fa fa-2x fa-check-square"></i> Cuenta</button>
+            }
+            @if (@Session["IdPerfil"].ToString() == "1" || @Session["IdPerfil"].ToString() == "2")
             {
                 <div>
                     <i class="fa fa-2x fa-exchange"></i><b> Cambio Mesero:</b>
@@ -52,6 +61,7 @@
                     </select>
                 </div>
             }
+
             <br />
             <br />
             <br />
@@ -113,6 +123,7 @@
                 </div>
             </div>
         </div>
+        @*AGREGA PRODUCTO*@
         <div id="AgregaProducto" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
@@ -169,38 +180,93 @@
                                 </table>
                                 <br />
                                 <br />
+                        </div>
+                        <div class="col-sm-12" style="margin-left: 25px; width: 90%;">
+                            <div style="padding: 10px; background-color: #d8d8d8; border-radius: 10px;">
+                                <h4><b style=" color: #a90000">Tu pedido: </b></h4>
+                                <table id="" class="table table-bordered table-hover" style="background-color: white;">
+                                    <thead>
+                                        <tr>
+                                            <td>
+                                                <b>Cantidad</b>
+                                            </td>
+                                            <td>
+                                                <b>Producto</b>
+                                            </td>
+                                            <td>
+                                                <b>Adiciones</b>
+                                            </td>
+                                            <td>
+                                                <b>Eliminar</b>
+                                            </td>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="setProductosElegidos">
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class="col-sm-12" style="margin-left: 25px; width: 90%;">
+                            <br /><br />
+                        </div>
+                        <div class="col-sm-12" style="">
+                            <table style="width: 100%;">
+                                <tr>
+                                    <td>
+                                        <button id="AgregaProductos" class="btn btn-success" style="width: 20%; margin-left: 40%;">Enviar</button>
+                                    </td>
+                                </tr>
+                            </table>
+                            <br /><br />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* DIVIDE CUENTA *@
+        <div id="DivideCuenta" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:#006512;">
+                        <button type="button" id="CerrarModalDC" data-bs-dismiss="modal" style="color: white; background-color: transparent; border: none; " aria-label="Close"><i class="fa fa-2x fa-times"></i></button>
+                        <h3 class="modal-title" style="color: white;"><i class="fa fa-check-circle" aria-hidden="true" style="color: white"></i><b> Divide Cuenta</b></h3>
+                    </div>
+                    <div class="modal-body" style="">
+                        <br />
+                        <div class="row">
+                            <div class="col-sm-12" style="">
+                                <h5>Seleccione los productos y luego click en DIVIDIR CUENTA</h5><br />
                                 <div style="padding: 10px; background-color: #d8d8d8; border-radius: 10px;">
-                                    <h4><b style=" color: #a90000">Tu pedido: </b></h4>
-                                    <table id="" class="table table-bordered table-hover" style="background-color: white;">
+
+                                    <h4><b style=" color: #a90000">Productos Actuales: </b></h4>
+                                    <table id="ProductosDC" class="table table-bordered table-hover" style="background-color: white;">
                                         <thead>
                                             <tr>
                                                 <td>
-                                                    <b>Cantidad</b>
+                                                    <i class="fa fa-check" style="float: left; margin-left: 35%;"></i>
                                                 </td>
                                                 <td>
                                                     <b>Producto</b>
                                                 </td>
                                                 <td>
-                                                    <b>Adiciones</b>
+                                                    <b>Descripcion</b>
                                                 </td>
                                                 <td>
-                                                    <b>Eliminar</b>
+                                                    <b>Precio</b>
                                                 </td>
                                             </tr>
                                         </thead>
-                                        <tbody id="setProductosElegidos">
+                                        <tbody id="setProductosDC">
                                         </tbody>
                                     </table>
                                 </div>
                                 <br /><br />
+
                             </div>
                             <div class="col-sm-12" style="">
                                 <table style="width: 100%;">
                                     <tr>
                                         <td>
-                                            <button id="AgregaProductos" class="btn btn-success" style="width: 20%; margin-left: 40%;">Enviar</button>
+                                            <button id="DivideProductos" class="btn btn-secondary" style="width: 20%; margin-left: 40%;" onclick="DivideCuentaProceso()">Dividir Cuenta</button>
                                         </td>
                                     </tr>
                                 </table>
@@ -228,7 +294,7 @@
     </script>
 
     <script src="~/ScriptsViews/Solicitud/Pedido.js?1.0."></script>
-    <script src="~/ScriptsViews/Solicitud/PedidoSignalR.js?1.1.98"></script>
+    <script src="~/ScriptsViews/Solicitud/PedidoSignalR.js?1.2.14"></script>
 
 }
 

@@ -40,5 +40,7 @@ namespace ColinaApplication.Data.Conexion
         public string ENVIO_DIAN { get; set; }
         public string VALORES_VOUCHERS { get; set; }
         public string ID_F_DIAN { get; set; }
+        public Nullable<decimal> ID_SOLICITUD_PRINCIPAL { get; set; }
+        public string MESA_DIVIDIDA { get; set; }
     }
 }

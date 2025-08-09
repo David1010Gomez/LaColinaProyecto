@@ -29,7 +29,7 @@ namespace ColinaApplication.Data.Business
             List<ConsultaSolicitudGeneral> solicitudMesa = new List<ConsultaSolicitudGeneral>();
             using (DBLaColina context = new DBLaColina())
             {
-                var ConsultaSolicitud = context.TBL_SOLICITUD.Where(a => a.ID_MESA == IdMesa && (a.ESTADO_SOLICITUD == Estados.Abierta || a.ESTADO_SOLICITUD == Estados.Llevar)).ToList().LastOrDefault();
+                var ConsultaSolicitud = context.TBL_SOLICITUD.Where(a => a.ID_MESA == IdMesa && (a.ESTADO_SOLICITUD == Estados.Abierta || a.ESTADO_SOLICITUD == Estados.Llevar || a.ESTADO_SOLICITUD == "MESA DIVIDIDA")).ToList().LastOrDefault();
                 if (ConsultaSolicitud != null)
                 {
                     var lista = context.TBL_PRODUCTOS_SOLICITUD.Where(a => a.ID_SOLICITUD == ConsultaSolicitud.ID).ToList();
@@ -38,8 +38,8 @@ namespace ColinaApplication.Data.Business
                         Id = ConsultaSolicitud.ID,
                         FechaSolicitud = ConsultaSolicitud.FECHA_SOLICITUD,
                         IdMesa = ConsultaSolicitud.ID_MESA,
-                        NumeroMesa = context.TBL_MASTER_MESAS.Where(z => z.ID == IdMesa).FirstOrDefault().NUMERO_MESA,
-                        NombreMesa = context.TBL_MASTER_MESAS.Where(z => z.ID == IdMesa).FirstOrDefault().NOMBRE_MESA,
+                        NumeroMesa = IdMesa != 999999 ? context.TBL_MASTER_MESAS.Where(z => z.ID == IdMesa).FirstOrDefault().NUMERO_MESA : IdMesa,
+                        NombreMesa = IdMesa != 999999 ? context.TBL_MASTER_MESAS.Where(z => z.ID == IdMesa).FirstOrDefault().NOMBRE_MESA : Convert.ToString(IdMesa),
                         IdMesero = ConsultaSolicitud.ID_MESERO,
                         NombreMesero = context.TBL_USUARIOS.Where(a => a.ID == ConsultaSolicitud.ID_MESERO).FirstOrDefault().NOMBRE,
                         IdentificacionCliente = ConsultaSolicitud.IDENTIFICACION_CLIENTE,
@@ -62,7 +62,9 @@ namespace ColinaApplication.Data.Business
                         FactracionElectronica = ConsultaSolicitud.FACTURACION_ELECTRONICA,
                         EnvioDian = ConsultaSolicitud.ENVIO_DIAN,
                         ValoresVouchers = ConsultaSolicitud.VALORES_VOUCHERS,
-                        IdFDian = ConsultaSolicitud.ID_F_DIAN
+                        IdFDian = ConsultaSolicitud.ID_F_DIAN,
+                        IdSolicitudPrincipal = ConsultaSolicitud.ID_SOLICITUD_PRINCIPAL,
+                        MesaDividida = ConsultaSolicitud.MESA_DIVIDIDA
                     });
                     var ConsultaProductosSolicitud = context.TBL_PRODUCTOS_SOLICITUD.Where(b => b.ID_SOLICITUD == ConsultaSolicitud.ID && b.ESTADO_PRODUCTO != Estados.Cancelado).ToList();
                     if (ConsultaProductosSolicitud.Count > 0)
@@ -139,6 +141,53 @@ namespace ColinaApplication.Data.Business
                     else {
                         solicitudMesa[0].cliente = new ClienteDian();
                     }
+                    var mesaDividida = solicitudMesa[0].MesaDividida;
+                    if (mesaDividida == "1")
+                    {
+                        var solicitudPrincipalID = solicitudMesa[0].Id;
+                        var consultaSolicitudDividida = context.TBL_SOLICITUD.Where(a => a.ID_SOLICITUD_PRINCIPAL == solicitudPrincipalID && a.ESTADO_SOLICITUD == "MESA DIVIDIDA").ToList().LastOrDefault();
+                        if (consultaSolicitudDividida != null)
+                        {
+                            solicitudMesa[0].SolicitudDividida = (new ConsultaSolicitudGeneral
+                            {
+                                Id = consultaSolicitudDividida.ID,
+                                EstadoSolicitud = consultaSolicitudDividida.ESTADO_SOLICITUD,
+                                IdSolicitudPrincipal = consultaSolicitudDividida.ID_SOLICITUD_PRINCIPAL,
+                                ProductosSolicitud = new List<ProductosSolicitud>(),
+                                Subtotal = consultaSolicitudDividida.SUBTOTAL,
+                                PorcentajeServicio = consultaSolicitudDividida.PORCENTAJE_SERVICIO,
+                                Total = consultaSolicitudDividida.TOTAL
+                            });
+                            var productosSolicitudDividida = context.TBL_PRODUCTOS_SOLICITUD.Where(b => b.ID_SOLICITUD == consultaSolicitudDividida.ID && b.ESTADO_PRODUCTO != Estados.Cancelado).ToList();
+                            if (productosSolicitudDividida.Count > 0)
+                            {
+                                foreach (var item in productosSolicitudDividida)
+                                {
+                                    try
+                                    {
+                                        solicitudMesa[0].SolicitudDividida.ProductosSolicitud.Add(new ProductosSolicitud
+                                        {
+                                            Id = item.ID,
+                                            FechaRegistro = item.FECHA_REGISTRO,
+                                            IdSolicitud = item.ID_SOLICITUD,
+                                            IdProducto = item.ID_PRODUCTO,
+                                            NombreProducto = context.TBL_PRODUCTOS.Where(a => a.ID == item.ID_PRODUCTO).FirstOrDefault().NOMBRE_PRODUCTO,
+                                            IdMesero = item.ID_MESERO,
+                                            NombreMesero = context.TBL_USUARIOS.Where(a => a.ID == item.ID_MESERO).FirstOrDefault().NOMBRE,
+                                            PrecioProducto = item.PRECIO_PRODUCTO,
+                                            EstadoProducto = item.ESTADO_PRODUCTO,
+                                            Descripcion = item.DESCRIPCION
+
+                                        });
+                                    }
+                                    catch (Exception E)
+                                    {
+                                        throw E;
+                                    }
+                                }
+                            }
+                        }                        
+                    }
                 }
             }
 
@@ -165,19 +214,17 @@ namespace ColinaApplication.Data.Business
             {
                 try
                 {
-                    model.FECHA_SOLICITUD = DateTime.Now;
-                    model.ESTADO_SOLICITUD = Estados.Abierta;
+                    model.FECHA_SOLICITUD = DateTime.Now;                    
                     model.IDENTIFICACION_CLIENTE = "222222222222";
                     model.NOMBRE_CLIENTE = "Consumidor Final";
                     model.PORCENTAJE_IVA = contex.TBL_IMPUESTOS.Where(x => x.ID == 1 && x.ESTADO == Estados.Activo).FirstOrDefault() != null ? contex.TBL_IMPUESTOS.Where(x => x.ID == 1).FirstOrDefault().PORCENTAJE : 0;
-                    model.PORCENTAJE_I_CONSUMO = contex.TBL_IMPUESTOS.Where(x => x.ID == 2 && x.ESTADO == Estados.Activo).FirstOrDefault() != null ? contex.TBL_IMPUESTOS.Where(x => x.ID == 2).FirstOrDefault().PORCENTAJE : 0;
-                    model.PORCENTAJE_SERVICIO = contex.TBL_IMPUESTOS.Where(x => x.ID == 3 && x.ESTADO == Estados.Activo).FirstOrDefault() != null ? contex.TBL_IMPUESTOS.Where(x => x.ID == 3).FirstOrDefault().PORCENTAJE : 0;
+                    model.PORCENTAJE_I_CONSUMO = contex.TBL_IMPUESTOS.Where(x => x.ID == 2 && x.ESTADO == Estados.Activo).FirstOrDefault() != null ? contex.TBL_IMPUESTOS.Where(x => x.ID == 2).FirstOrDefault().PORCENTAJE : 0;                    
                     model.ID_CLIENTE = 0;
                     model.FACTURACION_ELECTRONICA = "0";
                     model.ENVIO_DIAN = "0";
-                    contex.TBL_SOLICITUD.Add(model);
+                    var r = contex.TBL_SOLICITUD.Add(model);
                     contex.SaveChanges();
-                    Respuesta = "Solicitud Insertada exitosamente";
+                    Respuesta = Convert.ToString(r.ID);
                 }
                 catch (Exception e)
                 {
@@ -277,6 +324,7 @@ namespace ColinaApplication.Data.Business
                         actualiza.ENVIO_DIAN = model.ENVIO_DIAN;
                         actualiza.VALORES_VOUCHERS = model.VALORES_VOUCHERS;
                         actualiza.ID_F_DIAN = model.ID_F_DIAN; 
+                        actualiza.MESA_DIVIDIDA = model.MESA_DIVIDIDA;
                         contex.SaveChanges();
                         Respuesta = "Solicitud actualizada exitosamente";
                     }
@@ -877,7 +925,72 @@ namespace ColinaApplication.Data.Business
             }
             return productosSolicitud;
         }
+        public int ActualizaIdProductosSolicitud(decimal IdSolicitudNueva, List<TBL_PRODUCTOS_SOLICITUD> model)
+        {
+            int Respuesta = 0;
+            using (DBLaColina contex = new DBLaColina())
+            {
+                try
+                {
+                    List<TBL_PRODUCTOS_SOLICITUD> actualiza = new List<TBL_PRODUCTOS_SOLICITUD>();
+                    List<decimal> idProductos = model.Select(a => a.ID).ToList();                    
+                    actualiza = contex.TBL_PRODUCTOS_SOLICITUD.Where(a => idProductos.Contains(a.ID)).ToList();                    
+                    if (actualiza.Count > 0)
+                    {
+                        var idsolicitudPrincipal = actualiza[0].ID_SOLICITUD;
+                        var CantProdTotal = contex.TBL_PRODUCTOS_SOLICITUD.Where(a => a.ID_SOLICITUD == idsolicitudPrincipal).ToList().Count;
+                        foreach (var item in actualiza)
+                        {
+                            item.ID_SOLICITUD = IdSolicitudNueva;
+                            contex.SaveChanges();
+                        }
+                        Respuesta = CantProdTotal;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Respuesta = -1;
+                }
 
-        
+            }
+            return Respuesta;
+        }
+        public string ActualizaMesaPrincipalDividida(decimal IdSolicitudPrincipal, decimal? subtotal)
+        {
+            string Respuesta = "";
+            using (DBLaColina contex = new DBLaColina())
+            {
+                try
+                {
+                    List<TBL_SOLICITUD> actualiza = new List<TBL_SOLICITUD>();
+                    actualiza = contex.TBL_SOLICITUD.Where(a => a.ID == IdSolicitudPrincipal ).ToList();
+                    if (actualiza.Count > 0)
+                    {
+                        foreach (var item in actualiza)
+                        {
+                            var subTotalF = item.SUBTOTAL - subtotal;
+                            var Iconsumo = (subTotalF * item.PORCENTAJE_I_CONSUMO)/100;
+                            var servicio = Convert.ToDecimal(Math.Round((Convert.ToDouble(subTotalF * item.PORCENTAJE_SERVICIO) / 100), 5));
+                            item.MESA_DIVIDIDA = "1";
+                            item.SUBTOTAL = subTotalF;
+                            item.I_CONSUMO_TOTAL = Iconsumo;
+                            item.SERVICIO_TOTAL = servicio;
+                            item.TOTAL = subTotalF + servicio + Iconsumo;
+                            contex.SaveChanges();
+                        }
+                    }
+                    else
+                    {
+                        Respuesta = "No existe la solicitud";
+                    }
+                }
+                catch (Exception e)
+                {
+                    Respuesta = "Error Servidor: " + e;
+                }
+
+            }
+            return Respuesta;
+        }
     }
 }

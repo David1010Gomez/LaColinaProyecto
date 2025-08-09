@@ -6,6 +6,7 @@ let ProductosPedido = [];
 let IdProd;
 let DatosClienteDIAN = [];
 let PagosDIAN = [];
+let DatosSolicitud = [];
 var BorradorDian = "";
 
 $(function PedidoSignalR() {
@@ -60,17 +61,20 @@ function Registra_EventosPSR(connectpsr) {
 
 //SE EJECUTAN LOS METODOS QUE ENVIAN DESDE EL HUB
 function Llama_MetodosPSR(connectpsr) {
+    cargando();
     //LISTA LOS DETALLES DE LA MESA
     connectpsr.client.ListaDetallesMesa = function (data) {
         if (data[0].IdMesa == $('#ID_MESA').val()) {
             if (data.length > 0) {
+
+                DatosSolicitud = data;
+                ProductosSolicitudVector = data[0].ProductosSolicitud;
                 ActualizaInfoMesa(data);
                 ActualizaInfoPrecios(data);
                 ActualizaInfoProductos(data);
                 $("#ID").val(data[0].Id);
             }
-            $("#GuardaDatosCliente").removeAttr("disabled");
-            cerrar();
+            $("#GuardaDatosCliente").removeAttr("disabled");            
         }
 
     }
@@ -212,6 +216,17 @@ function Llama_MetodosPSR(connectpsr) {
             window.location.href = ruta;
         }
     }
+
+    connectpsr.client.DividioCuenta = function (idSolicitudDividida, idSolicitudPrincipal, subTotalDiv, servicioTotalDiv, totalDiv, cantidadProdActual) {
+        if (idSolicitudPrincipal == $('#ID').val()) {
+            $('#CerrarModalDC').click();
+            $('#ID_SOLICITUD_DIVIDIDA').val(idSolicitudDividida);
+            $('#SUBTOTAL_DIVIDIDA').val(subTotalDiv);
+            $('#PORC_SERVICIO_DIVIDIDA').val(servicioTotalDiv);
+            $('#TOTAL_DIVIDIDA').val(totalDiv);
+            PagarFacturaDC();
+        }
+    }
 }
 
 
@@ -283,15 +298,55 @@ function ActualizaInfoMesa(data) {
         $("#DivAsignar").css("display", "block");
         $("#InfoMesa").empty();
         $("#InfoMesa").append('<div class="col-lg-12">' +
+            '<input class="" type="checkbox" id="DianSistema" checked >' +
             '<div class="small-box bg-warning" style="background-color: #e3a200 !important; ">' +
             '<div class="inner">' +
             '<h3>' +
-            '#' + data[0].IdMesa +
+            '#' + data[0].NumeroMesa +
             '</h3>' +
-            '<p>' + data[0].NombreMesa + '</p>' +
+            '<h3><b>' + data[0].NombreMesa + '</b></h3>' +
             '<p><b>Mesero:<b/> ' + data[0].NombreMesero + '</p>' +
-            '<p><b>C.C Cliente: </b><input id="CCCliente" type="text" class="form-control input-sm" name="CCCliente" value="' + data[0].IdentificacionCliente + '" onkeypress = "return soloNum(event)" onpaste="return false"/></p>' +
-            '<p><b>Nombre Cliente: </b><input id="NombreCliente" type="text" class="form-control input-sm" name="NombreCliente"  value="' + data[0].NombreCliente + '" /></p>' +
+            '<p style ="float:right;"><b>Factura Electronica <b/>' +
+            '<input class="form-check-input" type="checkbox" id="EnvioDian" onchange="EnviaDian(this.checked)" ></p>' +
+            '<select id="PersonaDian" class="form-select" style="" onchange="CambiaPersona(this.value)">' +
+            '<option value="">** Tipo Persona **</option>' +
+            '<option value="Person">Persona</option>' +
+            '<option value="Company">Empresa</option>' +
+            '</select > <br/>' +
+            '<select id="TipoDocumentoDian" class="form-select" style="" onchange="">' +
+            '<option value="">** Tipo Documento **</option>' +
+            '<option value="13">Cédula ciudadania</option>' +
+            '<option value="31">NIT</option>' +
+            '<option value="22">Cédula extranjeria</option>' +
+            '<option value="42">Documento de identificación extranjero</option>' +
+            '<option value="50">Nit Otro País</option>' +
+            '<option value="R-00-PN">No obligado a registrarse en el RUT PN</option>' +
+            '<option value="91">NUIP</option>' +
+            '<option value="41">Pasaporte</option>' +
+            '<option value="47">Permiso especial de permanencia PEP</option>' +
+            '<option value="11">Registro civil</option>' +
+            '<option value="43">Sin identificación del exterior o para uso definido por la DIAN</option>' +
+            '<option value="21">Tarjeta de extranjería</option>' +
+            '<option value="12">Tarjeta de identidad</option>' +
+            '</select ><br/>' +
+            '<p><b># Identificación: </b><input id="CCCliente" type="text" autocomplete="off" class="form-control" value="' + data[0].cliente.NumeroIdentificacion + '" onchange="ConsultaClienteDian(this.value)" name="CCCliente"/></p>' +
+            '<p><b># Digito Verificacion: </b><input id="CDigitVerif" type="text" autocomplete="off" class="form-control" value="' + data[0].cliente.DigitoVerif + '"/></p>' +
+            '<div id="SecciondianPersona">' +
+            '</div>' +
+            '<p><b>Telefono: </b><input id="TelefonoDian" type="text" autocomplete="off" class="form-control" name="TelefonoDian"/></p>' +
+            '<p><b>Correo Electronico: </b><input id="CorreoClienteDian" type="text" autocomplete="off" class="form-control" name="CorreoClienteDian"/></p>' +
+            '<select id="TipoPersonaDian" class="form-select">' +
+            '<option value="">** Tipo Regimen IVA **</option>' +
+            '<option value="false">NO responsable de IVA</option>' +
+            '<option value="true">Responsable de IVA</option>' +
+            '</select > <br/>' +
+            '<p><b>Responsabilidad fiscal:</b><small style = "font-weight: 200;"> (Verifica la responsabilidad en el RUT de tu cliente, mínimo asignar R-99-PN)</small> <br/>' +
+            '<input class="form-check-input" type="checkbox" id="O-13" > O-13 Gran Contribuyente <br/>' +
+            '<input class="form-check-input" type="checkbox" id="O-15" > O-15 Autorretenedor <br/>' +
+            '<input class="form-check-input" type="checkbox" id="O-23" > O-23 Agente de retencion IVA <br/>' +
+            '<input class="form-check-input" type="checkbox" id="O-47" > O-47 Regimen simple de tributacion <br/>' +
+            '<input class="form-check-input" type="checkbox" id="R-99-PN" checked> R-99-PN No aplica - Otros <br/>' +
+            '</p> ' +
             '</div>' +
             '<div class="icon">' +
             '<i class="fa fa-clock-o"></i>' +
@@ -299,6 +354,7 @@ function ActualizaInfoMesa(data) {
             '</div>' +
             '</div>');
     }
+
     $("#ID_MESERO").val(data[0].IdMesero)
     $("#ESTADO_SOLICITUD").val(data[0].EstadoSolicitud)
     $("#OBSERVACIONES").val(data[0].Observaciones);
@@ -333,10 +389,33 @@ function ActualizaInfoMesa(data) {
         $("#NComercialCliente").val(data[0].cliente.NombreComercial);
         $("#DireccionCliente").val(data[0].cliente.Direccion);
     }
+
+    //Carga Si esta dividiendo factura
+    if (data[0].SolicitudDividida != null) {
+        $("#ID_SOLICITUD_DIVIDIDA").val(data[0].SolicitudDividida.Id);
+        $("#SUBTOTAL_DIVIDIDA").val(data[0].SolicitudDividida.Subtotal);
+        $("#PORC_SERVICIO_DIVIDIDA").val(data[0].SolicitudDividida.PorcentajeServicio);
+        $("#TOTAL_DIVIDIDA").val(data[0].SolicitudDividida.Total);
+        PagarFacturaDC();
+    }
+    else if (data[0].MesaDividida == "1" && data[0].Total != 0) {
+        document.getElementById('BotonDCModal').style.display = 'active';
+        $('#BotonDCModal').click();
+    }
+    else if (data[0].MesaDividida == "1" && data[0].Total == 0) {
+        DatosClienteDIAN = [];
+        DatosClienteDIAN.push("false");
+        DatosClienteDIAN.push(token);
+        connectPSR.server.guardaDatosCliente($("#ID").val(), $("#CCCliente").val(), $("#NombreCliente").val() + " " + $("#ApellidosCliente").val(),
+            $("#OBSERVACIONES").val(), $("#OtrosCobros").val(), $("#Descuentos").val(), "0",
+            "FINALIZADA", $("#ID_MESA").val(), 0, "N/A", PagosDIAN, "0",
+            $("#ID_MESERO").val(), DatosClienteDIAN, $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(),
+            false, 0, BorradorDian, "0");
+        connectPSR.server.actualizaMesa($("#ID_MESA").val(), "LIBRE", User, "SI", "../Solicitud/SeleccionarMesa");
+    }
 }
 function ActualizaInfoPrecios(data) {
     console.log(data);
-    ProductosSolicitudVector = data[0].ProductosSolicitud;
     var IVA = '';
     var ICONSUMO = '';
     var SERVICIO = '';
@@ -350,16 +429,16 @@ function ActualizaInfoPrecios(data) {
     if (data[0].Impuestos[1].Estado == "ACTIVO") {
         var sumaSubtotalConsumo = data[0].Subtotal + data[0].IConsumoTotal;
         ICONSUMO = '<tr> ' +
-                '<td>' +
-                '<small><b>Impuesto Consumo (' + data[0].PorcentajeIConsumo + '%) : <b></small>' +
-                '<input id="ImConsumo" type="text" class="form-control input-sm" name="ImConsumo" value="' + data[0].IConsumoTotal + '" ReadOnly="true"/>' +
-                '</td>' +
+            '<td>' +
+            '<small><b>Impuesto Consumo (' + data[0].PorcentajeIConsumo + '%) : <b></small>' +
+            '<input id="ImConsumo" type="text" class="form-control input-sm" name="ImConsumo" value="' + data[0].IConsumoTotal + '" ReadOnly="true"/>' +
+            '</td>' +
             '</tr>' +
             '<tr> ' +
-                '<td>' +
-                    '<small style = "color: #dc3545;"><b>DATAFONO: <b></small>' +
+            '<td>' +
+            '<small style = "color: #dc3545;"><b>DATAFONO: <b></small>' +
             '<input style="font-weight:bolder; font-size: 25px;" type="text" class="form-control input-sm" value="' + sumaSubtotalConsumo + '" ReadOnly="true" />' +
-                '</td>' +
+            '</td>' +
             '</tr>';
     }
     if (data[0].Impuestos[2].Estado == "ACTIVO")
@@ -462,6 +541,7 @@ function ActualizaInfoProductos(data) {
             '</<td>' +
             '</tr>');
     }
+    cerrar();
     //$('#Tabla2').DataTable({
     //    "language": {
     //        "url": "//cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"
@@ -728,7 +808,7 @@ function GuardarDatosCliente() {
             connectPSR.server.guardaDatosCliente($("#ID").val(), $("#CCCliente").val(), $("#NombreCliente").val() + " " + $("#ApellidosCliente").val(), $("#OBSERVACIONES").val(),
                 $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SubTotal").val(), $("#ESTADO_SOLICITUD").val(), $("#ID_MESA").val(),
                 $("#servicio").val(), "", "", "0", $("#ID_MESERO").val(), DatosClienteDIAN, $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(),
-                $('#DianSistema').prop("checked"), $("#Total").val(), "");
+                $('#DianSistema').prop("checked"), $("#Total").val(), "", "0");
             $.alert({
                 theme: 'Modern',
                 icon: 'fa fa-check',
@@ -774,7 +854,7 @@ function GuardarDatosCliente() {
         connectPSR.server.guardaDatosCliente($("#ID").val(), $("#CCCliente").val(), $("#NombreCliente").val() + " " + $("#ApellidosCliente").val(), $("#OBSERVACIONES").val(),
             $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SubTotal").val(), $("#ESTADO_SOLICITUD").val(), $("#ID_MESA").val(),
             $("#servicio").val(), "", "", "0", $("#ID_MESERO").val(), DatosClienteDIAN, $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(),
-            $('#DianSistema').prop("checked"), $("#Total").val(), "");
+            $('#DianSistema').prop("checked"), $("#Total").val(), "", "0");
         $.alert({
             theme: 'Modern',
             icon: 'fa fa-check',
@@ -795,6 +875,7 @@ function GuardarDatosCliente() {
     }
 
 }
+
 //METODO IMPRIME Y PAGA FACTURA
 function PagarFactura() {
     var Imprime;
@@ -859,7 +940,7 @@ function PagarFactura() {
                                                         connectPSR.server.guardaDatosCliente($("#ID").val(), $("#CCCliente").val(), $("#NombreCliente").val() + " " + $("#ApellidosCliente").val(), $("#OBSERVACIONES").val(),
                                                             $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SubTotal").val(), "FINALIZADA", $("#ID_MESA").val(),
                                                             $("#servicio").val(), "TARJETA", PagosDIAN, "0", $("#ID_MESERO").val(),
-                                                            DatosClienteDIAN, $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(), $('#DianSistema').prop("checked"), $("#Total").val(), BorradorDian);
+                                                            DatosClienteDIAN, $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(), $('#DianSistema').prop("checked"), $("#Total").val(), BorradorDian, "0");
                                                         connectPSR.server.actualizaMesa($("#ID_MESA").val(), "LIBRE", User, "SI", "../Solicitud/SeleccionarMesa");
                                                     }
                                                     else {
@@ -903,7 +984,7 @@ function PagarFactura() {
                                                         $("#OBSERVACIONES").val(), $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SubTotal").val(),
                                                         "FINALIZADA", $("#ID_MESA").val(), $("#servicio").val(), "EFECTIVO", PagosDIAN, $("#SubTotal").val(),
                                                         $("#ID_MESERO").val(), DatosClienteDIAN, $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(),
-                                                        $('#DianSistema').prop("checked"), $("#Total").val(), BorradorDian);
+                                                        $('#DianSistema').prop("checked"), $("#Total").val(), BorradorDian, "0");
                                                     connectPSR.server.actualizaMesa($("#ID_MESA").val(), "LIBRE", User, "SI", "../Solicitud/SeleccionarMesa");
                                                 }
                                             },
@@ -970,7 +1051,7 @@ function PagarFactura() {
                                                                                 $("#OBSERVACIONES").val(), $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SubTotal").val(),
                                                                                 "FINALIZADA", $("#ID_MESA").val(), $("#servicio").val(), "AMBAS", PagosDIAN,
                                                                                 cantEfectivo, $("#ID_MESERO").val(), DatosClienteDIAN, $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(),
-                                                                                $('#DianSistema').prop("checked"), $("#Total").val(), BorradorDian);
+                                                                                $('#DianSistema').prop("checked"), $("#Total").val(), BorradorDian, "0");
                                                                             connectPSR.server.actualizaMesa($("#ID_MESA").val(), "LIBRE", User, "SI", "../Solicitud/SeleccionarMesa");
                                                                         }
                                                                         else {
@@ -1084,8 +1165,8 @@ function CancelaPedido() {
                                     connectPSR.server.guardaDatosCliente($("#ID").val(), $("#CCCliente").val(), $("#NombreCliente").val() + " " + $("#ApellidosCliente").val(),
                                         $("#OBSERVACIONES").val(), $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SubTotal").val(),
                                         "CANCELA PEDIDO", $("#ID_MESA").val(), $("#servicio").val(), "N/A", "", "0", $("#ID_MESERO").val(),
-                                        DatosClienteDIAN, $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(), $('#DianSistema').prop("checked"),
-                                        $("#Total").val(), BorradorDian);
+                                        DatosClienteDIAN, $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(), false,
+                                        $("#Total").val(), BorradorDian, "0");
                                     connectPSR.server.cancelaPedido($("#ID").val(), true);
                                     connectPSR.server.actualizaMesa($("#ID_MESA").val(), "LIBRE", User, "SI", "../Solicitud/SeleccionarMesa");
 
@@ -1099,8 +1180,8 @@ function CancelaPedido() {
                                     connectPSR.server.guardaDatosCliente($("#ID").val(), $("#CCCliente").val(), $("#NombreCliente").val() + " " + $("#ApellidosCliente").val(),
                                         $("#OBSERVACIONES").val(), $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SubTotal").val(),
                                         "CANCELA PEDIDO", $("#ID_MESA").val(), $("#servicio").val(), "N/A", "", "0", $("#ID_MESERO").val(),
-                                        DatosClienteDIAN, $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(), $('#DianSistema').prop("checked"),
-                                        $("#Total").val(), BorradorDian);
+                                        DatosClienteDIAN, $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(), false,
+                                        $("#Total").val(), BorradorDian, "0");
                                     connectPSR.server.cancelaPedido($("#ID").val(), false);
                                     connectPSR.server.actualizaMesa($("#ID_MESA").val(), "LIBRE", User, "SI", "../Solicitud/SeleccionarMesa");
 
@@ -1119,6 +1200,7 @@ function CancelaPedido() {
         }
     });
 }
+
 //METODO DE LLEVAR ORDEN
 function AsignarLlevar() {
     $.alert({
@@ -1138,7 +1220,7 @@ function AsignarLlevar() {
                     connectPSR.server.guardaDatosCliente($("#ID").val(), $("#CCCliente").val(), $("#NombreCliente").val() + " " + $("#ApellidosCliente").val(),
                         $("#OBSERVACIONES").val(), $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SubTotal").val(),
                         "LLEVAR", $("#ID_MESA").val(), $("#servicio").val(), "", "", "0", $("#ID_MESERO").val(), DatosClienteDIAN,
-                        $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(), $('#DianSistema').prop("checked"), $("#Total").val(), "");
+                        $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(), $('#DianSistema').prop("checked"), $("#Total").val(), "", "0");
                     connectPSR.server.actualizaMesa($("#ID_MESA").val(), "ESPERA", User, "NO", "");
                 }
             },
@@ -1151,6 +1233,7 @@ function AsignarLlevar() {
         }
     });
 }
+
 //METODO DE ASIGNAR ORDEN
 function AsignarAsignaMesa() {
     $.alert({
@@ -1170,7 +1253,7 @@ function AsignarAsignaMesa() {
                     connectPSR.server.guardaDatosCliente($("#ID").val(), $("#CCCliente").val(), $("#NombreCliente").val() + " " + $("#ApellidosCliente").val(),
                         $("#OBSERVACIONES").val(), $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SubTotal").val(),
                         "ABIERTA", $("#ID_MESA").val(), $("#servicio").val(), "", "", "0", $("#ID_MESERO").val(), DatosClienteDIAN,
-                        $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(), $('#DianSistema').prop("checked"), $("#Total").val(), "");
+                        $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(), $('#DianSistema').prop("checked"), $("#Total").val(), "", "0");
                     connectPSR.server.actualizaMesa($("#ID_MESA").val(), "OCUPADO", User, "NO", "");
                 }
             },
@@ -1183,6 +1266,7 @@ function AsignarAsignaMesa() {
         }
     });
 }
+
 //METODO BOTON CONSUMO INTERNO
 function ConsumoInterno() {
     if ($("#CCCliente").val() != "") {
@@ -1204,7 +1288,7 @@ function ConsumoInterno() {
                             $("#OBSERVACIONES").val(), $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SubTotal").val(),
                             "CONSUMO INTERNO", $("#ID_MESA").val(), $("#servicio").val(), "N/A", "", "0", $("#ID_MESERO").val(),
                             DatosClienteDIAN, $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(), $('#DianSistema').prop("checked"),
-                            $("#Total").val(), "");
+                            $("#Total").val(), "", "0");
                         connectPSR.server.actualizaMesa($("#ID_MESA").val(), "LIBRE", User, "NO", "");
                         $.alert({
                             theme: 'Modern',
@@ -1255,6 +1339,7 @@ function ConsumoInterno() {
     }
 
 }
+
 //METODO PARA INHABILITAR MESA
 function InhabilitarMesa() {
     if (ProductosSolicitudVector.length == 0 && $("#Total").val() == "0") {
@@ -1275,7 +1360,7 @@ function InhabilitarMesa() {
                         connectPSR.server.guardaDatosCliente($("#ID").val(), $("#CCCliente").val(), $("#NombreCliente").val() + " " + $("#ApellidosCliente").val(),
                             $("#OBSERVACIONES").val(), $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SubTotal").val(),
                             "INHABILITAR", $("#ID_MESA").val(), $("#servicio").val(), "", "", "0", $("#ID_MESERO").val(), DatosClienteDIAN,
-                            $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(), $('#DianSistema').prop("checked"), $("#Total").val(), "");
+                            $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(), $('#DianSistema').prop("checked"), $("#Total").val(), "", "0");
                         connectPSR.server.actualizaMesa($("#ID_MESA").val(), "NO DISPONIBLE", User, "NO", "");
                         connectPSR.server.listarEstadoMesas("SI", $("#ID_MESA").val(), "../Solicitud/SeleccionarMesa");
                     }
@@ -1309,6 +1394,7 @@ function InhabilitarMesa() {
     }
 
 }
+
 //METODOS PARA HACER CAMBIO DE MESA
 function CargaMesas() {
     connectPSR.server.listarEstadoMesas("NO", 0, "");
@@ -1322,7 +1408,7 @@ function CambioMesa(id, Estado) {
     connectPSR.server.guardaDatosCliente($("#ID").val(), $("#CCCliente").val(), $("#NombreCliente").val() + " " + $("#ApellidosCliente").val(), $("#OBSERVACIONES").val(),
         $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SubTotal").val(), $("#ESTADO_SOLICITUD").val(), id, $("#servicio").val(),
         "", "", "0", $("#ID_MESERO").val(), DatosClienteDIAN, $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(),
-        $('#DianSistema').prop("checked"), $("#Total").val(), "");
+        $('#DianSistema').prop("checked"), $("#Total").val(), "", "0");
     connectPSR.server.actualizaMesa(id, Estado, User, "NO", "");
     connectPSR.server.actualizaMesa($("#ID_MESA").val(), "LIBRE", User, "NO", "");
     connectPSR.server.actualizaIdmesaHTML(id, $("#ID_MESA").val());
@@ -1365,6 +1451,31 @@ function masServicio(porcentajeMaximo) {
         $("#servicio").val(numActual);
 
 }
+function menosServicioDC(subtotal) {
+    var numActual = Math.trunc($("#servicioDC").val());
+    if (numActual > 0) {
+        $("#servicioDC").val(numActual - 1);
+        $("#servicioDigDC").val(((numActual - 1) * subtotal) / 100);
+    }
+    else {
+        $("#servicioDC").val(numActual);
+        $("#servicioDigDC").val(((numActual) * subtotal) / 100);
+    }
+
+}
+function masServicioDC(porcentajeMaximo, subtotal) {
+    var numActual = Math.trunc($("#servicioDC").val());
+    if (numActual < porcentajeMaximo) {
+        $("#servicioDC").val(numActual + 1);
+        $("#servicioDigDC").val(((numActual + 1) * subtotal) / 100);
+    }
+    else {
+        $("#servicioDC").val(numActual);
+        $("#servicioDigDC").val(((numActual) * subtotal) / 100);
+    }
+
+
+}
 function Encriptar(texto) {
     return new Promise(function (resolve, reject) {
         $.ajax({
@@ -1397,7 +1508,7 @@ function CambiaMesero(idMesero) {
         $("#OBSERVACIONES").val(), $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SubTotal").val(),
         $("#ESTADO_SOLICITUD").val(), $("#ID_MESA").val(), $("#servicio").val(), "", "", "0", idMesero,
         DatosClienteDIAN, $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(), $('#DianSistema').prop("checked"),
-        $("#Total").val(), "");
+        $("#Total").val(), "", "0");
 }
 function AgregaProductosPedido() {
     if ($('#ID_PRODUCTO').val() != "" && $('#PRECIO_PRODUCTO').val() != "") {
@@ -1499,6 +1610,52 @@ function ValidarValores(subTotal, servicioTot) {
     else {
         var calculo = (parseInt($("#servicioDig").val()) * 100) / (parseInt($("#SubTotal").val()));
         $("#servicio").val(calculo);
+    }
+}
+function ValidarValoresDC(subTotal, servicioTot) {
+    var propinaMaxima = (parseInt(subTotal) * 10) / 100;
+
+    if ($("#servicioDigDC").val() > propinaMaxima) {
+        $.alert({
+            theme: 'Modern',
+            icon: 'fa fa-times',
+            boxWidth: '500px',
+            useBootstrap: false,
+            type: 'red',
+            title: 'Ops!',
+            content: "El valor maximo de propina es <b>" + propinaMaxima + "</b>",
+            buttons: {
+                Continuar: {
+                    btnClass: 'btn btn-danger btn2',
+                    action: function () {
+                        $("#servicioDigDC").val(servicioTot)
+                    }
+                }
+            }
+        });
+    }
+    else if ($("#servicioDigDC").val() < 0) {
+        $.alert({
+            theme: 'Modern',
+            icon: 'fa fa-times',
+            boxWidth: '500px',
+            useBootstrap: false,
+            type: 'red',
+            title: 'Ops!',
+            content: "El valor no puede ser negativo",
+            buttons: {
+                Continuar: {
+                    btnClass: 'btn btn-danger btn2',
+                    action: function () {
+                        $("#servicioDigDC").val(servicioTot)
+                    }
+                }
+            }
+        });
+    }
+    else {
+        var calculo = (parseInt($("#servicioDigDC").val()) * 100) / (parseInt($("#SubTotal").val()));
+        $("#servicioDC").val(calculo);
     }
 }
 function validaValor() {
@@ -1646,4 +1803,241 @@ function AgregaPagoT() {
         PagarFactura();
     }
 
+}
+
+function ListaProductosDC() {
+    $("#setProductosDC").empty();
+    for (var i = 0; i < ProductosSolicitudVector.length; i++) {
+        var code = '';
+        var color = '#a90000';
+
+        /*code = '<i class="fa fa-2x fa-minus-square" style="color: #a90000; cursor:pointer;" onclick="CancelaProductoxId(' + data[0].ProductosSolicitud[i].Id + ',' + data[0].ProductosSolicitud[i].Id + ')"></i>' +
+            '<i id="' + descripcion + '" class="fa fa-2x fa-print" style="color: ' + color + '; cursor:pointer; margin-left: 5px;" onclick="ReEnviaProducto(' + data[0].ProductosSolicitud[i].IdProducto + ', this.id, ' + data[0].IdMesa + ')"></i >';
+        */
+        $("#setProductosDC").append('<tr>' +
+            '<td style="text-align: center;">' +
+            '<input class="form-check-input" style="border-color: black;" id=' + ProductosSolicitudVector[i].Id + ' type="checkbox" >' +
+            '</<td>' +
+            '<td>' +
+            ProductosSolicitudVector[i].NombreProducto +
+            '</<td>' +
+            '<td>' +
+            ProductosSolicitudVector[i].Descripcion +
+            '</<td>' +
+            '<td>' +
+            ProductosSolicitudVector[i].PrecioProducto +
+            '</<td>' +
+            '</tr>');
+        //console.log(ProductosSolicitudVector[i]);
+    }
+}
+function DivideCuentaProceso() {
+    //ATRAPA PRODUCTOS A DIVIDIR
+    var table = document.getElementById('ProductosDC');
+    var inputCheck = table.querySelectorAll('input[type="checkbox"]');
+    var productosTemp = [];
+    for (var i = 0; i < inputCheck.length; i++) {
+        if (inputCheck[i].checked) {
+            var model = {
+                ID: ProductosSolicitudVector.find((p) => p.Id == inputCheck[i].id).Id,
+                PRECIO_PRODUCTO: ProductosSolicitudVector.find((p) => p.Id == inputCheck[i].id).PrecioProducto,
+            };
+            productosTemp.push(model);
+        }
+    }
+    if (productosTemp.length > 0) {
+        $.alert({
+            theme: 'Modern',
+            icon: 'fa fa-list-alt',
+            boxWidth: '500px',
+            useBootstrap: false,
+            type: 'gray',
+            title: 'Dividir Cuenta !',
+            content: 'Esta seguro que desea dividir la cuenta con los productos seleccionados ? <br/> Por favor validar bien ;) ',
+            buttons: {
+                Si: {
+                    btnClass: 'btn btn-default btn2',
+                    action: function () {
+
+                        //CALCULOS DE SERVICIO
+                        var sumaProductos = 0;
+                        for (var i = 0; i < productosTemp.length; i++) {
+                            sumaProductos += productosTemp[i].PRECIO_PRODUCTO;
+                        }
+                        var servicioTotalDC = (sumaProductos * 10) / 100;
+
+                        $.alert({
+                            theme: 'Modern',
+                            icon: 'fa fa-list-alt',
+                            boxWidth: '500px',
+                            useBootstrap: false,
+                            type: 'gray',
+                            title: 'Servicio !',
+                            content: 'Desea agregar servicio ? <br/><br/> ' +
+                                '<table style="width: 100%;"><td>' +
+                                '<small><b>Servicio (' + DatosSolicitud[0].PorcentajeServicio + '% Máx.) :<br/>' +
+                                '<span class="input-group-btn" style="float: left; margin-left: 35%;">' +
+                                '<button class="btn btn-success" id="menosServicioDC" type="button" onclick="menosServicioDC(' + sumaProductos + ')"><b>-</b></button>' +
+                                '</span>' +
+                                '<input type="text" style="width:62px;text-align: center; float: left; margin-left: 2%;" id="servicioDC" class="form-control" value="' + DatosSolicitud[0].PorcentajeServicio + '" readonly />' +
+                                '<span class="input-group-btn" style="float: left; margin-left: 2%;">' +
+                                '<button class="btn btn-success" id="masServicioDC" type="button" onclick="masServicioDC(' + DatosSolicitud[0].Impuestos[2].Porcentaje + ', ' + sumaProductos + ')"><b>+</b></button>' +
+                                '</span>' +
+                                /*'<br/><br/><small><b>Digitar valor (Opcional):<b/><small/>' +*/
+                                '<br/><br/><input type="text" " style="background-color: #30a630c7; font-size: 24px; color: white; font-weight: bolder; margin-left: 20%; text-align: center;" ' +
+                                'id="servicioDigDC" class="form-control" value="' + servicioTotalDC + '" onkeypress = "return soloNum(event)" />' + //onchange="ValidarValoresDC(' + sumaProductos + ', ' + servicioTotalDC + ')"
+                                '</td></table>',
+                            buttons: {
+                                Continuar: {
+                                    btnClass: 'btn btn-default btn2',
+                                    action: function () {
+                                        cargando();
+                                        //DIVIDE CUENTA
+                                        connectPSR.server.divideCuenta(DatosSolicitud[0].Id, $("#ID_MESERO").val(), productosTemp, $("#servicioDC").val());
+                                    }
+                                },
+                                Cancelar: {
+                                    btnClass: 'btn btn-default',
+                                    action: function () {
+
+                                    }
+                                },
+                            }
+                        });
+                    }
+                },
+                Cancelar: {
+                    btnClass: 'btn btn-default',
+                    action: function () {
+
+                    }
+                },
+            }
+        });
+    }
+    else {
+        $.alert({
+            theme: 'Modern',
+            icon: 'fa fa-times',
+            boxWidth: '500px',
+            useBootstrap: false,
+            type: 'red',
+            title: 'Dividir Cuenta !',
+            content: 'Seleccione primero como minimo un producto',
+            buttons: {
+                Continuar: {
+                    btnClass: 'btn btn-default',
+                    action: function () {
+
+                    }
+                },
+            }
+        });
+    }
+
+}
+
+function PagarFacturaDC() {
+    cerrar();
+    var subt = $('#SUBTOTAL_DIVIDIDA').val();
+    var porcservdv = $('#PORC_SERVICIO_DIVIDIDA').val();
+    var totaldivid = $('#TOTAL_DIVIDIDA').val();
+    $.alert({
+        theme: 'Modern',
+        icon: 'fa fa-money',
+        boxWidth: '500px',
+        useBootstrap: false,
+        type: 'orange',
+        title: 'Medio de pago !',
+        content: 'Seleccione el medio de pago -> Cuenta Dividida <br/>' +
+            '<label style="font-weight: bolder; color: #ff781a; font-size: 20px;"> Subtotal: $' + subt + ' </label><br/>' +
+            '<label style="font-weight: bolder; color: #ffc91a; font-size: 18px;"> Servicio: %' + porcservdv + '  -  %8 Imp. Consumo: ' + ((parseInt(subt) + (parseInt(subt)*10/100)) + parseInt(subt*8/100)) + ' </label> <br/>' +
+            '<label style="font-weight: bolder; color: #005c30; font-size: 22px;"> Subtotal: $' + totaldivid + ' </label> <br/>',
+        buttons: {
+            Tarjeta: {
+                btnClass: 'btn btn-warning',
+                action: function () {
+                    PagosDIAN = [];
+                    DatosClienteDIAN = [];
+                    $.alert({
+                        theme: 'Modern',
+                        icon: 'fa fa-credit-card',
+                        boxWidth: '700px',
+                        useBootstrap: false,
+                        type: 'orange',
+                        title: '# Confirmacion !',
+                        content: 'Seguro que desea enviar el pago con TARJETA ?',
+                        buttons: {
+                            Continuar: {
+                                btnClass: 'btn btn-warning',
+                                action: function () {
+                                    cargando();
+                                    DatosClienteDIAN.push("false");
+                                    DatosClienteDIAN.push(token);                                    
+                                    connectPSR.server.guardaDatosCliente(Number($("#ID_SOLICITUD_DIVIDIDA").val()), $("#CCCliente").val(), $("#NombreCliente").val() + " " + $("#ApellidosCliente").val(), "CUENTA DIVIDIDA POR EL CLIENTE",
+                                        $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SUBTOTAL_DIVIDIDA").val(), "FINALIZADA", "999999",
+                                        $("#PORC_SERVICIO_DIVIDIDA").val(), "TARJETA", PagosDIAN, "0", $("#ID_MESERO").val(),
+                                        DatosClienteDIAN, $("#ID_CLIENTE").val(), "0", true, $("#TOTAL_DIVIDIDA").val(), "SI", $("#ID_MESA").val());
+                                }
+                            },
+                            Cancelar: {
+                                btnClass: 'btn btn-warning CierraPago',
+                                action: function () {
+                                    PagosDIAN = [];
+                                    DatosClienteDIAN = [];
+                                }
+                            }
+                        }
+                    });
+                }
+            },
+            Efectivo: {
+                btnClass: 'btn btn-warning',
+                action: function () {
+                    cerrar();
+                    DatosClienteDIAN = [];
+                    $.alert({
+                        theme: 'Modern',
+                        icon: 'fa fa-check',
+                        boxWidth: '500px',
+                        useBootstrap: false,
+                        type: 'orange',
+                        title: ':) Confirmación !',
+                        content: 'Seguro que desea enviar el pago con EFECTIVO ?',
+                        buttons: {
+                            Continuar: {
+                                btnClass: 'btn btn-warning',
+                                action: function () {
+                                    cargando();
+                                    DatosClienteDIAN.push("false");
+                                    DatosClienteDIAN.push(token);
+                                    connectPSR.server.guardaDatosCliente(Number($("#ID_SOLICITUD_DIVIDIDA").val()), $("#CCCliente").val(), $("#NombreCliente").val() + " " + $("#ApellidosCliente").val(), "CUENTA DIVIDIDA POR EL CLIENTE",
+                                        $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SUBTOTAL_DIVIDIDA").val(), "FINALIZADA", "999999",
+                                        $("#PORC_SERVICIO_DIVIDIDA").val(), "EFECTIVO", PagosDIAN, $("#SUBTOTAL_DIVIDIDA").val(), $("#ID_MESERO").val(),
+                                        DatosClienteDIAN, $("#ID_CLIENTE").val(), "0", true, $("#TOTAL_DIVIDIDA").val(), "SI", $("#ID_MESA").val());
+                                }
+                            },
+                            Cancelar: {
+                                btnClass: 'btn btn-warning',
+                                action: function () {
+                                    //cerrar();
+                                    PagosDIAN = [];
+                                    DatosClienteDIAN = [];
+                                }
+                            }
+                        }
+                    });
+                }
+            },
+            Cancelar: {
+                btnClass: 'btn btn-warning',
+                action: function () {
+                    PagosDIAN = [];
+                    DatosClienteDIAN = [];
+                    //cerrar();
+                }
+            }
+        }
+
+    });
 }
