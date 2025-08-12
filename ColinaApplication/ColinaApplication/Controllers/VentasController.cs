@@ -103,7 +103,7 @@ namespace ColinaApplication.Controllers
                                         valorTvouchers += Convert.ToDecimal(item2);
                                     }
                                 }
-                            }                           
+                            }
                         }
                         modelCierres2.TOTAL_TARJETA = valorTvouchers;
                         modelCierres2.VENTA_TOTAL = solicitudes.Where(x => x.ESTADO_SOLICITUD != Estados.CancelaPedido).Sum(a => a.TOTAL);
@@ -142,10 +142,11 @@ namespace ColinaApplication.Controllers
             }
             else
             {
-                model.Solicitudes = ventas.ConsultaSolicitudesXFecha(fechaInicial, fechaFinal);
-                var resultadofinal = GenerarReporte(model.Solicitudes);
-                //return File(resultadofinal[0].Value, "application / csv; charset = utf - 8", resultadofinal[0].Key);                
-                return File(resultadofinal.Value, "application / csv; charset = utf - 8", resultadofinal.Key);
+                //model.Solicitudes = ventas.ConsultaSolicitudesXFecha(fechaInicial, fechaFinal);
+                //var resultadofinal = GenerarReporte(model.Solicitudes);
+                ////return File(resultadofinal[0].Value, "application / csv; charset = utf - 8", resultadofinal[0].Key);                
+                //return File(resultadofinal.Value, "application / csv; charset = utf - 8", resultadofinal.Key);
+                return View("Ingresos", model);
             }
         }
         [HttpPost]
@@ -222,32 +223,29 @@ namespace ColinaApplication.Controllers
             }
             return respuesta;
         }
-        public KeyValuePair<string, byte[]> GenerarReporte(List<ConsultaSolicitud> consulta)
-        {
-            string nombreArchivo = string.Empty;
-            IEnumerable<object> registrosConsultados;
-            IEnumerable<object> registrosConsultados2;
-            registrosConsultados = consulta;
-            registrosConsultados2 = consulta[0].ProductosSolicitud;
-            nombreArchivo = "ReporteSolicitudes";
-            var archivoCsvFinal = GenerarArchivoCsvExport<object>
-                                (nombreArchivo, registrosConsultados, registrosConsultados2);
+        //public KeyValuePair<string, byte[]> GenerarReporte(List<ConsultaSolicitud> consulta)
+        //{
+        //    string nombreArchivo = string.Empty;
+        //    IEnumerable<object> registrosConsultados;
+        //    IEnumerable<object> registrosConsultados2;
+        //    registrosConsultados = consulta;
+        //    registrosConsultados2 = consulta[0].ProductosSolicitud;
+        //    nombreArchivo = "ReporteSolicitudes";
+        //    var archivoCsvFinal = GenerarArchivoCsvExport<object>
+        //                        (nombreArchivo, registrosConsultados, registrosConsultados2);
 
-            return archivoCsvFinal;
-        }
-        public static KeyValuePair<string, byte[]> GenerarArchivoCsvExport<T>(string nombreArchivo, IEnumerable<T> registros, IEnumerable<T> registros2)
+        //    return archivoCsvFinal;
+        //}
+        public static KeyValuePair<string, byte[]> GenerarArchivoCsvExport<T>(string nombreArchivo, IEnumerable<T> registros)
         {
             byte[] bytesArchivoCsv;
             var archivoCsv = new Data.Clases.CsvExport();
-            var archivoCsv2 = new Data.Clases.CsvExport();
             archivoCsv.AddRows(registros);
             archivoCsv.AddRow();
-            archivoCsv2.AddRows(registros2);
             var Hoja1 = archivoCsv.Export();
-            Hoja1 += archivoCsv2.Export();
 
             bytesArchivoCsv = Encoding.ASCII.GetBytes(Hoja1);
-            
+
             var archivoCsvFinal = new KeyValuePair<string, byte[]>(nombreArchivo, bytesArchivoCsv);
             return archivoCsvFinal;
         }
@@ -283,6 +281,30 @@ namespace ColinaApplication.Controllers
 
             TempData["Posicion"] = "DivFactura";
             return RedirectToAction("Ingresos");
+        }
+        [HttpPost]
+        public ActionResult DescargaPropinas(DateTime Fecha1, DateTime Fecha2)
+        {
+            List<Propinas> model = new List<Propinas>();
+            Fecha1 = Fecha1.Date.Add(new TimeSpan(0, 0, 0));
+            Fecha2 = Fecha2.Date.Add(new TimeSpan(23, 59, 59));
+
+            model = ventas.ConsultaPropinasXFecha(Fecha1, Fecha2);
+            var resultadofinal = GenerarReportePropinas(model);
+            //return File(resultadofinal[0].Value, "application / csv; charset = utf - 8", resultadofinal[0].Key);                
+            return File(resultadofinal.Value, "application / csv; charset = utf - 8", resultadofinal.Key);            
+        }
+
+        public KeyValuePair<string, byte[]> GenerarReportePropinas(List<Propinas> consulta)
+        {
+            string nombreArchivo = string.Empty;
+            IEnumerable<object> registrosConsultados;
+            registrosConsultados = consulta;
+            nombreArchivo = "ReportePropinas.xls";
+            var archivoCsvFinal = GenerarArchivoCsvExport<object>
+                                (nombreArchivo, registrosConsultados);
+
+            return archivoCsvFinal;
         }
     }
 }

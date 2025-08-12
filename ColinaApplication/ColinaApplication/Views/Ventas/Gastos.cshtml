@@ -9,6 +9,16 @@
     <div class="row">
         <div class="col-md-12">
             <h1 class="page-header"><i class="fa fa-clipboard"></i> Nómina </h1>
+            <div style="float: right;">
+                <i class="fa fa-money text-bg-primary" onclick="PropinasTotal()"
+                   style="float:left; margin:5px; padding:10px; border-radius: 5px; font-size: 18px; cursor: pointer;"> Propinas </i>
+                @using (Html.BeginForm("DescargaPropinas", "Ventas", FormMethod.Post, new { @style = "", @id="FormDescargaPropinas" }))
+                { 
+                    <input type="hidden" id="Fecha1" name="Fecha1"  /> 
+                    <input type="hidden" id="Fecha2" name="Fecha2" /> 
+                    <button type="submit" id="EnviaDescargaPropinas" style="display: none;">enviar</button>
+                }
+            </div>
         </div>
         <div class="col-md-12" style="padding: 10px; background-color: #eeeeee;">
             <div class="col-md-12" style="overflow-x:auto;">
@@ -136,10 +146,11 @@
         var urlAsignarDiaTrabajo = '@Url.Action("AsignarDiaTrabajo", "Ventas")';
         var urlCalcularPago = '@Url.Action("CalcularPago", "Ventas")';
         var urlLiquidarUsuario = '@Url.Action("LiquidarUsuario", "Ventas")';
+        var urlPropinasTotal = '@Url.Action("LiquidarUsuario", "Ventas")';
 
         </script>
 
-        <script src="~/ScriptsViews/Ventas/Gastos.js?1.0.8"></script>
+        <script src="~/ScriptsViews/Ventas/Gastos.js?1.0.9"></script>
     }
 }
 else

@@ -243,9 +243,67 @@ function Liquidar(idUsuarioNomina) {
                     }
                 });
             }
-        },
-        error: function (request, status, error) {
-            console.log(error);
+        },        
+        Cancelar: {
+            btnClass: 'btn btn-warning btn2',
+            action: function () {
+
+            }
         }
     });
+}
+
+function PropinasTotal() {
+    $.alert({
+        theme: 'Modern',
+        icon: 'fa fa-money',
+        boxWidth: '500px',
+        useBootstrap: false,
+        type: 'blue',
+        title: 'Propinas !',
+        content: 'Por favor seleccione una fecha inicial y final: <br/><label><input id="FechaIniPropinas" type="date" class="form-control input-sm"></label>'+
+                    '<br/><label><input id="FechaFinPropinas" type="date" class="form-control input-sm"></label><br>',
+        buttons: {
+            Continuar: {
+                btnClass: 'btn btn-primary btn2',
+                action: function () {
+                    if ($("#FechaIniPropinas").val() != "" && $("#FechaFinPropinas").val() != "" && ($("#FechaIniPropinas").val() < $("#FechaFinPropinas").val())) {
+                        const fechaInicial = $("#FechaIniPropinas").val();
+                        const fechaFinal = $("#FechaFinPropinas").val();
+                        $("#Fecha1").val(fechaInicial);
+                        $("#Fecha2").val(fechaFinal);
+                        $("#EnviaDescargaPropinas").click();
+
+                    }
+                    else {
+                        $.alert({
+                            theme: 'Modern',
+                            icon: 'fa fa-times',
+                            boxWidth: '500px',
+                            useBootstrap: false,
+                            type: 'red',
+                            title: 'Error Fechas !',
+                            content: 'No pueden ser vacias las fechas y/o la fecha inicial debe ser menor a la fecha final',
+                            buttons: {
+                                Continuar: {
+                                    btnClass: 'btn btn-danger btn2',
+                                    action: function () {
+                                        PropinasTotal();
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    
+                }
+            },
+            Cancelar: {
+                btnClass: 'btn btn-secondary btn2',
+                action: function () {
+
+                }
+            }
+        }
+    });
+    
 }

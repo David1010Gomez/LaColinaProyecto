@@ -1198,5 +1198,34 @@ namespace ColinaApplication.Data.Business
             }
             return Respuesta;
         }
+        public List<Propinas> ConsultaPropinasXFecha(DateTime FechaInicial, DateTime FechaFinal)
+        {
+            List<Propinas> propinas = new List<Propinas>();
+            using (DBLaColina context = new DBLaColina())
+            {
+                propinas = (from a in context.TBL_DIAS_TRABAJADOS
+                            join b in context.TBL_NOMINA
+                            on a.ID_USUARIO_NOMINA equals b.ID
+                            where a.FECHA_TRABAJADO >= FechaInicial && a.FECHA_TRABAJADO <= FechaFinal
+                            group a by new { a.ID_USUARIO_NOMINA, b.NOMBRE, b.CEDULA } into TotPropinas
+                            select new Propinas
+                            {
+                                IdSistema = TotPropinas.Key.ID_USUARIO_NOMINA,
+                                Cedula = TotPropinas.Key.CEDULA,
+                                Nombre = TotPropinas.Key.NOMBRE,
+                                ServicioTotal = TotPropinas.Sum(x => x.PROPINAS)
+                            }
+                            ).ToList();
+                if ( propinas.Count > 0 )
+                {
+                    propinas.LastOrDefault().TotalPropinas = (from a in context.TBL_CIERRES
+                                                             where a.FECHA_HORA_CIERRE >= FechaInicial
+                                                             && a.FECHA_HORA_CIERRE <= FechaFinal
+                                                             //group a by a.VENTA_TOTAL into TotalVentas
+                                                             select a.SERVICIO_TOTAL).Sum();
+                }                
+            }
+            return propinas;
+        }
     }
 }
