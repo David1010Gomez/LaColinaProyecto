@@ -152,9 +152,9 @@ namespace ColinaApplication.Hubs
         }
         public void GuardaDatosCliente(decimal Id, string Cedula, string NombreCliente, string Observaciones, string OtrosCobros,
             string Descuentos, string SubTotal, string Estado, string IdMesa, decimal porcentajeServicio, string MetodoPago, List<Payments> pagos,
-            string CantEfectivo, decimal idMesero, List<string> datosDianCliente, decimal idCliente, string FactElect, bool DianSistema, 
+            string CantEfectivo, decimal idMesero, List<string> datosDianCliente, decimal idCliente, string FactElect, bool DianSistema,
             decimal valorTotal, string BorradorDian, string IdMesaPrincipal)
-        {            
+        {
             Cliente cliente = new Cliente();
             TBL_CLIENTES_DIAN clienteDian = new TBL_CLIENTES_DIAN();
             List<ProductosSolicitud> ProductosXSolicitud = new List<ProductosSolicitud>();
@@ -180,7 +180,7 @@ namespace ColinaApplication.Hubs
                     else
                     {
                         cliente.name.Add(datosDianCliente[6]);
-                    }                    
+                    }
                     cliente.commercial_name = datosDianCliente[4];
                     cliente.vat_responsible = Convert.ToBoolean(datosDianCliente[9]);
                     cliente.address = new Address();
@@ -208,7 +208,7 @@ namespace ColinaApplication.Hubs
                         clienteDian.NUMERO_IDENTIFICACION = cliente.identification;
                         clienteDian.DIGITO_VERIFI = cliente.check_digit;
                         clienteDian.NOMBRES = cliente.name[0];
-                        clienteDian.APELLIDOS = cliente.name.Count > 1 ? cliente.name[1]: "NA";
+                        clienteDian.APELLIDOS = cliente.name.Count > 1 ? cliente.name[1] : "NA";
                         clienteDian.RAZON_SOCIAL = datosDianCliente[6];
                         clienteDian.NOMBRE_COMERCIAL = cliente.commercial_name;
                         clienteDian.DIRECCION = cliente.address.address;
@@ -238,27 +238,26 @@ namespace ColinaApplication.Hubs
                     }
                 }
 
-                //ENVIA A LA DIAN
-                if (Estado == Estados.Finalizada && DianSistema)
+                if (Estado == Estados.Finalizada)
                 {
                     //CONSULTA CLIENTE DIAN
-                    if(idCliente != 0)
+                    if (idCliente != 0)
                         clienteDian = solicitud.ConsultaCedulaId(idCliente);
                     else
                         clienteDian = solicitud.ConsultaCedula("222222222222");
                     //LLENA MODELO PARA ENVIAR                    
                     factura.document = new Document();
                     factura.document.id = 27572;
-                    factura.date = Convert.ToString(DateTime.Now.Year) + "-" + Convert.ToString(DateTime.Now.Month.ToString("D2")) + "-" + Convert.ToString(DateTime.Now.Day.ToString("D2"));                    
+                    factura.date = Convert.ToString(DateTime.Now.Year) + "-" + Convert.ToString(DateTime.Now.Month.ToString("D2")) + "-" + Convert.ToString(DateTime.Now.Day.ToString("D2"));
                     factura.customer = new Customer();
                     factura.customer.person_type = clienteDian.TIPO_PERSONA;
                     factura.customer.id_type = clienteDian.CODIGO_DOCUMENTO;
                     factura.customer.identification = clienteDian.NUMERO_IDENTIFICACION;
                     factura.customer.branch_office = 0;
                     factura.customer.name = new List<string>();
-                    factura.customer.contacts = new List<Contacts>();                    
+                    factura.customer.contacts = new List<Contacts>();
                     if (clienteDian.TIPO_PERSONA == "Person")
-                    {                        
+                    {
                         factura.customer.name.Add(clienteDian.NOMBRES);
                         factura.customer.name.Add(clienteDian.APELLIDOS);
                         factura.customer.contacts.Add(new Contacts { first_name = clienteDian.NOMBRES, last_name = clienteDian.APELLIDOS, email = clienteDian.EMAIL, phone = new Phone { number = clienteDian.TELEFONO } });
@@ -274,27 +273,27 @@ namespace ColinaApplication.Hubs
                     //factura.customer.address.city.city_code = "CO";
                     //factura.customer.address.city.country_name = "COLOMBIA";
                     //factura.customer.address.city.state_code =
-                    factura.customer.phone = new List<Phone> ();
+                    factura.customer.phone = new List<Phone>();
                     factura.customer.phone.Add(new Phone { number = clienteDian.TELEFONO });
                     factura.seller = 466;
                     factura.stamp = new Stamp();
-                    factura.stamp.send = BorradorDian == "SI"? false : true;
+                    factura.stamp.send = BorradorDian == "SI" ? false : true;
                     factura.mail = new Mail();
                     factura.mail.send = BorradorDian == "SI" ? false : datosDianCliente[0] == "true" ? true : false;
                     //CONSULTA PRODUCTOS
                     ProductosXSolicitud = solicitud.ConsultaProductoSolicitudId(Convert.ToDecimal(Id));
                     ProductosXSolicitud = solicitud.AgrupaProductos(ProductosXSolicitud);
-                    factura.items = new List<Items> ();                    
+                    factura.items = new List<Items>();
                     foreach (var item in ProductosXSolicitud)
                     {
                         Producto producto = new Producto();
                         producto = businessDian.ConsultaProductosDianId(datosDianCliente[1], Convert.ToString(item.IdDian));
                         factura.items.Add(new Items { code = producto.code, quantity = item.Id, description = item.NombreProducto, price = Convert.ToDecimal(item.PrecioProducto), taxes = new List<Taxes> { new Taxes { id = 9748 } } });
                     }
-                    factura.payments = new List<Payments> ();
+                    factura.payments = new List<Payments>();
                     if (MetodoPago == "EFECTIVO")
                     {
-                        factura.payments.Add(new Payments { id = "4168", value = Convert.ToInt32( valorTotal ) });
+                        factura.payments.Add(new Payments { id = "4168", value = Convert.ToInt32(valorTotal) });
                     }
                     else if (MetodoPago == "AMBAS")
                     {
@@ -310,7 +309,8 @@ namespace ColinaApplication.Hubs
                             factura.payments.Add(new Payments { id = item.id, value = item.value });
                         }
                     }
-                    else {
+                    else
+                    {
                         foreach (var item in pagos)
                         {
                             vouchers += item.id + ";";
@@ -323,12 +323,14 @@ namespace ColinaApplication.Hubs
                         }
                     }
                     factura.globaldiscounts = new List<Globaldiscounts>();
-                    factura.globaldiscounts.Add(new Globaldiscounts { id = 13156, value = Convert.ToInt32(Math.Round(Convert.ToDouble((Convert.ToDecimal(SubTotal) * porcentajeServicio) / 100), 0)) });                    
-                    
-                    //LLAMA ENVIAR FACTURA DIAN
-                    factura = businessDian.InsertaFactura(datosDianCliente[1], factura, Id);
+                    factura.globaldiscounts.Add(new Globaldiscounts { id = 13156, value = Convert.ToInt32(Math.Round(Convert.ToDouble((Convert.ToDecimal(SubTotal) * porcentajeServicio) / 100), 0)) });
+                    if (DianSistema)
+                    {
+                        //LLAMA ENVIAR FACTURA DIAN
+                        factura = businessDian.InsertaFactura(datosDianCliente[1], factura, Id);
+                    }
                 }
-            }            
+            }
 
             //ACTUALIZA SOLICITUD
             TBL_SOLICITUD model = new TBL_SOLICITUD();
@@ -351,7 +353,7 @@ namespace ColinaApplication.Hubs
             model.ENVIO_DIAN = factura.id != null ? "1" : "0";
             model.VALORES_VOUCHERS = valoresVouchers;
             model.ID_F_DIAN = factura.id != null ? factura.id : "0";
-            model.MESA_DIVIDIDA = "0";
+            //model.MESA_DIVIDIDA = "0";
             var respuesta = solicitud.ActualizaSolicitud(model);
             if (model.ESTADO_SOLICITUD == Estados.Finalizada)
                 ventas.ImprimirFactura(Convert.ToString(model.ID));

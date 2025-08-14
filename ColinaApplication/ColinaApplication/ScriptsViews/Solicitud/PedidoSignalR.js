@@ -74,7 +74,7 @@ function Llama_MetodosPSR(connectpsr) {
                 ActualizaInfoProductos(data);
                 $("#ID").val(data[0].Id);
             }
-            $("#GuardaDatosCliente").removeAttr("disabled");            
+            $("#GuardaDatosCliente").removeAttr("disabled");
         }
 
     }
@@ -1104,6 +1104,7 @@ function PagarFactura() {
             }
         }
     });
+
 }
 
 //METODO IMPRIME FACTURA NADA MAS
@@ -1951,8 +1952,10 @@ function PagarFacturaDC() {
         title: 'Medio de pago !',
         content: 'Seleccione el medio de pago -> Cuenta Dividida <br/>' +
             '<label style="font-weight: bolder; color: #ff781a; font-size: 20px;"> Subtotal: $' + subt + ' </label><br/>' +
-            '<label style="font-weight: bolder; color: #ffc91a; font-size: 18px;"> Servicio: %' + porcservdv + '  -  %8 Imp. Consumo: ' + ((parseInt(subt) + (parseInt(subt)*10/100)) + parseInt(subt*8/100)) + ' </label> <br/>' +
-            '<label style="font-weight: bolder; color: #005c30; font-size: 22px;"> Subtotal: $' + totaldivid + ' </label> <br/>',
+            '<label style="font-weight: bolder; color: #ffc91a; font-size: 18px;"> Imp. Consumo: $' + (parseInt(subt * 8 / 100)) + ' </label> <br/>' +
+            '<label style="font-weight: bolder; color: gray; text-decoration: underline; font-size: 14px;"> Datafono: $' + (parseInt(subt * 8 / 100) + parseInt(subt)) + ' </label> <br/>' +
+            '<label style="font-weight: bolder; color: #ffc91a; font-size: 18px;"> Servicio: $' + parseInt(subt * porcservdv / 100) + '</label> <br/>' +
+            '<label style="font-weight: bolder; color: #005c30; font-size: 22px;"> TOTAL: $' + totaldivid + ' </label> <br/>',
         buttons: {
             Tarjeta: {
                 btnClass: 'btn btn-warning',
@@ -1965,19 +1968,31 @@ function PagarFacturaDC() {
                         boxWidth: '700px',
                         useBootstrap: false,
                         type: 'orange',
-                        title: '# Confirmacion !',
-                        content: 'Seguro que desea enviar el pago con TARJETA ?',
+                        title: 'Tipo Pago !',
+                        content: 'Seleccione el tipo de pago !<br/><br/>' +
+                            '<div><select id="OpcionPagoDC" class="form-select" style="margin-left: 27%;"><option value="">** Tipo Pago **</option ><option value="Debito">Tarjeta Debito</option><option value="Credito">Tarjeta Credito</option></select></div>',
                         buttons: {
                             Continuar: {
                                 btnClass: 'btn btn-warning',
                                 action: function () {
-                                    cargando();
-                                    DatosClienteDIAN.push("false");
-                                    DatosClienteDIAN.push(token);                                    
-                                    connectPSR.server.guardaDatosCliente(Number($("#ID_SOLICITUD_DIVIDIDA").val()), $("#CCCliente").val(), $("#NombreCliente").val() + " " + $("#ApellidosCliente").val(), "CUENTA DIVIDIDA POR EL CLIENTE",
-                                        $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SUBTOTAL_DIVIDIDA").val(), "FINALIZADA", "999999",
-                                        $("#PORC_SERVICIO_DIVIDIDA").val(), "TARJETA", PagosDIAN, "0", $("#ID_MESERO").val(),
-                                        DatosClienteDIAN, $("#ID_CLIENTE").val(), "0", true, $("#TOTAL_DIVIDIDA").val(), "SI", $("#ID_MESA").val());
+                                    if ($('#OpcionPagoDC').val() != "") {
+                                        cargando();
+                                        DatosClienteDIAN.push("false");
+                                        DatosClienteDIAN.push(token);
+                                        var model = {
+                                            id: "0000",
+                                            name: $('#OpcionPagoDC').val(),
+                                            value: parseInt(totaldivid)
+                                        };
+                                        PagosDIAN.push(model);
+                                        connectPSR.server.guardaDatosCliente(Number($("#ID_SOLICITUD_DIVIDIDA").val()), $("#CCCliente").val(), $("#NombreCliente").val() + " " + $("#ApellidosCliente").val(), "CUENTA DIVIDIDA POR EL CLIENTE",
+                                            $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SUBTOTAL_DIVIDIDA").val(), "FINALIZADA", "999999",
+                                            $("#PORC_SERVICIO_DIVIDIDA").val(), "TARJETA", PagosDIAN, "0", $("#ID_MESERO").val(),
+                                            DatosClienteDIAN, $("#ID_CLIENTE").val(), "0", true, $("#TOTAL_DIVIDIDA").val(), "SI", $("#ID_MESA").val());
+                                    }
+                                    else {
+                                        PagarFacturaDC();
+                                    }
                                 }
                             },
                             Cancelar: {
@@ -1994,8 +2009,8 @@ function PagarFacturaDC() {
             Efectivo: {
                 btnClass: 'btn btn-warning',
                 action: function () {
-                    cerrar();
                     DatosClienteDIAN = [];
+                    PagosDIAN = [];
                     $.alert({
                         theme: 'Modern',
                         icon: 'fa fa-check',
@@ -2029,12 +2044,86 @@ function PagarFacturaDC() {
                     });
                 }
             },
-            Cancelar: {
+            Ambas: {
                 btnClass: 'btn btn-warning',
                 action: function () {
-                    PagosDIAN = [];
                     DatosClienteDIAN = [];
-                    //cerrar();
+                    PagosDIAN = [];
+                    $.alert({
+                        theme: 'Modern',
+                        icon: 'fa fa-money',
+                        boxWidth: '500px',
+                        useBootstrap: false,
+                        type: 'orange',
+                        title: '$ Efectivo !',
+                        content: 'Digite la cantidad en efectivo <br/> <div><input style="witdh:60%; margin-left: 20%;" id="cantEfectivoDC" type="text" class="form-control input-sm" onchange="validaValor()" onkeypress = "return soloNum(event)" required /></div>',
+                        buttons: {
+                            Continuar: {
+                                btnClass: 'btn btn-warning',
+                                action: function () {
+                                    var cantEfectivoDC = $("#cantEfectivoDC").val();
+                                    if (cantEfectivoDC != "") {
+                                        $.alert({
+                                            theme: 'Modern',
+                                            icon: 'fa fa-credit-card',
+                                            boxWidth: '700px',
+                                            useBootstrap: false,
+                                            type: 'orange',
+                                            title: '# Valores Aprobación !',
+                                            content: 'Seleccione el Tipo de Pago' +
+                                                '<br/><br/>' +
+                                                '<div>' +
+                                                '<select id="OpcionPagoDC" class="form-select" style="margin-left: 27%;"><option value="">** Tipo Pago **</option ><option value="Debito">Tarjeta Debito</option><option value="Credito">Tarjeta Credito</option></select></td></table>' +
+                                                '</div>' +
+                                                '<br/><br/>',
+                                            buttons: {
+                                                Continuar: {
+                                                    btnClass: 'btn btn-warning',
+                                                    action: function () {
+                                                        if ($('#OpcionPagoDC').val() != "") {
+                                                            cargando();
+                                                            var model = {
+                                                                id: "0000",
+                                                                name: $('#OpcionPagoDC').val(),
+                                                                value: parseInt($('#TOTAL_DIVIDIDA').val() - cantEfectivoDC)
+                                                            };
+                                                            PagosDIAN.push(model);
+                                                            DatosClienteDIAN.push($('#EnvioDian').prop("checked"));
+                                                            DatosClienteDIAN.push(token);
+                                                            connectPSR.server.guardaDatosCliente(Number($("#ID_SOLICITUD_DIVIDIDA").val()), $("#CCCliente").val(), $("#NombreCliente").val() + " " + $("#ApellidosCliente").val(), "CUENTA DIVIDIDA POR EL CLIENTE",
+                                                                $("#OtrosCobros").val(), $("#Descuentos").val(), $("#SUBTOTAL_DIVIDIDA").val(), "FINALIZADA", "999999",
+                                                                $("#PORC_SERVICIO_DIVIDIDA").val(), "AMBAS", PagosDIAN, cantEfectivoDC, $("#ID_MESERO").val(),
+                                                                DatosClienteDIAN, $("#ID_CLIENTE").val(), "0", true, $("#TOTAL_DIVIDIDA").val(), "SI", $("#ID_MESA").val());
+                                                        }
+                                                        else {
+                                                            PagarFacturaDC();
+                                                        }
+                                                    }
+                                                },
+                                                Cancelar: {
+                                                    btnClass: 'btn btn-warning CierraPago',
+                                                    action: function () {
+                                                        PagosDIAN = [];
+                                                        DatosClienteDIAN = [];
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                    else {
+                                        PagarFacturaDC();
+                                    }
+                                }
+                            },
+                            Cancelar: {
+                                btnClass: 'btn btn-warning',
+                                action: function () {
+                                    PagosDIAN = [];
+                                    cerrar();
+                                }
+                            }
+                        }
+                    });
                 }
             }
         }

@@ -324,7 +324,7 @@ namespace ColinaApplication.Data.Business
                         actualiza.ENVIO_DIAN = model.ENVIO_DIAN;
                         actualiza.VALORES_VOUCHERS = model.VALORES_VOUCHERS;
                         actualiza.ID_F_DIAN = model.ID_F_DIAN; 
-                        actualiza.MESA_DIVIDIDA = model.MESA_DIVIDIDA;
+                        //actualiza.MESA_DIVIDIDA = model.MESA_DIVIDIDA;
                         contex.SaveChanges();
                         Respuesta = "Solicitud actualizada exitosamente";
                     }

@@ -38,16 +38,16 @@
 
             <a class="AgregProd" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#AgregaProducto" data-backdrop="static" data-keyboard="false"><i class="fa fa-2x fa-plus-circle"></i> Agregar</a>
             <a class="AgregProd" style="cursor: pointer; background-color: #d25900f7;" data-bs-toggle="modal" data-bs-target="#CambioMesa" data-backdrop="static" data-keyboard="false" onclick="CargaMesas()"> <i class="fa fa-2x fa-exchange"></i> Cambio</a>
-            <div id="DivLlevar" style="display: none;">
+            @*<div id="DivLlevar" style="display: none;">
                 <a class="AgregProd" style="background-color: #e3a200; cursor: pointer;" onclick="AsignarLlevar()"> <i class="fa fa-2x fa-arrow-up"></i> Llevar</a>
-            </div>
+            </div>*@
             <div id="DivAsignar" style="display: none">
                 <a class="AgregProd" style="background-color:#5cb85c; cursor: pointer;" onclick="AsignarAsignaMesa()"> <i class="fa fa-2x fa-arrow-up"></i> Asignar</a>
             </div>
-            @if (@Session["IdPerfil"].ToString() == "1" || @Session["IdPerfil"].ToString() == "2")
+            @*@if (@Session["IdPerfil"].ToString() == "1" || @Session["IdPerfil"].ToString() == "2")
             {
                 <a class="AgregProd" style="background-color: #008dc9; cursor: pointer;" onclick="ConsumoInterno()"> <i class="fa fa-2x fa-users"></i> Interno</a>
-            }
+            }*@
             <a class="AgregProd" style="cursor: pointer; background-color: #bb3939;" onclick="InhabilitarMesa()"> <i class="fa fa-2x fa-times"></i> Inhabilitar</a>
             @if (@Session["IdPerfil"].ToString() == "1" || @Session["IdPerfil"].ToString() == "2")
             {
@@ -294,7 +294,7 @@
     </script>
 
     <script src="~/ScriptsViews/Solicitud/Pedido.js?1.0."></script>
-    <script src="~/ScriptsViews/Solicitud/PedidoSignalR.js?1.2.14"></script>
+    <script src="~/ScriptsViews/Solicitud/PedidoSignalR.js?1.2.15"></script>
 
 }
 
