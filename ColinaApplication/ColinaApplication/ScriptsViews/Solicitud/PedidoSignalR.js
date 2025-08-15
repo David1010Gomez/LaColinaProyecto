@@ -1137,6 +1137,7 @@ function GeneraFactura() {
 
 //METODO CANCELA PEDIDO
 function CancelaPedido() {
+    cargando();
     $.alert({
         theme: 'Modern',
         icon: 'fa fa-question',
@@ -1833,6 +1834,7 @@ function ListaProductosDC() {
     }
 }
 function DivideCuentaProceso() {
+    cargando();
     //ATRAPA PRODUCTOS A DIVIDIR
     var table = document.getElementById('ProductosDC');
     var inputCheck = table.querySelectorAll('input[type="checkbox"]');
@@ -1892,7 +1894,6 @@ function DivideCuentaProceso() {
                                 Continuar: {
                                     btnClass: 'btn btn-default btn2',
                                     action: function () {
-                                        cargando();
                                         //DIVIDE CUENTA
                                         connectPSR.server.divideCuenta(DatosSolicitud[0].Id, $("#ID_MESERO").val(), productosTemp, $("#servicioDC").val());
                                     }
@@ -1900,7 +1901,7 @@ function DivideCuentaProceso() {
                                 Cancelar: {
                                     btnClass: 'btn btn-default',
                                     action: function () {
-
+                                        cerrar();
                                     }
                                 },
                             }
@@ -1910,7 +1911,7 @@ function DivideCuentaProceso() {
                 Cancelar: {
                     btnClass: 'btn btn-default',
                     action: function () {
-
+                        cerrar();
                     }
                 },
             }
@@ -1929,7 +1930,7 @@ function DivideCuentaProceso() {
                 Continuar: {
                     btnClass: 'btn btn-default',
                     action: function () {
-
+                        cerrar();
                     }
                 },
             }
@@ -1939,7 +1940,7 @@ function DivideCuentaProceso() {
 }
 
 function PagarFacturaDC() {
-    cerrar();
+    cargando();
     var subt = $('#SUBTOTAL_DIVIDIDA').val();
     var porcservdv = $('#PORC_SERVICIO_DIVIDIDA').val();
     var totaldivid = $('#TOTAL_DIVIDIDA').val();
@@ -1994,13 +1995,6 @@ function PagarFacturaDC() {
                                         PagarFacturaDC();
                                     }
                                 }
-                            },
-                            Cancelar: {
-                                btnClass: 'btn btn-warning CierraPago',
-                                action: function () {
-                                    PagosDIAN = [];
-                                    DatosClienteDIAN = [];
-                                }
                             }
                         }
                     });
@@ -2031,14 +2025,6 @@ function PagarFacturaDC() {
                                         $("#PORC_SERVICIO_DIVIDIDA").val(), "EFECTIVO", PagosDIAN, $("#SUBTOTAL_DIVIDIDA").val(), $("#ID_MESERO").val(),
                                         DatosClienteDIAN, $("#ID_CLIENTE").val(), "0", true, $("#TOTAL_DIVIDIDA").val(), "SI", $("#ID_MESA").val());
                                 }
-                            },
-                            Cancelar: {
-                                btnClass: 'btn btn-warning',
-                                action: function () {
-                                    //cerrar();
-                                    PagosDIAN = [];
-                                    DatosClienteDIAN = [];
-                                }
                             }
                         }
                     });
@@ -2062,7 +2048,7 @@ function PagarFacturaDC() {
                                 btnClass: 'btn btn-warning',
                                 action: function () {
                                     var cantEfectivoDC = $("#cantEfectivoDC").val();
-                                    if (cantEfectivoDC != "") {
+                                    if (cantEfectivoDC != "" && cantEfectivoDC < totaldivid) {
                                         $.alert({
                                             theme: 'Modern',
                                             icon: 'fa fa-credit-card',
@@ -2099,27 +2085,30 @@ function PagarFacturaDC() {
                                                             PagarFacturaDC();
                                                         }
                                                     }
-                                                },
-                                                Cancelar: {
-                                                    btnClass: 'btn btn-warning CierraPago',
-                                                    action: function () {
-                                                        PagosDIAN = [];
-                                                        DatosClienteDIAN = [];
-                                                    }
                                                 }
                                             }
                                         });
                                     }
                                     else {
-                                        PagarFacturaDC();
+                                        $.alert({
+                                            theme: 'Modern',
+                                            icon: 'fa fa-times',
+                                            boxWidth: '500px',
+                                            useBootstrap: false,
+                                            type: 'red',
+                                            title: 'Ops!',
+                                            content: "El valor no puede ser vacio, mayor o igual al total de la cuenta",
+                                            buttons: {
+                                                Continuar: {
+                                                    btnClass: 'btn btn-danger btn2',
+                                                    action: function () {
+                                                        PagarFacturaDC();
+                                                    }
+                                                }
+                                            }
+                                        });
+                                        
                                     }
-                                }
-                            },
-                            Cancelar: {
-                                btnClass: 'btn btn-warning',
-                                action: function () {
-                                    PagosDIAN = [];
-                                    cerrar();
                                 }
                             }
                         }
