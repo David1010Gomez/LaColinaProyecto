@@ -1,0 +1,249 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="COLINADBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityContainer Name="DBLaColina" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="TBL_CATEGORIAS" EntityType="COLINADBModel.TBL_CATEGORIAS" />
+    <EntitySet Name="TBL_PRODUCTOS_SOLICITUD" EntityType="COLINADBModel.TBL_PRODUCTOS_SOLICITUD" />
+    <EntitySet Name="TBL_USUARIOS" EntityType="COLINADBModel.TBL_USUARIOS" />
+    <EntitySet Name="TBL_IMPUESTOS" EntityType="COLINADBModel.TBL_IMPUESTOS" />
+    <EntitySet Name="TBL_MASTER_MESAS" EntityType="COLINADBModel.TBL_MASTER_MESAS" />
+    <EntitySet Name="TBL_CIERRES" EntityType="COLINADBModel.TBL_CIERRES" />
+    <EntitySet Name="TBL_PERFIL" EntityType="COLINADBModel.TBL_PERFIL" />
+    <EntitySet Name="TBL_IMPRESORAS" EntityType="COLINADBModel.TBL_IMPRESORAS" />
+    <EntitySet Name="TBL_NOMINA" EntityType="COLINADBModel.TBL_NOMINA" />
+    <EntitySet Name="TBL_DIAS_TRABAJADOS" EntityType="COLINADBModel.TBL_DIAS_TRABAJADOS" />
+    <EntitySet Name="TBL_SISTEMA" EntityType="COLINADBModel.TBL_SISTEMA" />
+    <EntitySet Name="TBL_PRODUCTOS" EntityType="COLINADBModel.TBL_PRODUCTOS" />
+    <EntitySet Name="TBL_TOKENS_DIAN" EntityType="COLINADBModel.TBL_TOKENS_DIAN" />
+    <EntitySet Name="TBL_FACTURAS_FALLIDAS_DIAN" EntityType="COLINADBModel.TBL_FACTURAS_FALLIDAS_DIAN" />
+    <EntitySet Name="TBL_CLIENTES_DIAN" EntityType="COLINADBModel.TBL_CLIENTES_DIAN" />
+    <EntitySet Name="TBL_SOLICITUD" EntityType="COLINADBModel.TBL_SOLICITUD" />
+  </EntityContainer>
+  <EntityType Name="TBL_CATEGORIAS">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Decimal" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="CATEGORIA" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="ESTADO" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <EntityType Name="TBL_PRODUCTOS_SOLICITUD">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Decimal" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="FECHA_REGISTRO" Type="DateTime" Precision="3" />
+    <Property Name="ID_SOLICITUD" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="ID_PRODUCTO" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="ID_MESERO" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="PRECIO_PRODUCTO" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="ESTADO_PRODUCTO" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="DESCRIPCION" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <EntityType Name="TBL_USUARIOS">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Decimal" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="CEDULA" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="NOMBRE" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="CONTRASEÑA" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="ID_PERFIL" Type="Decimal" Precision="18" Scale="0" />
+  </EntityType>
+  <EntityType Name="TBL_IMPUESTOS">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Decimal" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="NOMBRE_IMPUESTO" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="PORCENTAJE" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="ESTADO" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <EntityType Name="TBL_MASTER_MESAS">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Decimal" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="NOMBRE_MESA" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="DESCRIPCION" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="ESTADO" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="ID_USUARIO" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="NUMERO_MESA" Type="Decimal" Precision="18" Scale="0" />
+  </EntityType>
+  <EntityType Name="TBL_CIERRES">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Decimal" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="FECHA_HORA_APERTURA" Type="DateTime" Precision="3" />
+    <Property Name="FECHA_HORA_CIERRE" Type="DateTime" Precision="3" />
+    <Property Name="ID_USUARIO" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="CANT_MESAS_ATENDIDAS" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="CANT_FINALIZADAS" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="TOTAL_FINALIZADAS" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="CANT_LLEVAR" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="TOTAL_LLEVAR" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="CANT_CANCELADAS" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="TOTAL_CANCELADAS" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="CANT_CONSUMO_INTERNO" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="TOTAL_CONSUMO_INTERNO" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="OTROS_COBROS_TOTAL" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="DESCUENTOS_TOTAL" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="IVA_TOTAL" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="I_CONSUMO_TOTAL" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="SERVICIO_TOTAL" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="TOTAL_EFECTIVO" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="TOTAL_TARJETA" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="VENTA_TOTAL" Type="Decimal" Precision="18" Scale="0" />
+  </EntityType>
+  <EntityType Name="TBL_PERFIL">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Decimal" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="NOMBRE_PERFIL" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="PORCENTAJE_PROPINA" Type="Decimal" Precision="18" Scale="0" />
+  </EntityType>
+  <EntityType Name="TBL_IMPRESORAS">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Decimal" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="NOMBRE_IMPRESORA" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="DESCRIPCION" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <EntityType Name="TBL_NOMINA">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Decimal" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="ID_USUARIO_SISTEMA" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="ID_PERFIL" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="CEDULA" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="NOMBRE" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="CARGO" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="DIAS_TRABAJADOS" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="PROPINAS" Type="Decimal" Precision="18" Scale="2" />
+    <Property Name="FECHA_PAGO" Type="DateTime" Precision="3" />
+    <Property Name="FECHA_NACIMIENTO" Type="DateTime" Precision="0" />
+    <Property Name="DIRECCION_RESIDENCIA" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="TELEFONO" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="ESTADO" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="TOTAL_PAGAR" Type="Decimal" Precision="18" Scale="2" />
+    <Property Name="CONSUMO_INTERNO" Type="Decimal" Precision="18" Scale="2" />
+  </EntityType>
+  <EntityType Name="TBL_DIAS_TRABAJADOS">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Decimal" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="ID_USUARIO_NOMINA" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="FECHA_TRABAJADO" Type="DateTime" Precision="3" />
+    <Property Name="SUELDO_DIARIO" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="PROPINAS" Type="Decimal" Precision="18" Scale="2" />
+    <Property Name="FECHA_PAGO" Type="DateTime" Precision="3" />
+    <Property Name="ID_PERFIL" Type="Decimal" Precision="18" Scale="0" />
+  </EntityType>
+  <EntityType Name="TBL_SISTEMA">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Decimal" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="PARAMETRO" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="VALOR" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <EntityType Name="TBL_PRODUCTOS">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Decimal" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="ID_CATEGORIA" Type="Decimal" Nullable="false" Precision="18" Scale="0" />
+    <Property Name="FECHA_INGRESO" Type="DateTime" Precision="3" />
+    <Property Name="NOMBRE_PRODUCTO" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="PRECIO" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="CANTIDAD" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="DESCRIPCION" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="ID_IMPRESORA" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="UP_DIAN" Type="Decimal" Precision="2" Scale="0" />
+    <Property Name="ID_DIAN" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="ACCOUNT_GROUP_DIAN" Type="Decimal" Precision="10" Scale="0" />
+  </EntityType>
+  <EntityType Name="TBL_TOKENS_DIAN">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Decimal" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="FECHA_TOKEN" Type="DateTime" Precision="3" />
+    <Property Name="FECHA_VENCIMIENTO" Type="DateTime" Precision="3" />
+    <Property Name="ACCESS_TOKEN" Type="String" MaxLength="4000" FixedLength="false" Unicode="false" />
+    <Property Name="EXPIRES_IN" Type="Int32" />
+    <Property Name="TOKEN_TYPE" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="SCOPE" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <EntityType Name="TBL_FACTURAS_FALLIDAS_DIAN">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Decimal" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="FECHA" Type="DateTime" Precision="3" />
+    <Property Name="ID_SOLICITUD" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="BODY_JSON" Type="String" MaxLength="4000" FixedLength="false" Unicode="false" />
+    <Property Name="ERROR" Type="String" MaxLength="4000" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <EntityType Name="TBL_CLIENTES_DIAN">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Decimal" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TIPO_PERSONA" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="CODIGO_DOCUMENTO" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="NOMBRE_DOCUMENTO" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="NUMERO_IDENTIFICACION" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="NOMBRES" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="APELLIDOS" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="RAZON_SOCIAL" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="NOMBRE_COMERCIAL" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="DIRECCION" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="COD_CIUDAD" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="NOM_CIUDAD" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="EMAIL" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="RESPONSABLE_IVA" Type="Boolean" />
+    <Property Name="CODIGO_R_FISCAL" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="NOMBRE_R_FISCAL" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="ID_CODIGO_DIAN" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+    <Property Name="TELEFONO" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="DIGITO_VERIFI" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <EntityType Name="TBL_SOLICITUD">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Decimal" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="FECHA_SOLICITUD" Type="DateTime" Precision="3" />
+    <Property Name="ID_MESA" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="ID_MESERO" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="IDENTIFICACION_CLIENTE" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="NOMBRE_CLIENTE" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="ESTADO_SOLICITUD" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="OBSERVACIONES" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="OTROS_COBROS" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="DESCUENTOS" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="SUBTOTAL" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="PORCENTAJE_IVA" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="IVA_TOTAL" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="PORCENTAJE_I_CONSUMO" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="I_CONSUMO_TOTAL" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="PORCENTAJE_SERVICIO" Type="Decimal" Precision="18" Scale="15" />
+    <Property Name="SERVICIO_TOTAL" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="TOTAL" Type="Decimal" Precision="18" Scale="5" />
+    <Property Name="METODO_PAGO" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="VOUCHER" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="CANT_EFECTIVO" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="ID_CLIENTE" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="FACTURACION_ELECTRONICA" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+    <Property Name="ENVIO_DIAN" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+    <Property Name="VALORES_VOUCHERS" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="ID_F_DIAN" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="ID_SOLICITUD_PRINCIPAL" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="MESA_DIVIDIDA" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+  </EntityType>
+</Schema>
