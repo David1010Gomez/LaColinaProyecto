@@ -161,174 +161,172 @@ namespace ColinaApplication.Hubs
             Factura factura = new Factura();
             var vouchers = "";
             var valoresVouchers = "";
-            if (ConfigurationManager.AppSettings["DIAN_ON"] == "1")
+
+            //INSERTA CLIENTE DIAN -- NUNCA ACTUALIZA
+            if (datosDianCliente[0] == "true" && idCliente == 0 && datosDianCliente.Count > 2)
             {
-                //INSERTA CLIENTE DIAN -- NUNCA ACTUALIZA
-                if (datosDianCliente[0] == "true" && idCliente == 0 && datosDianCliente.Count > 2)
+                cliente.person_type = datosDianCliente[1];
+                cliente.id_type = new Id_type();
+                cliente.id_type.code = datosDianCliente[2];
+                cliente.identification = Cedula.Trim();
+                cliente.check_digit = datosDianCliente[16];
+                cliente.name = new List<string>();
+                if (datosDianCliente[1] == "Person")
                 {
-                    cliente.person_type = datosDianCliente[1];
-                    cliente.id_type = new Id_type();
-                    cliente.id_type.code = datosDianCliente[2];
-                    cliente.identification = Cedula.Trim();
-                    cliente.check_digit = datosDianCliente[16];
-                    cliente.name = new List<string>();
-                    if (datosDianCliente[1] == "Person")
+                    cliente.name.Add(NombreCliente);
+                    cliente.name.Add(datosDianCliente[3]);
+                }
+                else
+                {
+                    cliente.name.Add(datosDianCliente[6]);
+                }
+                cliente.commercial_name = datosDianCliente[4];
+                cliente.vat_responsible = Convert.ToBoolean(datosDianCliente[9]);
+                cliente.address = new Address();
+                cliente.address.address = datosDianCliente[5];
+                cliente.contacts = new List<Contacts>();
+                //cliente.contacts.phone = new Phone();
+                cliente.contacts.Add(new Contacts { email = datosDianCliente[8], phone = new Phone { number = datosDianCliente[7] } });
+                cliente.fiscal_responsibilities = new List<Fiscal_responsibilities>();
+                if (datosDianCliente[10] == "true")
+                    cliente.fiscal_responsibilities.Add(new Fiscal_responsibilities { code = "O-13", name = "Gran Contribuyente" });
+                if (datosDianCliente[11] == "true")
+                    cliente.fiscal_responsibilities.Add(new Fiscal_responsibilities { code = "O-15", name = "Autorretenedor" });
+                if (datosDianCliente[12] == "true")
+                    cliente.fiscal_responsibilities.Add(new Fiscal_responsibilities { code = "O-23", name = "Agente de retencion IVA" });
+                if (datosDianCliente[13] == "true")
+                    cliente.fiscal_responsibilities.Add(new Fiscal_responsibilities { code = "O-47", name = "Regimen simple de tributacion" });
+                if (datosDianCliente[14] == "true")
+                    cliente.fiscal_responsibilities.Add(new Fiscal_responsibilities { code = "R-99-PN", name = "No aplica - Otros" });
+                cliente = businessDian.InsertaCliente(datosDianCliente[15], cliente);
+                if (cliente.id != null)
+                {
+                    clienteDian.TIPO_PERSONA = cliente.person_type;
+                    clienteDian.CODIGO_DOCUMENTO = cliente.id_type.code;
+                    clienteDian.NOMBRE_DOCUMENTO = cliente.id_type.name;
+                    clienteDian.NUMERO_IDENTIFICACION = cliente.identification;
+                    clienteDian.DIGITO_VERIFI = cliente.check_digit;
+                    clienteDian.NOMBRES = cliente.name[0];
+                    clienteDian.APELLIDOS = cliente.name.Count > 1 ? cliente.name[1] : "NA";
+                    clienteDian.RAZON_SOCIAL = datosDianCliente[6];
+                    clienteDian.NOMBRE_COMERCIAL = cliente.commercial_name;
+                    clienteDian.DIRECCION = cliente.address.address;
+                    clienteDian.COD_CIUDAD = "0";
+                    clienteDian.NOM_CIUDAD = "";
+                    clienteDian.EMAIL = cliente.contacts[0].email;
+                    clienteDian.RESPONSABLE_IVA = cliente.vat_responsible;
+                    string CodRFiscal = string.Empty;
+                    string NomRFiscal = string.Empty;
+                    int contador = 0;
+                    foreach (var cf in cliente.fiscal_responsibilities)
                     {
-                        cliente.name.Add(NombreCliente);
-                        cliente.name.Add(datosDianCliente[3]);
+                        contador++;
+                        CodRFiscal += cf.code;
+                        NomRFiscal += cf.name;
+                        if (contador != cliente.fiscal_responsibilities.Count)
+                            CodRFiscal += ";";
+                        NomRFiscal += ";";
                     }
-                    else
+                    clienteDian.CODIGO_R_FISCAL = CodRFiscal;
+                    clienteDian.NOMBRE_R_FISCAL = NomRFiscal;
+                    clienteDian.ID_CODIGO_DIAN = cliente.id;
+                    clienteDian.TELEFONO = cliente.contacts[0].phone.number;
+                    clienteDian = solicitud.InsertaClientesDian(clienteDian);
+                    idCliente = clienteDian.ID;
+                    FactElect = "1";
+                }
+            }
+
+            if (Estado == Estados.Finalizada)
+            {
+                //CONSULTA CLIENTE DIAN
+                if (idCliente != 0)
+                    clienteDian = solicitud.ConsultaCedulaId(idCliente);
+                else
+                    clienteDian = solicitud.ConsultaCedula("222222222222");
+                //LLENA MODELO PARA ENVIAR                    
+                factura.document = new Document();
+                factura.document.id = 27572;
+                factura.date = Convert.ToString(DateTime.Now.Year) + "-" + Convert.ToString(DateTime.Now.Month.ToString("D2")) + "-" + Convert.ToString(DateTime.Now.Day.ToString("D2"));
+                factura.customer = new Customer();
+                factura.customer.person_type = clienteDian.TIPO_PERSONA;
+                factura.customer.id_type = clienteDian.CODIGO_DOCUMENTO;
+                factura.customer.identification = clienteDian.NUMERO_IDENTIFICACION;
+                factura.customer.branch_office = 0;
+                factura.customer.name = new List<string>();
+                factura.customer.contacts = new List<Contacts>();
+                if (clienteDian.TIPO_PERSONA == "Person")
+                {
+                    factura.customer.name.Add(clienteDian.NOMBRES);
+                    factura.customer.name.Add(clienteDian.APELLIDOS);
+                    factura.customer.contacts.Add(new Contacts { first_name = clienteDian.NOMBRES, last_name = clienteDian.APELLIDOS, email = clienteDian.EMAIL, phone = new Phone { number = clienteDian.TELEFONO } });
+                }
+                else
+                {
+                    factura.customer.name.Add(clienteDian.RAZON_SOCIAL);
+                    factura.customer.contacts.Add(new Contacts { first_name = clienteDian.RAZON_SOCIAL, email = clienteDian.EMAIL, phone = new Phone { number = clienteDian.TELEFONO } });
+                }
+                factura.customer.address = new Address();
+                factura.customer.address.address = clienteDian.DIRECCION;
+                //factura.customer.address.city = new City();
+                //factura.customer.address.city.city_code = "CO";
+                //factura.customer.address.city.country_name = "COLOMBIA";
+                //factura.customer.address.city.state_code =
+                factura.customer.phone = new List<Phone>();
+                factura.customer.phone.Add(new Phone { number = clienteDian.TELEFONO });
+                factura.seller = 466;
+                factura.stamp = new Stamp();
+                factura.stamp.send = BorradorDian == "SI" ? false : true;
+                factura.mail = new Mail();
+                factura.mail.send = BorradorDian == "SI" ? false : datosDianCliente[0] == "true" ? true : false;
+                //CONSULTA PRODUCTOS
+                ProductosXSolicitud = solicitud.ConsultaProductoSolicitudId(Convert.ToDecimal(Id));
+                ProductosXSolicitud = solicitud.AgrupaProductos(ProductosXSolicitud);
+                factura.items = new List<Items>();
+                foreach (var item in ProductosXSolicitud)
+                {
+                    Producto producto = new Producto();
+                    producto = businessDian.ConsultaProductosDianId(datosDianCliente[1], Convert.ToString(item.IdDian));
+                    factura.items.Add(new Items { code = producto.code, quantity = item.Id, description = item.NombreProducto, price = Convert.ToDecimal(item.PrecioProducto), taxes = new List<Taxes> { new Taxes { id = 9748 } } });
+                }
+                factura.payments = new List<Payments>();
+                if (MetodoPago == "EFECTIVO")
+                {
+                    factura.payments.Add(new Payments { id = "4168", value = Convert.ToInt32(valorTotal) });
+                }
+                else if (MetodoPago == "AMBAS")
+                {
+                    factura.payments.Add(new Payments { id = "4168", value = Convert.ToInt32(CantEfectivo) });
+                    foreach (var item in pagos)
                     {
-                        cliente.name.Add(datosDianCliente[6]);
-                    }
-                    cliente.commercial_name = datosDianCliente[4];
-                    cliente.vat_responsible = Convert.ToBoolean(datosDianCliente[9]);
-                    cliente.address = new Address();
-                    cliente.address.address = datosDianCliente[5];
-                    cliente.contacts = new List<Contacts>();
-                    //cliente.contacts.phone = new Phone();
-                    cliente.contacts.Add(new Contacts { email = datosDianCliente[8], phone = new Phone { number = datosDianCliente[7] } });
-                    cliente.fiscal_responsibilities = new List<Fiscal_responsibilities>();
-                    if (datosDianCliente[10] == "true")
-                        cliente.fiscal_responsibilities.Add(new Fiscal_responsibilities { code = "O-13", name = "Gran Contribuyente" });
-                    if (datosDianCliente[11] == "true")
-                        cliente.fiscal_responsibilities.Add(new Fiscal_responsibilities { code = "O-15", name = "Autorretenedor" });
-                    if (datosDianCliente[12] == "true")
-                        cliente.fiscal_responsibilities.Add(new Fiscal_responsibilities { code = "O-23", name = "Agente de retencion IVA" });
-                    if (datosDianCliente[13] == "true")
-                        cliente.fiscal_responsibilities.Add(new Fiscal_responsibilities { code = "O-47", name = "Regimen simple de tributacion" });
-                    if (datosDianCliente[14] == "true")
-                        cliente.fiscal_responsibilities.Add(new Fiscal_responsibilities { code = "R-99-PN", name = "No aplica - Otros" });
-                    cliente = businessDian.InsertaCliente(datosDianCliente[15], cliente);
-                    if (cliente.id != null)
-                    {
-                        clienteDian.TIPO_PERSONA = cliente.person_type;
-                        clienteDian.CODIGO_DOCUMENTO = cliente.id_type.code;
-                        clienteDian.NOMBRE_DOCUMENTO = cliente.id_type.name;
-                        clienteDian.NUMERO_IDENTIFICACION = cliente.identification;
-                        clienteDian.DIGITO_VERIFI = cliente.check_digit;
-                        clienteDian.NOMBRES = cliente.name[0];
-                        clienteDian.APELLIDOS = cliente.name.Count > 1 ? cliente.name[1] : "NA";
-                        clienteDian.RAZON_SOCIAL = datosDianCliente[6];
-                        clienteDian.NOMBRE_COMERCIAL = cliente.commercial_name;
-                        clienteDian.DIRECCION = cliente.address.address;
-                        clienteDian.COD_CIUDAD = "0";
-                        clienteDian.NOM_CIUDAD = "";
-                        clienteDian.EMAIL = cliente.contacts[0].email;
-                        clienteDian.RESPONSABLE_IVA = cliente.vat_responsible;
-                        string CodRFiscal = string.Empty;
-                        string NomRFiscal = string.Empty;
-                        int contador = 0;
-                        foreach (var cf in cliente.fiscal_responsibilities)
-                        {
-                            contador++;
-                            CodRFiscal += cf.code;
-                            NomRFiscal += cf.name;
-                            if (contador != cliente.fiscal_responsibilities.Count)
-                                CodRFiscal += ";";
-                            NomRFiscal += ";";
-                        }
-                        clienteDian.CODIGO_R_FISCAL = CodRFiscal;
-                        clienteDian.NOMBRE_R_FISCAL = NomRFiscal;
-                        clienteDian.ID_CODIGO_DIAN = cliente.id;
-                        clienteDian.TELEFONO = cliente.contacts[0].phone.number;
-                        clienteDian = solicitud.InsertaClientesDian(clienteDian);
-                        idCliente = clienteDian.ID;
-                        FactElect = "1";
+                        vouchers += item.id + ";";
+                        valoresVouchers += item.value + ";";
+                        if (item.name == "Debito")
+                            item.id = "4170";
+                        if (item.name == "Credito")
+                            item.id = "4171";
+                        factura.payments.Add(new Payments { id = item.id, value = item.value });
                     }
                 }
-
-                if (Estado == Estados.Finalizada)
+                else
                 {
-                    //CONSULTA CLIENTE DIAN
-                    if (idCliente != 0)
-                        clienteDian = solicitud.ConsultaCedulaId(idCliente);
-                    else
-                        clienteDian = solicitud.ConsultaCedula("222222222222");
-                    //LLENA MODELO PARA ENVIAR                    
-                    factura.document = new Document();
-                    factura.document.id = 27572;
-                    factura.date = Convert.ToString(DateTime.Now.Year) + "-" + Convert.ToString(DateTime.Now.Month.ToString("D2")) + "-" + Convert.ToString(DateTime.Now.Day.ToString("D2"));
-                    factura.customer = new Customer();
-                    factura.customer.person_type = clienteDian.TIPO_PERSONA;
-                    factura.customer.id_type = clienteDian.CODIGO_DOCUMENTO;
-                    factura.customer.identification = clienteDian.NUMERO_IDENTIFICACION;
-                    factura.customer.branch_office = 0;
-                    factura.customer.name = new List<string>();
-                    factura.customer.contacts = new List<Contacts>();
-                    if (clienteDian.TIPO_PERSONA == "Person")
+                    foreach (var item in pagos)
                     {
-                        factura.customer.name.Add(clienteDian.NOMBRES);
-                        factura.customer.name.Add(clienteDian.APELLIDOS);
-                        factura.customer.contacts.Add(new Contacts { first_name = clienteDian.NOMBRES, last_name = clienteDian.APELLIDOS, email = clienteDian.EMAIL, phone = new Phone { number = clienteDian.TELEFONO } });
+                        vouchers += item.id + ";";
+                        valoresVouchers += item.value + ";";
+                        if (item.name == "Debito")
+                            item.id = "4170";
+                        if (item.name == "Credito")
+                            item.id = "4171";
+                        factura.payments.Add(new Payments { id = item.id, value = item.value });
                     }
-                    else
-                    {
-                        factura.customer.name.Add(clienteDian.RAZON_SOCIAL);
-                        factura.customer.contacts.Add(new Contacts { first_name = clienteDian.RAZON_SOCIAL, email = clienteDian.EMAIL, phone = new Phone { number = clienteDian.TELEFONO } });
-                    }
-                    factura.customer.address = new Address();
-                    factura.customer.address.address = clienteDian.DIRECCION;
-                    //factura.customer.address.city = new City();
-                    //factura.customer.address.city.city_code = "CO";
-                    //factura.customer.address.city.country_name = "COLOMBIA";
-                    //factura.customer.address.city.state_code =
-                    factura.customer.phone = new List<Phone>();
-                    factura.customer.phone.Add(new Phone { number = clienteDian.TELEFONO });
-                    factura.seller = 466;
-                    factura.stamp = new Stamp();
-                    factura.stamp.send = BorradorDian == "SI" ? false : true;
-                    factura.mail = new Mail();
-                    factura.mail.send = BorradorDian == "SI" ? false : datosDianCliente[0] == "true" ? true : false;
-                    //CONSULTA PRODUCTOS
-                    ProductosXSolicitud = solicitud.ConsultaProductoSolicitudId(Convert.ToDecimal(Id));
-                    ProductosXSolicitud = solicitud.AgrupaProductos(ProductosXSolicitud);
-                    factura.items = new List<Items>();
-                    foreach (var item in ProductosXSolicitud)
-                    {
-                        Producto producto = new Producto();
-                        producto = businessDian.ConsultaProductosDianId(datosDianCliente[1], Convert.ToString(item.IdDian));
-                        factura.items.Add(new Items { code = producto.code, quantity = item.Id, description = item.NombreProducto, price = Convert.ToDecimal(item.PrecioProducto), taxes = new List<Taxes> { new Taxes { id = 9748 } } });
-                    }
-                    factura.payments = new List<Payments>();
-                    if (MetodoPago == "EFECTIVO")
-                    {
-                        factura.payments.Add(new Payments { id = "4168", value = Convert.ToInt32(valorTotal) });
-                    }
-                    else if (MetodoPago == "AMBAS")
-                    {
-                        factura.payments.Add(new Payments { id = "4168", value = Convert.ToInt32(CantEfectivo) });
-                        foreach (var item in pagos)
-                        {
-                            vouchers += item.id + ";";
-                            valoresVouchers += item.value + ";";
-                            if (item.name == "Debito")
-                                item.id = "4170";
-                            if (item.name == "Credito")
-                                item.id = "4171";
-                            factura.payments.Add(new Payments { id = item.id, value = item.value });
-                        }
-                    }
-                    else
-                    {
-                        foreach (var item in pagos)
-                        {
-                            vouchers += item.id + ";";
-                            valoresVouchers += item.value + ";";
-                            if (item.name == "Debito")
-                                item.id = "4170";
-                            if (item.name == "Credito")
-                                item.id = "4171";
-                            factura.payments.Add(new Payments { id = item.id, value = item.value });
-                        }
-                    }
-                    factura.globaldiscounts = new List<Globaldiscounts>();
-                    factura.globaldiscounts.Add(new Globaldiscounts { id = 13156, value = Convert.ToInt32(Math.Round(Convert.ToDouble((Convert.ToDecimal(SubTotal) * porcentajeServicio) / 100), 0)) });
-                    if (DianSistema)
-                    {
-                        //LLAMA ENVIAR FACTURA DIAN
-                        factura = businessDian.InsertaFactura(datosDianCliente[1], factura, Id);
-                    }
+                }
+                factura.globaldiscounts = new List<Globaldiscounts>();
+                factura.globaldiscounts.Add(new Globaldiscounts { id = 13156, value = Convert.ToInt32(Math.Round(Convert.ToDouble((Convert.ToDecimal(SubTotal) * porcentajeServicio) / 100), 0)) });
+                if (ConfigurationManager.AppSettings["DIAN_ON"] == "1" && DianSistema)
+                {
+                    //LLAMA ENVIAR FACTURA DIAN
+                    factura = businessDian.InsertaFactura(datosDianCliente[1], factura, Id);
                 }
             }
 
