@@ -163,7 +163,7 @@ namespace ColinaApplication.Hubs
             var valoresVouchers = "";
 
             //INSERTA CLIENTE DIAN -- NUNCA ACTUALIZA
-            if (datosDianCliente[0] == "true" && idCliente == 0 && datosDianCliente.Count > 2)
+            if (datosDianCliente[0] == "true" && idCliente == 0 && datosDianCliente.Count > 2 && ConfigurationManager.AppSettings["DIAN_ON"] == "1")
             {
                 cliente.person_type = datosDianCliente[1];
                 cliente.id_type = new Id_type();
