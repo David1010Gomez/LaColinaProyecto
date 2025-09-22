@@ -1,4 +1,5 @@
-﻿using ColinaApplication.Data.Conexion;
+﻿using ColinaApplication.Data.Clases;
+using ColinaApplication.Data.Conexion;
 using ColinaApplication.Dian;
 using ColinaApplication.Dian.Entity;
 using DocumentFormat.OpenXml.EMMA;
@@ -251,6 +252,28 @@ namespace ColinaApplication.Data.Business
                         actualiza.ID_DIAN = actualiza.ID_DIAN == null ? producto.id : actualiza.ID_DIAN;
                         //actualiza.ACCOUNT_GROUP_DIAN = producto.account_group != null ? producto.account_group.id : 0;
                         contex.SaveChanges();
+                        
+                        List<TBL_SOLICITUD> solicitudesAbiertas = new List<TBL_SOLICITUD>();
+                        solicitudesAbiertas = contex.TBL_SOLICITUD.Where(x => x.ESTADO_SOLICITUD == Estados.Abierta).ToList();
+                        List<TBL_PRODUCTOS_SOLICITUD> actualizaProdSolicitud = new List<TBL_PRODUCTOS_SOLICITUD>();
+                        foreach (var item in solicitudesAbiertas)
+                        {
+                            actualizaProdSolicitud = contex.TBL_PRODUCTOS_SOLICITUD.Where(x => x.ID_SOLICITUD == item.ID).ToList();
+                            foreach (var item2 in actualizaProdSolicitud)
+                            {
+                                if (item2.ID_PRODUCTO == actualiza.ID)
+                                {
+                                    var valorAnterior = item2.PRECIO_PRODUCTO;
+                                    item2.PRECIO_PRODUCTO = Convert.ToDecimal(model.PRECIO);
+                                    item.SUBTOTAL = (item.SUBTOTAL - valorAnterior) + item2.PRECIO_PRODUCTO;
+                                    item.IVA_TOTAL = Convert.ToDecimal(Math.Round(Convert.ToDouble((item.PORCENTAJE_IVA * item.SUBTOTAL) / 100), 15));
+                                    item.I_CONSUMO_TOTAL = Convert.ToDecimal(Math.Round(Convert.ToDouble((item.PORCENTAJE_I_CONSUMO * item.SUBTOTAL) / 100), 15));
+                                    item.SERVICIO_TOTAL = Convert.ToDecimal(Math.Round(Convert.ToDouble((item.PORCENTAJE_SERVICIO * item.SUBTOTAL) / 100), 15));
+                                    item.TOTAL = item.SUBTOTAL + item.IVA_TOTAL + item.I_CONSUMO_TOTAL + item.SERVICIO_TOTAL;
+                                    contex.SaveChanges();
+                                }
+                            }
+                        }
                         Respuesta = true;
                     }
                 }
