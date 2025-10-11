@@ -164,7 +164,7 @@ namespace ColinaApplication.Data.Business
                         modelP.name = model.NOMBRE_PRODUCTO;
                         modelP.account_groupSend = Convert.ToInt32(model.ACCOUNT_GROUP_DIAN);
                         modelP.taxes = new List<Taxes> { new Taxes() };
-                        modelP.taxes[0].id = 9748;
+                        modelP.taxes[0].id = 9286;
                         modelP.taxes[0].name = "Impoconsumo 8%";
                         modelP.taxes[0].type = "Impoconsumo";
                         modelP.taxes[0].percentage = 8;
@@ -210,7 +210,7 @@ namespace ColinaApplication.Data.Business
                         if (DianActualiza.id != null)
                         {
                             producto.id = model.ID_DIAN;
-                            producto.account_groupSend = Convert.ToInt32(model.ACCOUNT_GROUP_DIAN);
+                            producto.account_groupSend = Convert.ToInt32(model.ACCOUNT_GROUP_DIAN); //no puede ser cero
                             producto.code = Convert.ToString(DianActualiza.code);
                             producto.name = model.NOMBRE_PRODUCTO;
                             //producto.description = model.DESCRIPCION;
@@ -227,7 +227,7 @@ namespace ColinaApplication.Data.Business
                         //    producto.name = model.NOMBRE_PRODUCTO;
                         //    producto.account_groupSend = Convert.ToInt32(model.ACCOUNT_GROUP_DIAN);
                         //    producto.taxes = new List<Taxes> { new Taxes() };
-                        //    producto.taxes[0].id = 9748;
+                        //    producto.taxes[0].id = 9286;
                         //    producto.prices = new List<Prices> { new Prices() };
                         //    producto.prices[0].currency_code = "COP";
                         //    producto.prices[0].price_list = new List<PriceList> { new PriceList() };
