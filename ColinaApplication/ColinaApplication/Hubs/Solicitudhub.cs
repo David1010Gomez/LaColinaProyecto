@@ -323,7 +323,7 @@ namespace ColinaApplication.Hubs
                 }
                 factura.globaldiscounts = new List<Globaldiscounts>();
                 factura.globaldiscounts.Add(new Globaldiscounts { id = 13156, value = Convert.ToInt32(Math.Round(Convert.ToDouble((Convert.ToDecimal(SubTotal) * porcentajeServicio) / 100), 0)) });
-                if (ConfigurationManager.AppSettings["DIAN_ON"] == "1" && DianSistema)
+                if (ConfigurationManager.AppSettings["DIAN_ON"] == "1" && DianSistema && factura.payments.Count > 0)
                 {
                     //LLAMA ENVIAR FACTURA DIAN
                     factura = businessDian.InsertaFactura(datosDianCliente[1], factura, Id);
@@ -351,7 +351,7 @@ namespace ColinaApplication.Hubs
             model.ENVIO_DIAN = factura.id != null ? "1" : "0";
             model.VALORES_VOUCHERS = valoresVouchers;
             model.ID_F_DIAN = factura.id != null ? factura.id : "0";
-            //model.MESA_DIVIDIDA = "0";
+            model.MESA_DIVIDIDA = "0";
             var respuesta = solicitud.ActualizaSolicitud(model);
             if (model.ESTADO_SOLICITUD == Estados.Finalizada)
                 ventas.ImprimirFactura(Convert.ToString(model.ID));
@@ -424,6 +424,16 @@ namespace ColinaApplication.Hubs
             var CantidadProdActual = ActuProd - model.Count;
             Clients.All.DividioCuenta(IdNuevaSolicitud, idSolicitudPrincipal, modelI.SUBTOTAL, modelI.PORCENTAJE_SERVICIO, modelI.TOTAL, CantidadProdActual);
 
+        }
+        public void ImprimeProductosMasivo(List<ProductosSolicitud>productos, string idMesa)
+        {
+            List<ProductosSolicitud> result = new List<ProductosSolicitud>();
+            result = solicitud.AgrupaProductos(productos);
+            foreach (var item in result)
+            {
+                bool respuesta = solicitud.ImprimirPedido(Convert.ToString(item.Id), Convert.ToString(item.IdProducto), item.Descripcion, idMesa);                
+            }
+            ConsultaMesaAbierta(idMesa);
         }
     }
 }

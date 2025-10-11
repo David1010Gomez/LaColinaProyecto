@@ -324,7 +324,7 @@ namespace ColinaApplication.Data.Business
                         actualiza.ENVIO_DIAN = model.ENVIO_DIAN;
                         actualiza.VALORES_VOUCHERS = model.VALORES_VOUCHERS;
                         actualiza.ID_F_DIAN = model.ID_F_DIAN; 
-                        //actualiza.MESA_DIVIDIDA = model.MESA_DIVIDIDA;
+                        actualiza.MESA_DIVIDIDA = model.MESA_DIVIDIDA;
                         contex.SaveChanges();
                         Respuesta = "Solicitud actualizada exitosamente";
                     }
@@ -627,17 +627,21 @@ namespace ColinaApplication.Data.Business
                 //PRECIO TOTAL
                 model.IdMesero = productosSolicitud.Where(x => x.IdProducto == item.IdProducto).Sum(x => x.PrecioProducto);
                 model.IdDian = item.IdDian;
+                model.Descripcion = item.Descripcion;
+                model.IdProducto = item.IdProducto;
+                model.IdSolicitud = item.Id;
                 resultado.Add(model);
             }
             return resultado;
         }
         public bool ImprimirPedido(string cantidad, string idproducto, string descripcion, string idMesa)
         {
-            bool respuesta;
+            bool respuesta = false;
             PrintDocument printDocument1 = new PrintDocument();
             PrinterSettings ps = new PrinterSettings();
             TBL_PRODUCTOS producto = new TBL_PRODUCTOS();
             TBL_IMPRESORAS impresora = new TBL_IMPRESORAS();
+            List<ConsultaSolicitudGeneral> solicitud = new List<ConsultaSolicitudGeneral>();
             //CONSULTA PRODUCTO
             using (DBLaColina contex = new DBLaColina())
             {
@@ -666,12 +670,11 @@ namespace ColinaApplication.Data.Business
                 else
                     printDocument1.PrinterSettings.PrinterName = impresora.NOMBRE_IMPRESORA;
             }
+            //CONSULTA SOLICITUD
+            solicitud = ConsultaSolicitudMesa(Convert.ToDecimal(idMesa));
 
             printDocument1.PrintPage += (object sender, PrintPageEventArgs e) =>
             {
-                //CONSULTA SOLICITUD
-                var solicitud = ConsultaSolicitudMesa(Convert.ToDecimal(idMesa));
-
                 //FORMATO FACTURA
                 Font body = new Font("MS Mincho", 12);
                 Font bodyNegrita = new Font("MS Mincho", 14, FontStyle.Bold);
@@ -701,8 +704,52 @@ namespace ColinaApplication.Data.Business
                 e.Graphics.DrawString("_", body, Brushes.Black, new RectangleF(135, 160 + Ymargen, ancho, 20));
 
             };
-            printDocument1.Print();
-            respuesta = true;
+            try
+            {
+                printDocument1.Print();
+                using (DBLaColina contex = new DBLaColina())
+                {
+                    try
+                    {
+                        var idprod = Convert.ToDecimal(idproducto);
+                        List<TBL_PRODUCTOS_SOLICITUD> prodSolicitudAct = new List<TBL_PRODUCTOS_SOLICITUD>();
+                        var idproductos = solicitud[0].ProductosSolicitud.Where(x => x.IdProducto == idprod).Select(x => x.Id).ToList();
+                        prodSolicitudAct = contex.TBL_PRODUCTOS_SOLICITUD.Where(x => idproductos.Contains(x.ID)).ToList();
+                        foreach (var item in prodSolicitudAct)
+                        {
+                            item.ESTADO_PRODUCTO = Estados.Entregado; 
+                        }
+                        contex.SaveChanges();
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
+                respuesta = true;                
+            }
+            catch (Exception e)
+            {
+                using (DBLaColina contex = new DBLaColina())
+                {
+                    try
+                    {
+                        var idprod = Convert.ToDecimal(idproducto);
+                        List<TBL_PRODUCTOS_SOLICITUD> prodSolicitudAct = new List<TBL_PRODUCTOS_SOLICITUD>();
+                        var idproductos = solicitud[0].ProductosSolicitud.Where(x => x.IdProducto == idprod).Select(x => x.Id).ToList();
+                        prodSolicitudAct = contex.TBL_PRODUCTOS_SOLICITUD.Where(x => idproductos.Contains(x.ID)).ToList();
+                        foreach (var item in prodSolicitudAct)
+                        {
+                            item.ESTADO_PRODUCTO = Estados.NoEntregado;
+                        }
+                        contex.SaveChanges();
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
+            }            
             return respuesta;
         }
         public bool ImprimirPedidoFactura(List<TBL_PRODUCTOS_SOLICITUD> productos, decimal idMesa)

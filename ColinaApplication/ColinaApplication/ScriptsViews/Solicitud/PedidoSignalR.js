@@ -390,28 +390,50 @@ function ActualizaInfoMesa(data) {
         $("#DireccionCliente").val(data[0].cliente.Direccion);
     }
 
-    //Carga Si esta dividiendo factura
-    if (data[0].SolicitudDividida != null) {
-        $("#ID_SOLICITUD_DIVIDIDA").val(data[0].SolicitudDividida.Id);
-        $("#SUBTOTAL_DIVIDIDA").val(data[0].SolicitudDividida.Subtotal);
-        $("#PORC_SERVICIO_DIVIDIDA").val(data[0].SolicitudDividida.PorcentajeServicio);
-        $("#TOTAL_DIVIDIDA").val(data[0].SolicitudDividida.Total);
-        PagarFacturaDC();
+    if (IdPerfil == "1" || IdPerfil == "2") {
+        //Carga Si esta dividiendo factura
+        if (data[0].SolicitudDividida != null) {
+            $("#ID_SOLICITUD_DIVIDIDA").val(data[0].SolicitudDividida.Id);
+            $("#SUBTOTAL_DIVIDIDA").val(data[0].SolicitudDividida.Subtotal);
+            $("#PORC_SERVICIO_DIVIDIDA").val(data[0].SolicitudDividida.PorcentajeServicio);
+            $("#TOTAL_DIVIDIDA").val(data[0].SolicitudDividida.Total);
+            PagarFacturaDC();
+        }
+        else if (data[0].MesaDividida == "1" && data[0].Total != 0) {
+            document.getElementById('BotonDCModal').style.display = 'active';
+            $('#BotonDCModal').click();
+        }
+        else if (data[0].MesaDividida == "1" && data[0].Total == 0) {
+            DatosClienteDIAN = [];
+            DatosClienteDIAN.push("false");
+            DatosClienteDIAN.push(token);
+            connectPSR.server.guardaDatosCliente($("#ID").val(), $("#CCCliente").val(), $("#NombreCliente").val() + " " + $("#ApellidosCliente").val(),
+                $("#OBSERVACIONES").val(), $("#OtrosCobros").val(), $("#Descuentos").val(), "0",
+                "FINALIZADA", $("#ID_MESA").val(), 0, "N/A", PagosDIAN, "0",
+                $("#ID_MESERO").val(), DatosClienteDIAN, $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(),
+                false, 0, BorradorDian, "0");
+            connectPSR.server.actualizaMesa($("#ID_MESA").val(), "LIBRE", User, "SI", "../Solicitud/SeleccionarMesa");
+        }
     }
-    else if (data[0].MesaDividida == "1" && data[0].Total != 0) {
-        document.getElementById('BotonDCModal').style.display = 'active';
-        $('#BotonDCModal').click();
-    }
-    else if (data[0].MesaDividida == "1" && data[0].Total == 0) {
-        DatosClienteDIAN = [];
-        DatosClienteDIAN.push("false");
-        DatosClienteDIAN.push(token);
-        connectPSR.server.guardaDatosCliente($("#ID").val(), $("#CCCliente").val(), $("#NombreCliente").val() + " " + $("#ApellidosCliente").val(),
-            $("#OBSERVACIONES").val(), $("#OtrosCobros").val(), $("#Descuentos").val(), "0",
-            "FINALIZADA", $("#ID_MESA").val(), 0, "N/A", PagosDIAN, "0",
-            $("#ID_MESERO").val(), DatosClienteDIAN, $("#ID_CLIENTE").val(), $("#FACTURACION_ELECTRONICA").val(),
-            false, 0, BorradorDian, "0");
-        connectPSR.server.actualizaMesa($("#ID_MESA").val(), "LIBRE", User, "SI", "../Solicitud/SeleccionarMesa");
+    else if (data[0].MesaDividida == "1") {
+        $.alert({
+            theme: 'Modern',
+            icon: 'fa fa-money',
+            boxWidth: '500px',
+            useBootstrap: false,
+            type: 'red',
+            title: 'Contacte Cajero -Admin !',
+            content: 'La cuenta esta siendo dividida por Cajero/Admin.',
+            buttons: {
+                Ok: {
+                    btnClass: 'btn btn-default',
+                    action: function () {
+                        window.location.href = '../Solicitud/SeleccionarMesa';
+                    }
+                }
+            }
+
+        });
     }
 }
 function ActualizaInfoPrecios(data) {
@@ -2107,7 +2129,7 @@ function PagarFacturaDC() {
                                                 }
                                             }
                                         });
-                                        
+
                                     }
                                 }
                             }
@@ -2118,4 +2140,39 @@ function PagarFacturaDC() {
         }
 
     });
+}
+
+function ReImprimeProductosMasivo(idproducto, description, idmesa) {
+    $.alert({
+        theme: 'Modern',
+        icon: 'fa fa-print',
+        boxWidth: '500px',
+        useBootstrap: false,
+        type: 'orange',
+        title: ' Re - Imprimir !',
+        content: 'Desea imprimir todos los productos o solo los faltantes ?',
+        buttons: {
+            Todos: {
+                btnClass: 'btn btn-default btn2',
+                action: function () {
+                    connectPSR.server.imprimeProductosMasivo(DatosSolicitud[0].ProductosSolicitud, DatosSolicitud[0].IdMesa);
+                }
+            },
+            Faltantes: {
+                btnClass: 'btn btn-default btn2',
+                action: function () {
+                    const prdoFaltantes = DatosSolicitud[0].ProductosSolicitud.filter(item => item.EstadoProducto === "NO ENTREGADO");
+                    if (prdoFaltantes.length > 0)
+                        connectPSR.server.imprimeProductosMasivo(prdoFaltantes, DatosSolicitud[0].IdMesa);
+                }
+            },
+            Cancelar: {
+                btnClass: 'btn btn-default',
+                action: function () {
+
+                }
+            }
+        }
+    });
+
 }
