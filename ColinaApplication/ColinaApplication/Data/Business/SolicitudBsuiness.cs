@@ -138,7 +138,8 @@ namespace ColinaApplication.Data.Business
                             });
                         }
                     }
-                    else {
+                    else
+                    {
                         solicitudMesa[0].cliente = new ClienteDian();
                     }
                     var mesaDividida = solicitudMesa[0].MesaDividida;
@@ -186,7 +187,7 @@ namespace ColinaApplication.Data.Business
                                     }
                                 }
                             }
-                        }                        
+                        }
                     }
                 }
             }
@@ -214,11 +215,11 @@ namespace ColinaApplication.Data.Business
             {
                 try
                 {
-                    model.FECHA_SOLICITUD = DateTime.Now;                    
+                    model.FECHA_SOLICITUD = DateTime.Now;
                     model.IDENTIFICACION_CLIENTE = "222222222222";
                     model.NOMBRE_CLIENTE = "Consumidor Final";
                     model.PORCENTAJE_IVA = contex.TBL_IMPUESTOS.Where(x => x.ID == 1 && x.ESTADO == Estados.Activo).FirstOrDefault() != null ? contex.TBL_IMPUESTOS.Where(x => x.ID == 1).FirstOrDefault().PORCENTAJE : 0;
-                    model.PORCENTAJE_I_CONSUMO = contex.TBL_IMPUESTOS.Where(x => x.ID == 2 && x.ESTADO == Estados.Activo).FirstOrDefault() != null ? contex.TBL_IMPUESTOS.Where(x => x.ID == 2).FirstOrDefault().PORCENTAJE : 0;                    
+                    model.PORCENTAJE_I_CONSUMO = contex.TBL_IMPUESTOS.Where(x => x.ID == 2 && x.ESTADO == Estados.Activo).FirstOrDefault() != null ? contex.TBL_IMPUESTOS.Where(x => x.ID == 2).FirstOrDefault().PORCENTAJE : 0;
                     model.ID_CLIENTE = 0;
                     model.FACTURACION_ELECTRONICA = "0";
                     model.ENVIO_DIAN = "0";
@@ -323,7 +324,7 @@ namespace ColinaApplication.Data.Business
                         actualiza.FACTURACION_ELECTRONICA = model.FACTURACION_ELECTRONICA;
                         actualiza.ENVIO_DIAN = model.ENVIO_DIAN;
                         actualiza.VALORES_VOUCHERS = model.VALORES_VOUCHERS;
-                        actualiza.ID_F_DIAN = model.ID_F_DIAN; 
+                        actualiza.ID_F_DIAN = model.ID_F_DIAN;
                         actualiza.MESA_DIVIDIDA = model.MESA_DIVIDIDA;
                         contex.SaveChanges();
                         Respuesta = "Solicitud actualizada exitosamente";
@@ -580,7 +581,7 @@ namespace ColinaApplication.Data.Business
                 margenY += 45;
                 e.Graphics.DrawString("TOTAL:", body, Brushes.Black, new RectangleF(0, margenY + YProductos, ancho, 15));
                 e.Graphics.DrawString("" + Convert.ToInt64(Math.Round(Convert.ToDouble(solicitud[0].Total))), body, Brushes.Black, new RectangleF((280 - ((Convert.ToInt64(Math.Round(Convert.ToDouble(solicitud[0].Total)))).ToString().Length * 8)), margenY + YProductos, ancho, 15));
-                
+
                 margenY += 45;
                 e.Graphics.DrawString("------------------------------------------------------------------------------------------- ", body, Brushes.Black, new RectangleF(0, margenY + YProductos, ancho, 15));
                 margenY += 15;
@@ -634,10 +635,10 @@ namespace ColinaApplication.Data.Business
             }
             return resultado;
         }
-        public bool ImprimirPedido(string cantidad, string idproducto, string descripcion, string idMesa)
+        public bool ImprimirPedido(string cantidad, string idproducto, string descripcion, string idMesa, string idprodsolic)
         {
-            bool respuesta = false;
-            PrintDocument printDocument1 = new PrintDocument();
+            bool printedOk = false;
+            bool wasCanceled = false;
             PrinterSettings ps = new PrinterSettings();
             TBL_PRODUCTOS producto = new TBL_PRODUCTOS();
             TBL_IMPRESORAS impresora = new TBL_IMPRESORAS();
@@ -657,59 +658,97 @@ namespace ColinaApplication.Data.Business
 
                 }
             }
-            printDocument1.PrinterSettings = ps;
-            var consultaE = ConsultaEnergia();
-            if (consultaE.VALOR != "1")
-            {
-                printDocument1.PrinterSettings.PrinterName = "CAJA";
-            }
-            else
-            {
-                if (impresora.NOMBRE_IMPRESORA == "PARRILLA. AUX" || impresora.NOMBRE_IMPRESORA == "ENTRADAS")
-                    printDocument1.PrinterSettings.PrinterName = "PARRILLA.";
-                else
-                    printDocument1.PrinterSettings.PrinterName = impresora.NOMBRE_IMPRESORA;
-            }
+
             //CONSULTA SOLICITUD
             solicitud = ConsultaSolicitudMesa(Convert.ToDecimal(idMesa));
 
-            printDocument1.PrintPage += (object sender, PrintPageEventArgs e) =>
+            using (var printDocument1 = new PrintDocument())
             {
-                //FORMATO FACTURA
-                Font body = new Font("MS Mincho", 12);
-                Font bodyNegrita = new Font("MS Mincho", 14, FontStyle.Bold);
-                int ancho = 280;
-
-                e.Graphics.DrawString("#" + solicitud[0].NumeroMesa + " - MESA => " + solicitud[0].NombreMesa, body, Brushes.Black, new RectangleF(0, 15, ancho, 20));
-                e.Graphics.DrawString("MESERO => " + solicitud[0].NombreMesero, body, Brushes.Black, new RectangleF(0, 35, ancho, 20));
-                e.Graphics.DrawString("HORA: " + DateTime.Now.ToString("HH:mm:ss"), bodyNegrita, Brushes.Black, new RectangleF(0, 55, ancho, 20));
-                e.Graphics.DrawString("" + cantidad, body, Brushes.Black, new RectangleF(0, 95, ancho, 20));
-                e.Graphics.DrawString("" + producto.NOMBRE_PRODUCTO, body, Brushes.Black, new RectangleF(30, 95, ancho, 20));
-
-                //DAR FORMATO A DESCRIPCION
-                int tamañoDes = 0;
-                var descripcionAux = "";
-                int Ymargen = 0;
-                descripcion = descripcion.Replace("\n", " ");
-                while (descripcion.Length > 21)
+                printDocument1.PrinterSettings = ps;
+                var consultaE = ConsultaEnergia();
+                if (consultaE.VALOR != "1")
                 {
-                    tamañoDes += 21;
-                    Ymargen += 20;
-                    descripcionAux = descripcion.Substring(0, 21);
-                    descripcion = descripcion.Substring(21, descripcion.Length - 21);
-                    e.Graphics.DrawString("" + descripcionAux, body, Brushes.Black, new RectangleF(30, 95 + Ymargen, ancho, 20));
+                    printDocument1.PrinterSettings.PrinterName = "CAJA";
                 }
-                e.Graphics.DrawString("" + descripcion, body, Brushes.Black, new RectangleF(30, 115 + Ymargen, ancho, 20));
+                else
+                {
+                    if (impresora.NOMBRE_IMPRESORA == "PARRILLA. AUX" || impresora.NOMBRE_IMPRESORA == "ENTRADAS")
+                        printDocument1.PrinterSettings.PrinterName = "PARRILLA.";
+                    else
+                        printDocument1.PrinterSettings.PrinterName = impresora.NOMBRE_IMPRESORA;
+                }
 
-                e.Graphics.DrawString("_", body, Brushes.Black, new RectangleF(135, 160 + Ymargen, ancho, 20));
+                // 1) Validar que la impresora exista/sea válida
+                var printerName = printDocument1.PrinterSettings.PrinterName;
+                bool printerExists = PrinterSettings.InstalledPrinters.Cast<string>()
+                                         .Any(p => string.Equals(p, printerName, StringComparison.OrdinalIgnoreCase));
+                if (!printerExists)
+                    //throw new InvalidOperationException($"La impresora '{printerName}' no está instalada o no es válida.");
+                    printedOk = false;
 
-            };
+                // 2) (Opcional) Evita UI durante la impresión y propaga errores como excepciones
+                printDocument1.PrintController = new StandardPrintController();
+
+                // 3) Maneja EndPrint para saber si se canceló o hubo fallo no-excepcional
+                printDocument1.EndPrint += (s, e) =>
+                {
+                    wasCanceled = e.Cancel;
+                    printedOk = !e.Cancel; // Si EndPrint no fue cancelado, lo consideramos OK
+                };
+
+
+                // 4) Configurar el contenido a imprimir (tu handler actual de PrintPage)
+                printDocument1.PrintPage += (sender, e) =>
+                {
+                    //FORMATO FACTURA
+                    Font body = new Font("MS Mincho", 12);
+                    Font bodyNegrita = new Font("MS Mincho", 14, FontStyle.Bold);
+                    int ancho = 280;
+
+                    e.Graphics.DrawString("#" + solicitud[0].NumeroMesa + " - MESA => " + solicitud[0].NombreMesa, body, Brushes.Black, new RectangleF(0, 15, ancho, 20));
+                    e.Graphics.DrawString("MESERO => " + solicitud[0].NombreMesero, body, Brushes.Black, new RectangleF(0, 35, ancho, 20));
+                    e.Graphics.DrawString("HORA: " + DateTime.Now.ToString("HH:mm:ss"), bodyNegrita, Brushes.Black, new RectangleF(0, 55, ancho, 20));
+                    e.Graphics.DrawString("" + cantidad, body, Brushes.Black, new RectangleF(0, 95, ancho, 20));
+                    e.Graphics.DrawString("" + producto.NOMBRE_PRODUCTO, body, Brushes.Black, new RectangleF(30, 95, ancho, 20));
+
+                    //DAR FORMATO A DESCRIPCION
+                    int tamañoDes = 0;
+                    var descripcionAux = "";
+                    int Ymargen = 0;
+                    descripcion = descripcion.Replace("\n", " ");
+                    while (descripcion.Length > 21)
+                    {
+                        tamañoDes += 21;
+                        Ymargen += 20;
+                        descripcionAux = descripcion.Substring(0, 21);
+                        descripcion = descripcion.Substring(21, descripcion.Length - 21);
+                        e.Graphics.DrawString("" + descripcionAux, body, Brushes.Black, new RectangleF(30, 95 + Ymargen, ancho, 20));
+                    }
+                    e.Graphics.DrawString("" + descripcion, body, Brushes.Black, new RectangleF(30, 115 + Ymargen, ancho, 20));
+
+                    e.Graphics.DrawString("_", body, Brushes.Black, new RectangleF(135, 160 + Ymargen, ancho, 20));
+                    //e.HasMorePages = false;
+                };
+
+                try
+                {
+                    printDocument1.Print(); // Bloquea hasta que termine. EndPrint se dispara antes de retornar.
+                }
+                catch (Exception ex)
+                {
+                    // Aquí sí sabemos que falló el envío/impresión
+                    printedOk = false;
+                    wasCanceled = true;
+                }
+            }
+
+
+
             try
             {
-                printDocument1.Print();
-                using (DBLaColina contex = new DBLaColina())
+                if (printedOk == true && wasCanceled == false)
                 {
-                    try
+                    using (DBLaColina contex = new DBLaColina())
                     {
                         var idprod = Convert.ToDecimal(idproducto);
                         List<TBL_PRODUCTOS_SOLICITUD> prodSolicitudAct = new List<TBL_PRODUCTOS_SOLICITUD>();
@@ -717,22 +756,14 @@ namespace ColinaApplication.Data.Business
                         prodSolicitudAct = contex.TBL_PRODUCTOS_SOLICITUD.Where(x => idproductos.Contains(x.ID)).ToList();
                         foreach (var item in prodSolicitudAct)
                         {
-                            item.ESTADO_PRODUCTO = Estados.Entregado; 
+                            item.ESTADO_PRODUCTO = Estados.Entregado;
                         }
                         contex.SaveChanges();
                     }
-                    catch (Exception ex)
-                    {
-
-                    }
                 }
-                respuesta = true;                
-            }
-            catch (Exception e)
-            {
-                using (DBLaColina contex = new DBLaColina())
+                else
                 {
-                    try
+                    using (DBLaColina contex = new DBLaColina())
                     {
                         var idprod = Convert.ToDecimal(idproducto);
                         List<TBL_PRODUCTOS_SOLICITUD> prodSolicitudAct = new List<TBL_PRODUCTOS_SOLICITUD>();
@@ -743,49 +774,68 @@ namespace ColinaApplication.Data.Business
                             item.ESTADO_PRODUCTO = Estados.NoEntregado;
                         }
                         contex.SaveChanges();
+
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                using (DBLaColina contex = new DBLaColina())
+                {
+                    var idprod = Convert.ToDecimal(idproducto);
+                    List<TBL_PRODUCTOS_SOLICITUD> prodSolicitudAct = new List<TBL_PRODUCTOS_SOLICITUD>();
+                    var idproductos = solicitud[0].ProductosSolicitud.Where(x => x.IdProducto == idprod).Select(x => x.Id).ToList();
+                    prodSolicitudAct = contex.TBL_PRODUCTOS_SOLICITUD.Where(x => idproductos.Contains(x.ID)).ToList();
+                    foreach (var item in prodSolicitudAct)
+                    {
+                        item.ESTADO_PRODUCTO = Estados.NoEntregado;
+                    }
+                    contex.SaveChanges();
+
+                }
+            }
+            return printedOk;
+        }
+        public List<bool> ImprimirPedidoFactura(List<TBL_PRODUCTOS_SOLICITUD> productos, decimal idMesa)
+        {
+            PrinterSettings ps = new PrinterSettings();
+            List<bool> respuesta = new List<bool>();
+            bool printedOk = false;
+            bool wasCanceled = false;
+            List<TBL_PRODUCTOS> producto = new List<TBL_PRODUCTOS>();
+            List<TBL_IMPRESORAS> impresoras = new List<TBL_IMPRESORAS>();
+            List<ConsultaSolicitudGeneral> solicitud = new List<ConsultaSolicitudGeneral>();
+
+
+            //CONSULTA SOLICITUD
+            solicitud = ConsultaSolicitudMesa(Convert.ToDecimal(idMesa));
+            //CONSULTA IMPRESORAS A IMPRIMIR
+            var cantProductosDistinct = productos.DistinctBy(c => c.ID_PRODUCTO).ToList();
+            foreach (var item in cantProductosDistinct)
+            {
+                using (DBLaColina contex = new DBLaColina())
+                {
+                    try
+                    {
+                        producto.Add(contex.TBL_PRODUCTOS.Where(x => x.ID == item.ID_PRODUCTO).FirstOrDefault());
+                        if (producto.LastOrDefault() != null)
+                        {
+                            var idimpresora = producto.LastOrDefault().ID_IMPRESORA;
+                            if (!(impresoras.Any(x => x.ID == idimpresora)))
+                                impresoras.Add(contex.TBL_IMPRESORAS.Where(x => x.ID == idimpresora).FirstOrDefault());
+                        }
+
                     }
                     catch (Exception ex)
                     {
-
+                        respuesta.Add(false);
                     }
                 }
-            }            
-            return respuesta;
-        }
-        public bool ImprimirPedidoFactura(List<TBL_PRODUCTOS_SOLICITUD> productos, decimal idMesa)
-        {
-            bool respuesta;
-            List<TBL_PRODUCTOS> producto = new List<TBL_PRODUCTOS>();
-            List<TBL_IMPRESORAS> impresoras = new List<TBL_IMPRESORAS>();
-            try
+            }
+            foreach (var item in impresoras)
             {
-                //CONSULTA IMPRESORAS A IMPRIMIR
-                var cantProductosDistinct = productos.DistinctBy(c => c.ID_PRODUCTO).ToList();
-                foreach (var item in cantProductosDistinct)
+                using (var printDocument1 = new PrintDocument())
                 {
-                    using (DBLaColina contex = new DBLaColina())
-                    {
-                        try
-                        {
-                            producto.Add(contex.TBL_PRODUCTOS.Where(x => x.ID == item.ID_PRODUCTO).FirstOrDefault());
-                            if (producto.LastOrDefault() != null)
-                            {
-                                var idimpresora = producto.LastOrDefault().ID_IMPRESORA;
-                                if (!(impresoras.Any(x => x.ID == idimpresora)))
-                                    impresoras.Add(contex.TBL_IMPRESORAS.Where(x => x.ID == idimpresora).FirstOrDefault());
-                            }
-
-                        }
-                        catch (Exception ex)
-                        {
-                            respuesta = false;
-                        }
-                    }
-                }
-                foreach (var item in impresoras)
-                {
-                    PrinterSettings ps = new PrinterSettings();
-                    PrintDocument printDocument1 = new PrintDocument();
                     printDocument1.PrinterSettings = ps;
                     var consultaE = ConsultaEnergia();
                     if (consultaE.VALOR != "1")
@@ -800,11 +850,27 @@ namespace ColinaApplication.Data.Business
                             printDocument1.PrinterSettings.PrinterName = item.NOMBRE_IMPRESORA;
                     }
 
+                    // 1) Validar que la impresora exista/sea válida
+                    var printerName = printDocument1.PrinterSettings.PrinterName;
+                    bool printerExists = PrinterSettings.InstalledPrinters.Cast<string>()
+                                             .Any(p => string.Equals(p, printerName, StringComparison.OrdinalIgnoreCase));
+                    if (!printerExists)
+                        //throw new InvalidOperationException($"La impresora '{printerName}' no está instalada o no es válida.");
+                        printedOk = false;
+
+                    // 2) (Opcional) Evita UI durante la impresión y propaga errores como excepciones
+                    printDocument1.PrintController = new StandardPrintController();
+
+                    // 3) Maneja EndPrint para saber si se canceló o hubo fallo no-excepcional
+                    printDocument1.EndPrint += (s, e) =>
+                    {
+                        wasCanceled = e.Cancel;
+                        printedOk = !e.Cancel; // Si EndPrint no fue cancelado, lo consideramos OK
+                    };
+                    
                     printDocument1.PrintPage += (object sender, PrintPageEventArgs e) =>
                     {
                         int Ymargen = 0;
-                        //CONSULTA SOLICITUD
-                        var solicitud = ConsultaSolicitudMesa(Convert.ToDecimal(idMesa));
 
                         //FORMATO FACTURA
                         Font body = new Font("MS Mincho", 12);
@@ -849,15 +915,38 @@ namespace ColinaApplication.Data.Business
                             }
                         }
                         e.Graphics.DrawString("_", body, Brushes.Black, new RectangleF(135, 180 + Ymargen, ancho, 20));
+                        //e.HasMorePages = false;
                     };
-                    printDocument1.Print();
+
+                    try
+                    {
+                        printDocument1.Print();
+                    }
+                    catch (Exception ex)
+                    {
+                        // Aquí sí sabemos que falló el envío/impresión
+                        printedOk = false;
+                        wasCanceled = true;
+                    }
                 }
-                respuesta = true;
+
+                try
+                {
+                    if (printedOk == true && wasCanceled == false)
+                    {
+                        respuesta.Add(true);
+                    }
+                    else
+                    {
+                        respuesta.Add(false);
+                    }
+                }
+                catch (Exception e)
+                {
+                    respuesta.Add(false);
+                }
             }
-            catch (Exception e)
-            {
-                respuesta = false;
-            }
+
             return respuesta;
         }
         public TBL_SISTEMA ConsultaEnergia()
@@ -980,8 +1069,8 @@ namespace ColinaApplication.Data.Business
                 try
                 {
                     List<TBL_PRODUCTOS_SOLICITUD> actualiza = new List<TBL_PRODUCTOS_SOLICITUD>();
-                    List<decimal> idProductos = model.Select(a => a.ID).ToList();                    
-                    actualiza = contex.TBL_PRODUCTOS_SOLICITUD.Where(a => idProductos.Contains(a.ID)).ToList();                    
+                    List<decimal> idProductos = model.Select(a => a.ID).ToList();
+                    actualiza = contex.TBL_PRODUCTOS_SOLICITUD.Where(a => idProductos.Contains(a.ID)).ToList();
                     if (actualiza.Count > 0)
                     {
                         var idsolicitudPrincipal = actualiza[0].ID_SOLICITUD;
@@ -1016,7 +1105,7 @@ namespace ColinaApplication.Data.Business
                         foreach (var item in actualiza)
                         {
                             var subTotalF = item.SUBTOTAL - subtotal;
-                            var Iconsumo = (subTotalF * item.PORCENTAJE_I_CONSUMO)/100;
+                            var Iconsumo = (subTotalF * item.PORCENTAJE_I_CONSUMO) / 100;
                             var servicio = Convert.ToDecimal(Math.Round((Convert.ToDouble(subTotalF * item.PORCENTAJE_SERVICIO) / 100), 5));
                             item.MESA_DIVIDIDA = "1";
                             item.SUBTOTAL = subTotalF;

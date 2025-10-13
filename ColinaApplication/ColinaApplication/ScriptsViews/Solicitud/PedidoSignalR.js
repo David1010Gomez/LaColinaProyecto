@@ -543,10 +543,10 @@ function ActualizaInfoProductos(data) {
         descripcion = data[0].ProductosSolicitud[i].Descripcion.toString();
         if (IdPerfil == 1) {
             code = '<i class="fa fa-2x fa-minus-square" style="color: #a90000; cursor:pointer;" onclick="CancelaProductoxId(' + data[0].ProductosSolicitud[i].Id + ',' + data[0].ProductosSolicitud[i].Id + ')"></i>' +
-                '<i id="' + descripcion + '" class="fa fa-2x fa-print" style="color: ' + color + '; cursor:pointer; margin-left: 5px;" onclick="ReEnviaProducto(' + data[0].ProductosSolicitud[i].IdProducto + ', this.id, ' + data[0].IdMesa + ')"></i >';
+                '<i id="' + descripcion + '" class="fa fa-2x fa-print" style="color: ' + color + '; cursor:pointer; margin-left: 5px;" onclick="ReEnviaProducto(' + data[0].ProductosSolicitud[i].IdProducto + ', this.id, ' + data[0].IdMesa + ', ' + data[0].ProductosSolicitud[i].Id+')"></i >';
         }
         else {
-            code = '<i id="' + descripcion + '" class="fa fa-2x fa-print" style="color: ' + color + '; cursor:pointer; margin-left: 5px;" onclick="ReEnviaProducto(' + data[0].ProductosSolicitud[i].IdProducto + ', this.id, ' + data[0].IdMesa + ')"></i >';
+            code = '<i id="' + descripcion + '" class="fa fa-2x fa-print" style="color: ' + color + '; cursor:pointer; margin-left: 5px;" onclick="ReEnviaProducto(' + data[0].ProductosSolicitud[i].IdProducto + ', this.id, ' + data[0].IdMesa + ', ' + data[0].ProductosSolicitud[i].Id +')"></i >';
         }
         $("#BodyProductos").append('<tr>' +
             '<td>' +
@@ -654,7 +654,7 @@ function CancelaProductoxId(idProducto) {
 }
 
 //REENVIA PRODUCTOS A IMPRESORAS
-function ReEnviaProducto(idproducto, description, idmesa) {
+function ReEnviaProducto(idproducto, description, idmesa, idprodsolic) {
     $.alert({
         theme: 'Modern',
         icon: 'fa fa-question',

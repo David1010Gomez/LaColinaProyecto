@@ -75,6 +75,7 @@ namespace ColinaApplication.Hubs
         public void InsertaProductosSolicitud(List<TBL_PRODUCTOS_SOLICITUD> model, string idMesa)
         {
             bool cantDisponible = true;
+            List<bool> resp = new List<bool>();
             List<string> data = new List<string>();
             List<TBL_PRODUCTOS_SOLICITUD> ConteoProductos = new List<TBL_PRODUCTOS_SOLICITUD>();
 
@@ -92,14 +93,17 @@ namespace ColinaApplication.Hubs
 
             if (cantDisponible)
             {
+                var cont = 0;
                 //IMPRIMIR TICKET
-                bool resp = solicitud.ImprimirPedidoFactura(model, Convert.ToDecimal(idMesa));
+                resp = solicitud.ImprimirPedidoFactura(model, Convert.ToDecimal(idMesa));
                 foreach (var item in model)
                 {
-                    if (resp)
+                    if (resp[cont])
                         item.ESTADO_PRODUCTO = Estados.Entregado;
                     else
                         item.ESTADO_PRODUCTO = Estados.NoEntregado;
+
+                    cont++;
                 }
 
                 //ACTUALIZA CANTIDAD PRODUCTO
@@ -375,9 +379,9 @@ namespace ColinaApplication.Hubs
             bool respuesta = solicitud.ImprimirFactura(IdMesa);
             ConsultaMesaAbierta(IdMesa);
         }
-        public bool ImprimeProductos(string cantidad, string idproducto, string descripcion, string idMesa)
+        public bool ImprimeProductos(string cantidad, string idproducto, string descripcion, string idMesa, string idprodsolic)
         {
-            bool respuesta = solicitud.ImprimirPedido(cantidad, idproducto, descripcion, idMesa);
+            bool respuesta = solicitud.ImprimirPedido(cantidad, idproducto, descripcion, idMesa, idprodsolic);
             //ACTUALIZA ESTADO DEL PRODUCTO REENVIADO
             return respuesta;
         }
@@ -431,7 +435,7 @@ namespace ColinaApplication.Hubs
             result = solicitud.AgrupaProductos(productos);
             foreach (var item in result)
             {
-                bool respuesta = solicitud.ImprimirPedido(Convert.ToString(item.Id), Convert.ToString(item.IdProducto), item.Descripcion, idMesa);                
+                bool respuesta = solicitud.ImprimirPedido(Convert.ToString(item.Id), Convert.ToString(item.IdProducto), item.Descripcion, idMesa, Convert.ToString(item.IdSolicitud));                
             }
             ConsultaMesaAbierta(idMesa);
         }
