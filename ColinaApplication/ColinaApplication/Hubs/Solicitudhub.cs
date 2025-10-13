@@ -246,7 +246,7 @@ namespace ColinaApplication.Hubs
                     clienteDian = solicitud.ConsultaCedula("222222222222");
                 //LLENA MODELO PARA ENVIAR                    
                 factura.document = new Document();
-                factura.document.id = 27572;
+                factura.document.id = 31722;
                 factura.date = Convert.ToString(DateTime.Now.Year) + "-" + Convert.ToString(DateTime.Now.Month.ToString("D2")) + "-" + Convert.ToString(DateTime.Now.Day.ToString("D2"));
                 factura.customer = new Customer();
                 factura.customer.person_type = clienteDian.TIPO_PERSONA;
@@ -274,7 +274,7 @@ namespace ColinaApplication.Hubs
                 //factura.customer.address.city.state_code =
                 factura.customer.phone = new List<Phone>();
                 factura.customer.phone.Add(new Phone { number = clienteDian.TELEFONO });
-                factura.seller = 466;
+                factura.seller = 444;
                 factura.stamp = new Stamp();
                 factura.stamp.send = BorradorDian == "SI" ? false : true;
                 factura.mail = new Mail();
@@ -287,24 +287,24 @@ namespace ColinaApplication.Hubs
                 {
                     Producto producto = new Producto();
                     producto = businessDian.ConsultaProductosDianId(datosDianCliente[1], Convert.ToString(item.IdDian));
-                    factura.items.Add(new Items { code = producto.code, quantity = item.Id, description = item.NombreProducto, price = Convert.ToDecimal(item.PrecioProducto), taxes = new List<Taxes> { new Taxes { id = 9748 } } });
+                    factura.items.Add(new Items { code = producto.code, quantity = item.Id, description = item.NombreProducto, price = Convert.ToDecimal(item.PrecioProducto), taxes = new List<Taxes> { new Taxes { id = 9286 } } });
                 }
                 factura.payments = new List<Payments>();
                 if (MetodoPago == "EFECTIVO")
                 {
-                    factura.payments.Add(new Payments { id = "4168", value = Convert.ToInt32(valorTotal) });
+                    factura.payments.Add(new Payments { id = "3970", value = Convert.ToInt32(valorTotal) });
                 }
                 else if (MetodoPago == "AMBAS")
                 {
-                    factura.payments.Add(new Payments { id = "4168", value = Convert.ToInt32(CantEfectivo) });
+                    factura.payments.Add(new Payments { id = "3970", value = Convert.ToInt32(CantEfectivo) });
                     foreach (var item in pagos)
                     {
                         vouchers += item.id + ";";
                         valoresVouchers += item.value + ";";
                         if (item.name == "Debito")
-                            item.id = "4170";
+                            item.id = "3972";
                         if (item.name == "Credito")
-                            item.id = "4171";
+                            item.id = "3973";
                         factura.payments.Add(new Payments { id = item.id, value = item.value });
                     }
                 }
@@ -315,15 +315,15 @@ namespace ColinaApplication.Hubs
                         vouchers += item.id + ";";
                         valoresVouchers += item.value + ";";
                         if (item.name == "Debito")
-                            item.id = "4170";
+                            item.id = "3972";
                         if (item.name == "Credito")
-                            item.id = "4171";
+                            item.id = "3973";
                         factura.payments.Add(new Payments { id = item.id, value = item.value });
                     }
                 }
                 factura.globaldiscounts = new List<Globaldiscounts>();
-                factura.globaldiscounts.Add(new Globaldiscounts { id = 13156, value = Convert.ToInt32(Math.Round(Convert.ToDouble((Convert.ToDecimal(SubTotal) * porcentajeServicio) / 100), 0)) });
-                if (ConfigurationManager.AppSettings["DIAN_ON"] == "1" && DianSistema && factura.payments.Count > 0)
+                factura.globaldiscounts.Add(new Globaldiscounts { id = 1, value = Convert.ToInt32(Math.Round(Convert.ToDouble((Convert.ToDecimal(SubTotal) * porcentajeServicio) / 100), 0)) });
+                if (ConfigurationManager.AppSettings["DIAN_ON"] == "1" && DianSistema && factura.payments[0].value > 0)
                 {
                     //LLAMA ENVIAR FACTURA DIAN
                     factura = businessDian.InsertaFactura(datosDianCliente[1], factura, Id);

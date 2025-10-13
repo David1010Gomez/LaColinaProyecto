@@ -5,6 +5,12 @@ using System.Web;
 
 namespace ColinaApplication.Dian.Entity
 {
+    public class Pagination
+    {
+        public int page { get; set; }
+        public int page_size { get; set; }
+        public int total_results { get; set; }
+    }
     public class Producto
     {
         public string id { get; set; }
@@ -59,6 +65,7 @@ namespace ColinaApplication.Dian.Entity
     }
     public class ModelProduct
     {
+        public Pagination pagination { get; set; }
         public List<Producto> results { get; set; }
     }
 }

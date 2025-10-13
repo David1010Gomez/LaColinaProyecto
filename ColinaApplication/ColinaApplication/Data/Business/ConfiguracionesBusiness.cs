@@ -249,7 +249,7 @@ namespace ColinaApplication.Data.Business
                         actualiza.DESCRIPCION = model.DESCRIPCION;
                         actualiza.ID_IMPRESORA = model.ID_IMPRESORA;
                         actualiza.UP_DIAN = producto.id != null ? 1 : 0;
-                        actualiza.ID_DIAN = actualiza.ID_DIAN == null ? producto.id : actualiza.ID_DIAN;
+                        actualiza.ID_DIAN = producto.id != null && (actualiza.ID_DIAN == "0" || actualiza.ID_DIAN == null) ? producto.id : actualiza.ID_DIAN;
                         //actualiza.ACCOUNT_GROUP_DIAN = producto.account_group != null ? producto.account_group.id : 0;
                         contex.SaveChanges();
                         
@@ -638,8 +638,29 @@ namespace ColinaApplication.Data.Business
         {
             string respuesta = string.Empty;
             List<Producto> listProducto = new List<Producto>();
-            listProducto = businessDian.ConsultaProductosDian(token);
+            bool Inicia = true;
+            int page = 1;
             int contador = 0;
+            int contadorProd = 0;
+            while (Inicia)
+            {
+                var resultado = businessDian.ConsultaProductosDian(token, page);
+                var total = Convert.ToInt64(resultado[0].code);
+                if (resultado.Count > 0)
+                {
+                    listProducto.AddRange(resultado);
+                    contador += 100;
+                    page++;
+                    if (total < contador)
+                        Inicia = false;
+                }
+                else
+                {
+                    Inicia = false;
+                }
+                
+            }
+
             foreach (var item in listProducto)
             {
                 using (DBLaColina contex = new DBLaColina())
@@ -647,16 +668,34 @@ namespace ColinaApplication.Data.Business
                     try
                     {
                         TBL_PRODUCTOS actualiza = new TBL_PRODUCTOS();
-                        actualiza = contex.TBL_PRODUCTOS.Where(a => a.NOMBRE_PRODUCTO == item.name).FirstOrDefault();
+                        actualiza = contex.TBL_PRODUCTOS.Where(a => a.NOMBRE_PRODUCTO.Trim() == item.name.Trim()).FirstOrDefault();
                         if (actualiza != null)
                         {
-                            if (actualiza.ID_DIAN == null || actualiza.ID_DIAN == "")
-                            {
-                                actualiza.ID_DIAN = item.id;                                
-                                contex.SaveChanges();
-                                contador++;
-                            }
-                            
+                            actualiza.NOMBRE_PRODUCTO = item.name;
+                            actualiza.PRECIO = item.prices != null ? Convert.ToString(Math.Truncate(item.prices[0].price_list[0].value)) : "1000";
+                            //CANTIDAD                            
+                            actualiza.ID_DIAN = item.id;
+                            actualiza.ACCOUNT_GROUP_DIAN = item.account_group.id;
+                            contex.SaveChanges();
+                            contadorProd++;
+                        }
+                        else
+                        {
+                            //INSERTA TABLAS LOCALES
+                            TBL_PRODUCTOS model = new TBL_PRODUCTOS();
+                            model.ID_CATEGORIA = 2;
+                            model.FECHA_INGRESO = DateTime.Now;
+                            model.NOMBRE_PRODUCTO = item.name;
+                            model.PRECIO = item.prices != null ? Convert.ToString(Math.Truncate(item.prices[0].price_list[0].value)) : "1000";
+                            model.CANTIDAD = 0;
+                            model.DESCRIPCION = "-";
+                            model.ID_IMPRESORA = 1;
+                            model.UP_DIAN = 1;
+                            model.ID_DIAN = item.id;
+                            model.ACCOUNT_GROUP_DIAN = item.account_group.id;
+                            contex.TBL_PRODUCTOS.Add(model);
+                            contex.SaveChanges();
+                            contadorProd++;
                         }
                     }
                     catch (Exception e)
@@ -665,7 +704,7 @@ namespace ColinaApplication.Data.Business
                     }
                 }
             }
-            respuesta = "Registros actualizados Dian -> La Colina " + contador.ToString();
+            respuesta = "Registros actualizados Dian -> La Colina " + contadorProd.ToString();
             return respuesta;
         }
         public string ActualizaProductosColinaDian(string token)
@@ -680,7 +719,7 @@ namespace ColinaApplication.Data.Business
                     listProducto = contex.TBL_PRODUCTOS.ToList();
                     foreach (var item in listProducto)
                     {
-                        if (item.ID_DIAN == null || item.ID_DIAN == "")
+                        if (item.ID_DIAN == null || item.ID_DIAN == "" || item.ID_DIAN == "0")
                         {
                             Producto modelP = new Producto();
                             modelP.code = Convert.ToString("PROD-" + item.ID);

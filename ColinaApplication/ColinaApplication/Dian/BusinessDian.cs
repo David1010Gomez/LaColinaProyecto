@@ -54,9 +54,10 @@ namespace ColinaApplication.Dian
             return token;
         }
 
-        public List<Producto> ConsultaProductosDian(string token)
+        public List<Producto> ConsultaProductosDian(string token, decimal page)
         {
             List<Producto> respuesta = new List<Producto>();
+            Pagination pagination = new Pagination();
             Task<string> strObj = null;
             try
             {
@@ -64,7 +65,7 @@ namespace ColinaApplication.Dian
                 {
                     ServicePointManager.Expect100Continue = true;
                     ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                    string url = ConfigurationManager.AppSettings["URLSIIGO"] + "products";
+                    string url = ConfigurationManager.AppSettings["URLSIIGO"] + "products?page="+page+"&page_size=100";
                     httpClient.DefaultRequestHeaders.Add("Partner-Id", "LaColinaPOS");
                     var header = new AuthenticationHeaderValue("Bearer", token);
                     httpClient.DefaultRequestHeaders.Authorization = header;
@@ -75,6 +76,8 @@ namespace ColinaApplication.Dian
                     {
                         strObj = resp.Content.ReadAsStringAsync();
                         respuesta = JsonConvert.DeserializeObject<ModelProduct>(strObj.Result).results;
+                        pagination = JsonConvert.DeserializeObject<ModelProduct>(strObj.Result).pagination;
+                        respuesta[0].code = Convert.ToString(pagination.total_results);
                     }
                 }
             }
