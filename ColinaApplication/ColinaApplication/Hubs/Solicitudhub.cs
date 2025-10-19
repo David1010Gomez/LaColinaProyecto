@@ -435,7 +435,7 @@ namespace ColinaApplication.Hubs
             result = solicitud.AgrupaProductos(productos);
             foreach (var item in result)
             {
-                bool respuesta = solicitud.ImprimirPedido(Convert.ToString(item.Id), Convert.ToString(item.IdProducto), item.Descripcion, idMesa, Convert.ToString(item.IdSolicitud));                
+                bool respuesta = solicitud.ImprimirPedido(Convert.ToString(item.Id), Convert.ToString(item.IdProducto), item.Descripcion, idMesa, "0");                
             }
             ConsultaMesaAbierta(idMesa);
         }

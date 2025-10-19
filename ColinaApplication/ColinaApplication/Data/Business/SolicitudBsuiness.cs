@@ -1,6 +1,7 @@
 ﻿using ColinaApplication.Data.Clases;
 using ColinaApplication.Data.Conexion;
 using ColinaApplication.Dian.Entity;
+using DocumentFormat.OpenXml.Drawing.ChartDrawing;
 using Entity;
 using Microsoft.Ajax.Utilities;
 using System;
@@ -752,8 +753,16 @@ namespace ColinaApplication.Data.Business
                     {
                         var idprod = Convert.ToDecimal(idproducto);
                         List<TBL_PRODUCTOS_SOLICITUD> prodSolicitudAct = new List<TBL_PRODUCTOS_SOLICITUD>();
-                        var idproductos = solicitud[0].ProductosSolicitud.Where(x => x.IdProducto == idprod).Select(x => x.Id).ToList();
-                        prodSolicitudAct = contex.TBL_PRODUCTOS_SOLICITUD.Where(x => idproductos.Contains(x.ID)).ToList();
+                        List<decimal> idproductos = new List<decimal>();
+                        if (idprodsolic != "0")
+                        {
+                            var Idprodsolic = Convert.ToDecimal(idprodsolic);
+                            prodSolicitudAct = contex.TBL_PRODUCTOS_SOLICITUD.Where(x => x.ID == Idprodsolic).ToList();
+                        }
+                        else
+                        {
+                            idproductos = solicitud[0].ProductosSolicitud.Where(x => x.IdProducto == idprod).Select(x => x.Id).ToList();
+                        }                        
                         foreach (var item in prodSolicitudAct)
                         {
                             item.ESTADO_PRODUCTO = Estados.Entregado;
@@ -767,8 +776,18 @@ namespace ColinaApplication.Data.Business
                     {
                         var idprod = Convert.ToDecimal(idproducto);
                         List<TBL_PRODUCTOS_SOLICITUD> prodSolicitudAct = new List<TBL_PRODUCTOS_SOLICITUD>();
-                        var idproductos = solicitud[0].ProductosSolicitud.Where(x => x.IdProducto == idprod).Select(x => x.Id).ToList();
-                        prodSolicitudAct = contex.TBL_PRODUCTOS_SOLICITUD.Where(x => idproductos.Contains(x.ID)).ToList();
+                        List<decimal> idproductos = new List<decimal>();
+                        if (idprodsolic != "0")
+                        {
+                            var Idprodsolic = Convert.ToDecimal(idprodsolic);
+                            prodSolicitudAct = contex.TBL_PRODUCTOS_SOLICITUD.Where(x => x.ID == Idprodsolic).ToList();
+                        }
+                        else
+                        {
+                            idproductos = solicitud[0].ProductosSolicitud.Where(x => x.IdProducto == idprod).Select(x => x.Id).ToList();
+                            prodSolicitudAct = contex.TBL_PRODUCTOS_SOLICITUD.Where(x => idproductos.Contains(x.ID)).ToList();
+                        }
+                        
                         foreach (var item in prodSolicitudAct)
                         {
                             item.ESTADO_PRODUCTO = Estados.NoEntregado;
@@ -784,8 +803,17 @@ namespace ColinaApplication.Data.Business
                 {
                     var idprod = Convert.ToDecimal(idproducto);
                     List<TBL_PRODUCTOS_SOLICITUD> prodSolicitudAct = new List<TBL_PRODUCTOS_SOLICITUD>();
-                    var idproductos = solicitud[0].ProductosSolicitud.Where(x => x.IdProducto == idprod).Select(x => x.Id).ToList();
-                    prodSolicitudAct = contex.TBL_PRODUCTOS_SOLICITUD.Where(x => idproductos.Contains(x.ID)).ToList();
+                    List<decimal> idproductos = new List<decimal>();
+                    if (idprodsolic != "0")
+                    {
+                        var Idprodsolic = Convert.ToDecimal(idprodsolic);
+                        prodSolicitudAct = contex.TBL_PRODUCTOS_SOLICITUD.Where(x => x.ID == Idprodsolic).ToList();
+                    }
+                    else
+                    {
+                        idproductos = solicitud[0].ProductosSolicitud.Where(x => x.IdProducto == idprod).Select(x => x.Id).ToList();
+                        prodSolicitudAct = contex.TBL_PRODUCTOS_SOLICITUD.Where(x => idproductos.Contains(x.ID)).ToList();
+                    }
                     foreach (var item in prodSolicitudAct)
                     {
                         item.ESTADO_PRODUCTO = Estados.NoEntregado;
@@ -932,21 +960,37 @@ namespace ColinaApplication.Data.Business
 
                 try
                 {
-                    if (printedOk == true && wasCanceled == false)
+                    var ProdImpr = producto.Where(x => x.ID_IMPRESORA == item.ID).ToList();
+                    for (int i = 0; i < ProdImpr.Count; i++)
                     {
-                        respuesta.Add(true);
-                    }
-                    else
-                    {
-                        respuesta.Add(false);
-                    }
+                        if (printedOk == true && wasCanceled == false)
+                        {
+                            productos.FirstOrDefault(x => x.ID_PRODUCTO == ProdImpr[i].ID).ESTADO_PRODUCTO = Estados.Entregado;
+                            //respuesta.Add(true);
+                        }
+                        else
+                        {
+                            productos.FirstOrDefault(x => x.ID_PRODUCTO == ProdImpr[i].ID).ESTADO_PRODUCTO = Estados.NoEntregado;
+                            //respuesta.Add(false);
+                        }
+                    }                    
                 }
                 catch (Exception e)
+                {
+                    //respuesta.Add(false);
+                }
+            }
+            foreach (var item in productos)
+            {
+                if (item.ESTADO_PRODUCTO == Estados.Entregado)
+                {
+                    respuesta.Add(true);
+                }
+                else
                 {
                     respuesta.Add(false);
                 }
             }
-
             return respuesta;
         }
         public TBL_SISTEMA ConsultaEnergia()

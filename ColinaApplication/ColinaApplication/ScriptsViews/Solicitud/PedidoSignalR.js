@@ -667,7 +667,7 @@ function ReEnviaProducto(idproducto, description, idmesa, idprodsolic) {
             Continuar: {
                 btnClass: 'btn btn-default btn2',
                 action: function () {
-                    connectPSR.server.imprimeProductos(1, idproducto, description, idmesa);
+                    connectPSR.server.imprimeProductos(1, idproducto, description, idmesa, idprodsolic);
                 }
             },
             Cancelar: {
@@ -1159,7 +1159,7 @@ function GeneraFactura() {
 
 //METODO CANCELA PEDIDO
 function CancelaPedido() {
-    cargando();
+    //cargando();
     $.alert({
         theme: 'Modern',
         icon: 'fa fa-question',
