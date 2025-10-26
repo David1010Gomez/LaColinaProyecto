@@ -30,6 +30,7 @@ namespace ColinaApplication.Dian.Entity
         public Address address { get; set; }
 
         public List<Contacts> contacts { get; set; }
+        public int cantidadClientes { get; set; }
     }
 
     public class Id_type
@@ -76,5 +77,10 @@ namespace ColinaApplication.Dian.Entity
         public string indicative { get; set; }
 
         public string number { get; set; }
+    }
+    public class ModelClient
+    {
+        public Pagination pagination { get; set; }
+        public List<Cliente> results { get; set; }
     }
 }

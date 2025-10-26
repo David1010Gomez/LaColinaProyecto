@@ -14,11 +14,19 @@ using ColinaApplication.Data.Conexion;
 using DocumentFormat.OpenXml.Wordprocessing;
 using ColinaApplication.Data.Clases;
 using System.Net;
+using Entity;
+using ColinaApplication.Data.Business;
 
 namespace ColinaApplication.Dian
 {
     public class BusinessDian
     {
+        SolicitudBsuiness solicitud;
+
+        public BusinessDian()
+        {
+            solicitud = new SolicitudBsuiness();
+        }
         public Token GeneraToken()
         {   
             Token token = new Token();
@@ -245,6 +253,7 @@ namespace ColinaApplication.Dian
         public Cliente InsertaCliente(string token, Cliente model)
         {
             Cliente cliente = new Cliente();
+            List <Cliente> clientes = new List<Cliente>();
             try
             {
                 Task<string> strObj = null;
@@ -299,6 +308,68 @@ namespace ColinaApplication.Dian
                         strObj = resp.Content.ReadAsStringAsync();
                         cliente = JsonConvert.DeserializeObject<Cliente>(strObj.Result);
                     }
+                    else
+                    {
+                        bool Inicia = true;
+                        int page = 1;
+                        int contador2 = 0;
+                        while (Inicia)
+                        {
+                            var resultado = ConsultaClientes(token, page);
+                            var total = resultado[0].cantidadClientes;
+                            if (resultado.Count > 0)
+                            {
+                                clientes.AddRange(resultado);
+                                contador2 += 100;
+                                page++;
+                                if (total < contador2)
+                                    Inicia = false;
+                            }
+                            else
+                            {
+                                Inicia = false;
+                            }
+                        }
+                        TBL_CLIENTES_DIAN clienteDian = new TBL_CLIENTES_DIAN();
+                        //BUSCA CLIENTE DIGITADO
+                        var user = clientes.Where(x => x.identification == model.identification).FirstOrDefault();
+                        if (user.id != null)
+                        {
+                            clienteDian.TIPO_PERSONA = user.person_type;
+                            clienteDian.CODIGO_DOCUMENTO = user.id_type.code;
+                            clienteDian.NOMBRE_DOCUMENTO = user.id_type.name;
+                            clienteDian.NUMERO_IDENTIFICACION = user.identification;
+                            clienteDian.DIGITO_VERIFI = user.check_digit;
+                            clienteDian.NOMBRES = user.name[0];
+                            clienteDian.APELLIDOS = user.name.Count > 1 ? user.name[1] : "NA";
+                            clienteDian.RAZON_SOCIAL = user.commercial_name;
+                            clienteDian.NOMBRE_COMERCIAL = user.commercial_name;
+                            clienteDian.DIRECCION = user.address.address;
+                            clienteDian.COD_CIUDAD = "0";
+                            clienteDian.NOM_CIUDAD = "";
+                            clienteDian.EMAIL = user.contacts[0].email;
+                            clienteDian.RESPONSABLE_IVA = user.vat_responsible;
+                            string CodRFiscal = string.Empty;
+                            string NomRFiscal = string.Empty;
+                            int contador3 = 0;
+                            foreach (var cf in model.fiscal_responsibilities)
+                            {
+                                contador3++;
+                                CodRFiscal += cf.code;
+                                NomRFiscal += cf.name;
+                                if (contador3 != model.fiscal_responsibilities.Count)
+                                    CodRFiscal += ";";
+                                NomRFiscal += ";";
+                            }
+                            clienteDian.CODIGO_R_FISCAL = CodRFiscal;
+                            clienteDian.NOMBRE_R_FISCAL = NomRFiscal;
+                            clienteDian.ID_CODIGO_DIAN = user.id;
+                            clienteDian.TELEFONO = user.contacts[0].phone.number;
+                            clienteDian = solicitud.InsertaClientesDian(clienteDian);
+                            cliente = user;
+                        }
+
+                    }
                 }
             }
             catch (Exception e)
@@ -310,6 +381,43 @@ namespace ColinaApplication.Dian
 
             }
             return cliente;
+        }
+        public List<Cliente> ConsultaClientes (string token, int page)
+        {
+            List<Cliente> clientes = new List<Cliente>();
+            Pagination pagination = new Pagination();
+            try
+            {
+                Task<string> strObj = null;                
+                using (var httpClient = new HttpClient())
+                {
+                    ServicePointManager.Expect100Continue = true;
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                    string url = ConfigurationManager.AppSettings["URLSIIGO"] + "customers?page="+page+"&page_size=100";
+                    httpClient.DefaultRequestHeaders.Add("Partner-Id", "LaColinaPOS");
+                    var header = new AuthenticationHeaderValue("Bearer", token);
+                    httpClient.DefaultRequestHeaders.Authorization = header;
+                    
+                    HttpResponseMessage resp = httpClient.GetAsync(url).Result;
+
+                    if (resp.IsSuccessStatusCode)
+                    {
+                        strObj = resp.Content.ReadAsStringAsync();
+                        clientes = JsonConvert.DeserializeObject<ModelClient>(strObj.Result).results;
+                        pagination = JsonConvert.DeserializeObject<ModelClient>(strObj.Result).pagination;
+                        clientes[0].cantidadClientes = pagination.total_results;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+
+            }
+            finally
+            {
+
+            }
+            return clientes;
         }
         public Factura InsertaFactura(string token, Factura model, decimal IdSolicitudMesa)
         {

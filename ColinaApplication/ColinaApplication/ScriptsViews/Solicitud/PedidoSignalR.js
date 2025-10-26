@@ -54,6 +54,7 @@ function Registra_EventosPSR(connectpsr) {
         }
         cerrar();
     });
+    
 
     //CONsULTA MESA ABIERTA EN PANTALLA
     connectpsr.server.consultaMesaAbierta($('#ID_MESA').val());
@@ -246,8 +247,8 @@ function ActualizaInfoMesa(data) {
             '<h3><b>' + data[0].NombreMesa + '</b></h3>' +
             '<p><b>Mesero:<b/> ' + data[0].NombreMesero + '</p>' +
             '<p style ="float:right;"><b>Factura Electronica <b/>' +
-            '<input class="form-check-input" type="checkbox" id="EnvioDian" onchange="EnviaDian(this.checked)" ></p>' +
-            '<select id="PersonaDian" class="form-select" style="" onchange="CambiaPersona(this.value)">' +
+            '<input class="form-check-input" type="checkbox" id="EnvioDian" onchange="EnviaDian(this.checked)" ></p><br/><br/>' +
+            '<div id="divFacturaElec" style="display:none;"><select id="PersonaDian" class="form-select" style="" onchange="CambiaPersona(this.value)">' +
             '<option value="">** Tipo Persona **</option>' +
             '<option value="Person">Persona</option>' +
             '<option value="Company">Empresa</option>' +
@@ -268,8 +269,8 @@ function ActualizaInfoMesa(data) {
             '<option value="21">Tarjeta de extranjería</option>' +
             '<option value="12">Tarjeta de identidad</option>' +
             '</select ><br/>' +
-            '<p><b># Identificación: </b><input id="CCCliente" type="text" autocomplete="off" class="form-control" value="' + data[0].cliente.NumeroIdentificacion + '" onchange="ConsultaClienteDian(this.value)" name="CCCliente"/></p>' +
-            '<p><b># Digito Verificacion: </b><input id="CDigitVerif" type="text" autocomplete="off" class="form-control" value="' + data[0].cliente.DigitoVerif + '"/></p>' +
+            '<p><b># Identificación: </b><input id="CCCliente" type="text" autocomplete="off" class="form-control" value="' + data[0].cliente.NumeroIdentificacion + '" onkeypress = "return soloNum(event)" onInput = ConsultaClienteDian(this.value) name="CCCliente"/></p>' +
+            '<p><b># Digito Verificacion: </b><input id="CDigitVerif" type="text" autocomplete="off" class="form-control" value="" disabled/></p>' +
             '<div id="SecciondianPersona">' +
             '</div>' +
             '<p><b>Telefono: </b><input id="TelefonoDian" type="text" autocomplete="off" class="form-control" name="TelefonoDian"/></p>' +
@@ -285,7 +286,7 @@ function ActualizaInfoMesa(data) {
             '<input class="form-check-input" type="checkbox" id="O-23" > O-23 Agente de retencion IVA <br/>' +
             '<input class="form-check-input" type="checkbox" id="O-47" > O-47 Regimen simple de tributacion <br/>' +
             '<input class="form-check-input" type="checkbox" id="R-99-PN" checked> R-99-PN No aplica - Otros <br/>' +
-            '</p> ' +
+            '</p></div> ' +
             '</div>' +
             '<div class="icon">' +
             '<i class="fa fa-arrow-down"></i>' +
@@ -329,8 +330,8 @@ function ActualizaInfoMesa(data) {
             '<option value="21">Tarjeta de extranjería</option>' +
             '<option value="12">Tarjeta de identidad</option>' +
             '</select ><br/>' +
-            '<p><b># Identificación: </b><input id="CCCliente" type="text" autocomplete="off" class="form-control" value="' + data[0].cliente.NumeroIdentificacion + '" onchange="ConsultaClienteDian(this.value)" name="CCCliente"/></p>' +
-            '<p><b># Digito Verificacion: </b><input id="CDigitVerif" type="text" autocomplete="off" class="form-control" value="' + data[0].cliente.DigitoVerif + '"/></p>' +
+            '<p><b># Identificación: </b><input id="CCCliente" type="text" autocomplete="off" class="form-control" value="' + data[0].cliente.NumeroIdentificacion + '" onkeypress = "return soloNum(event)" onInput = ConsultaClienteDian(this.value) name="CCCliente"/></p>' +
+            '<p><b># Digito Verificacion: </b><input id="CDigitVerif" type="text" autocomplete="off" class="form-control" value="" disabled/></p>' +
             '<div id="SecciondianPersona">' +
             '</div>' +
             '<p><b>Telefono: </b><input id="TelefonoDian" type="text" autocomplete="off" class="form-control" name="TelefonoDian"/></p>' +
@@ -1708,13 +1709,15 @@ function validaValor() {
 
 function EnviaDian(valor) {
     if (valor) {
-        //$("#SecciondianPersona").empty(); 
-
+        //$("#SecciondianPersona").empty();
+        $("#divFacturaElec").css("display", "block");
+        $("#CCCliente").val("");
     }
     else {
+        $("#divFacturaElec").css("display", "none");
         $('#PersonaDian option:eq(0)').prop('selected', true);
         $("#TipoDocumentoDian option:eq(0)").prop("selected", true);
-        $("#CCCliente").val("0")
+        $("#CCCliente").val("0");
         $('#TelefonoDian').val("");
         $('#CorreoClienteDian').val("");
         $("#TipoPersonaDian option:eq(0)").prop("selected", true);
@@ -1750,7 +1753,7 @@ function CambiaPersona(valor) {
     }
 }
 function ConsultaClienteDian(valor) {
-    if (valor != "null" && valor != "0" && $('#EnvioDian').prop("checked")) {
+    if (valor != "null" && valor != "0" && $('#EnvioDian').prop("checked") && valor.length > 3) {
         $.ajax({
             type: "POST",
             url: urlConsultaClienteDian,
@@ -1796,6 +1799,9 @@ function ConsultaClienteDian(valor) {
                         }
                     });
                 }
+                else {
+                    $("#ID_CLIENTE").val("0");
+                }
             },
             error: function (request, status, error) {
                 console.log(error);
@@ -1803,6 +1809,7 @@ function ConsultaClienteDian(valor) {
 
         });
     }
+
 }
 function AgregaPagoT() {
     if ($("#numAprobacionVoucher").val() != "" && $("#OpcionPago").val() != "" && $("#ValorVoucher").val() != "") {
